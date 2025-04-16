@@ -1,25 +1,29 @@
 @import "tailwindcss";
 
 .card {
-  /* Add shadows to create the "card" effect */
-  display: flex;
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 8px 0 rgba(90, 44, 0, 0.274);
   transition: 0.3s;
   width: 200px;
-  height: 300px;
-  align-items: center;
-  text-align: center;
+  height: 360px;
+  border-radius: 5px;
+  border: 0.01rem solid gray;
+  background-color: rgb(241, 241, 241);
 }
 
-/* On mouse-over, add a deeper shadow */
 .card:hover {
-  box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+  box-shadow: 5px 8px 16px 5px rgba(170, 68, 1, 0.2);
+  transform: translateY(-5px);
 }
 
-/* Add some padding inside the card container */
-.container {
-  padding: 2px 16px;
+.poster {
+  top: 0;
+  width: 200;
+  height: 82%;
 }
-/* .overview {
-  max-width: fit-content;
-} */
+.rating {
+  width: 100%;
+  height: 100%;
+}
+.detail {
+  max-height: 100px;
+}

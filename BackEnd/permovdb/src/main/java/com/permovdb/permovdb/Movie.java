@@ -1,6 +1,9 @@
 package com.permovdb.permovdb;
 
+import java.sql.Date;
 import java.util.ArrayList;
+
+import org.springframework.format.annotation.DateTimeFormat;
 
 public class Movie {
     public boolean adult;
@@ -12,7 +15,10 @@ public class Movie {
     public String overview;
     public double popularity;
     public String poster_path;
-    public String release_date;
+
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    public Date release_date;
+
     public String title;
     public boolean video;
     public double vote_average;
