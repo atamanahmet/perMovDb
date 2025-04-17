@@ -2,6 +2,7 @@ package com.permovdb.permovdb.controller;
 
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.permovdb.permovdb.domain.User;
 import com.permovdb.permovdb.service.UserService;
 
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
 public class UserController {
+
     @Autowired
     private UserService userService;
 
@@ -24,7 +26,7 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> postMethodName(@RequestBody User user) {
+    public ResponseEntity<String> registerUser(@RequestBody User user) {
         try {
             userService.saveUser(user);
 
@@ -33,6 +35,22 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.ALREADY_REPORTED);
         }
         return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<String> loginUser(@RequestBody User user) {
+        try {
+            User authenticatedUser = userService.authUser(user);
+            if (authenticatedUser != null && authenticatedUser.getJWToken() != null) {
+                return new ResponseEntity<>(authenticatedUser.getJWToken(), HttpStatus.ACCEPTED);
+            } else {
+                return new ResponseEntity<>("Authentication Failed. Try again.", HttpStatus.UNAUTHORIZED);
+            }
+
+        } catch (Exception e) {
+            System.out.println(e.getLocalizedMessage());
+            return new ResponseEntity<>("User Not Found.", HttpStatus.NOT_FOUND);
+        }
     }
 
 }

@@ -15,7 +15,7 @@ import org.springframework.ws.config.annotation.WsConfigurerAdapter;
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain web(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .sessionManagement(m -> m.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .csrf(csrf -> csrf.disable())
