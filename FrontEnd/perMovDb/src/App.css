@@ -27,3 +27,25 @@
 .detail {
   max-height: 100px;
 }
+.discoverPage {
+  margin-left: 15%;
+  margin-right: 15%;
+}
+.smallPX {
+  margin-top: 0.3%;
+}
+.header {
+  margin-left: 20%;
+  margin-right: 19.6%;
+}
+.top-buttons {
+  transition: 0.3s;
+}
+.top-buttons:hover {
+  background-color: rgb(151, 66, 0);
+  box-shadow: 5px 8px 16px 5px rgba(170, 68, 1, 0.2);
+  transform: translateY(-3px);
+}
+.register {
+  margin-left: 19.3%;
+}

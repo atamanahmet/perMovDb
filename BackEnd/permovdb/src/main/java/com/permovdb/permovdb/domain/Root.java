@@ -1,4 +1,4 @@
-package com.permovdb.permovdb;
+package com.permovdb.permovdb.domain;
 
 import java.util.ArrayList;
 

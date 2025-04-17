@@ -1,9 +1,11 @@
 HELP.md
-key.txt
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+
+BackEnd/permovdb/src/main/resources/application-secret.properties
+BackEnd/permovdb/src/main/resources/application.properties
 
 ### STS ###
 .apt_generated

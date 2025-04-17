@@ -1,4 +1,4 @@
-package com.permovdb.permovdb;
+package com.permovdb.permovdb.domain;
 
 import java.sql.Date;
 import java.util.ArrayList;

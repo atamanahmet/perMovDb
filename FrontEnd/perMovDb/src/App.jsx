@@ -2,18 +2,22 @@ import { useState, useEffect } from "react";
 // import reactLogo from "./assets/react.svg";
 import "./App.css";
 import axios from "axios";
-import MainPage from "./components/MainPage";
+import DiscoverPage from "./components/DiscoverPage";
 import Header from "./components/Header";
 import DetailsPage from "./components/DetailsPage";
+import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
+import Register from "./pages/Register";
+import Login from "./pages/Login";
 
 function App() {
   const [result, setResult] = useState();
   const [selectedMovie, setSelectedMovie] = useState(null);
-  const [page, setPage] = useState(1);
+  // const location = useLocation();
+  // const navigate = useNavigate();
 
   useEffect(() => {
     axios
-      .get("http://localhost:8080/page/" + page)
+      .get("http://localhost:8080/")
       .then((res) => setResult(res.data))
       .catch((err) => console.error("Backend error:", err));
   }, []);
@@ -21,11 +25,20 @@ function App() {
   return (
     <>
       <Header />
-      {selectedMovie ? (
-        <DetailsPage item={selectedMovie} />
-      ) : (
-        <MainPage result={result} onCardClick={setSelectedMovie} />
-      )}
+      <Routes>
+        <Route
+          path="/"
+          element={
+            selectedMovie ? (
+              <DetailsPage item={selectedMovie} />
+            ) : (
+              <DiscoverPage result={result} onCardClick={setSelectedMovie} />
+            )
+          }
+        />
+        <Route path="/register" element={<Register />} />
+        <Route path="/login" element={<Login />} />
+      </Routes>
     </>
   );
 }

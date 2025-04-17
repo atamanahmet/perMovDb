@@ -1,9 +1,9 @@
 import Card from "./card";
 
-export default function MainPage({ result, onCardClick }) {
+export default function DiscoverPage({ result, onCardClick }) {
   return (
     <>
-      <main className="mx-65 my-10 flex flex-row flex-wrap gap-10">
+      <main className="discoverPage my-10 flex flex-row flex-wrap gap-8 flex-8/12 justify-center discoverPage">
         <CardList result={result} onCardClick={onCardClick} />
       </main>
     </>

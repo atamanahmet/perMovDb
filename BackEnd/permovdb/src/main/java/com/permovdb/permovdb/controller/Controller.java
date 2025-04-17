@@ -1,10 +1,14 @@
-package com.permovdb.permovdb;
+package com.permovdb.permovdb.controller;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.permovdb.permovdb.domain.Movie;
+import com.permovdb.permovdb.domain.Root;
 
 import java.io.IOException;
 import java.net.URI;
@@ -20,7 +24,7 @@ class Controller {
         @RestController
         class MovieController {
                 @GetMapping("/")
-                public String getMethodName() throws IOException, InterruptedException {
+                public ResponseEntity<?> getMethodName() throws IOException, InterruptedException {
                         HttpRequest request = HttpRequest.newBuilder()
                                         .uri(URI.create(
                                                         "https://api.themoviedb.org/3/discover/movie?include_adult=true&include_video=false&language=en-US&page=1&sort_by=popularity.desc"))
@@ -50,7 +54,8 @@ class Controller {
                         // // System.out.println(movie.original_title);
                         // }
                         // System.out.println(response.body());
-                        return mapper.writeValueAsString(root.results);
+                        String result = mapper.writeValueAsString(root.results);
+                        return new ResponseEntity<String>(result, HttpStatus.OK);
                 }
 
         }
