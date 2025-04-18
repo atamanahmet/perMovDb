@@ -6,6 +6,8 @@ target/
 
 BackEnd/permovdb/src/main/resources/application-secret.properties
 BackEnd/permovdb/src/main/resources/application.properties
+BackEnd/permovdb/src/main/java/com/permovdb/permovdb/security/JwtUtil.java
+BackEnd/permovdb/src/main/java/com/permovdb/permovdb/security/SecuritConstants.java
 
 ### STS ###
 .apt_generated
