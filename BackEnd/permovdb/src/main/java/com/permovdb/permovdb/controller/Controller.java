@@ -1,5 +1,6 @@
 package com.permovdb.permovdb.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.permovdb.permovdb.domain.Movie;
 import com.permovdb.permovdb.domain.Root;
+import com.permovdb.permovdb.service.MovieService;
 
 import java.io.IOException;
 import java.net.URI;
@@ -20,6 +22,9 @@ import java.net.http.HttpResponse;
 class Controller {
         @Value("${api.key}")
         private String apiKey;
+
+        @Autowired
+        MovieService movieService;
 
         @RestController
         class MovieController {
@@ -42,18 +47,17 @@ class Controller {
                         Root root = mapper.readValue(response.body(), Root.class);
 
                         for (Movie movie : root.results) { // redirecting poster paths to the image
-                                movie.poster_path = "https://image.tmdb.org/t/p/original" +
-                                                movie.poster_path;
-                                movie.backdrop_path = "https://image.tmdb.org/t/p/original" +
-                                                movie.backdrop_path;
+
+                                movie.setPoster_path("https://image.tmdb.org/t/p/original" +
+                                                movie.getPoster_path());
+                                movie.setBackdrop_path("https://image.tmdb.org/t/p/original" +
+                                                movie.getBackdrop_path());
+
+                                movie.setId(Long.valueOf(movie.getId()));
+
+                                movieService.saveMovie(movie);
                         }
 
-                        // System.out.println(root.results.get(0).release_date);
-
-                        // for (Movie movie : root.results) {
-                        // // System.out.println(movie.original_title);
-                        // }
-                        // System.out.println(response.body());
                         String result = mapper.writeValueAsString(root.results);
                         return new ResponseEntity<String>(result, HttpStatus.OK);
                 }

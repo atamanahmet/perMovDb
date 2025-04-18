@@ -5,13 +5,14 @@ import axios from "axios";
 import DiscoverPage from "./components/DiscoverPage";
 import Header from "./components/Header";
 import DetailsPage from "./components/DetailsPage";
-import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 
 function App() {
   const [result, setResult] = useState();
   const [selectedMovie, setSelectedMovie] = useState(null);
+  const [movieId, setMovieId] = useState(null);
   // const location = useLocation();
   // const navigate = useNavigate();
 
@@ -21,6 +22,14 @@ function App() {
       .then((res) => setResult(res.data))
       .catch((err) => console.error("Backend error:", err));
   }, []);
+
+  useEffect(() => {
+    if (movieId != null) {
+      axios
+        .get("http://localhost:8080/user/qwe/watchlist/" + movieId)
+        .catch((err) => console.error("Backend error:", err));
+    }
+  }, [movieId]);
 
   return (
     <>
@@ -32,7 +41,11 @@ function App() {
             selectedMovie ? (
               <DetailsPage item={selectedMovie} />
             ) : (
-              <DiscoverPage result={result} onCardClick={setSelectedMovie} />
+              <DiscoverPage
+                result={result}
+                onCardClick={setSelectedMovie}
+                onWatchListAdd={setMovieId}
+              />
             )
           }
         />

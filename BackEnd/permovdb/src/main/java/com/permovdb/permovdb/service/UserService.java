@@ -4,9 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.auth0.jwt.JWT;
 import com.permovdb.permovdb.domain.User;
 import com.permovdb.permovdb.repository.UserRepository;
+import com.permovdb.permovdb.security.AuthResponse;
 import com.permovdb.permovdb.security.JwtUtil;
 
 @Service
@@ -22,8 +22,8 @@ public class UserService {
     private BCryptPasswordEncoder bCrypt;
     // private
 
-    public User saveUser(User user) {
-        if (userRepository.findByUsername(user.getUsername()) != null) {
+    public AuthResponse saveUser(User user) {
+        if (userRepository.findByUsername(user.getUsername()) == null) {
 
             user.setPassword(bCrypt.encode(user.getPassword()));
 
@@ -31,23 +31,37 @@ public class UserService {
 
             user.setJWToken(token);
 
-            return userRepository.save(user);
+            userRepository.save(user);
+
+            return new AuthResponse(user.getUsername(), token);
         }
         return null; // User already exist
     }
 
-    public User authUser(User user) {
+    public AuthResponse authUser(User user) {
         User existingUser = userRepository.findByUsername(user.getUsername());
+
         if (existingUser != null) {
             if (bCrypt.matches(user.getPassword(), existingUser.getPassword())) {
+
                 String token = jwtUtil.generateToken(existingUser);
 
-                existingUser.setJWToken(token);
-                userRepository.save(existingUser);
+                String requestToken = user.getJWToken();
 
-                return existingUser;
+                if (jwtUtil.validateToken(requestToken, existingUser)) {
+
+                    existingUser.setJWToken(token);
+
+                    userRepository.save(existingUser);
+
+                    return new AuthResponse(existingUser.getUsername(), token);
+                }
             }
         }
         return null;
+    }
+
+    public User loadByUserName(String username) {
+        return userRepository.findByUsername(username);
     }
 }

@@ -3,7 +3,7 @@ import axios from "axios";
 // import collage from "../assets/collage.jpg";
 import { useNavigate } from "react-router-dom";
 
-export default function Login({ username, password }) {
+export default function Login() {
   const navigate = useNavigate();
   const [response, setResponse] = useState("Cmon");
   const [formData, setFormData] = useState({
@@ -32,7 +32,7 @@ export default function Login({ username, password }) {
         setResponse("Logged-in succesfully. Redirecting...");
         setTimeout(function () {
           //do what you need here
-          navigate("/");
+          navigate("/profile");
         }, 2000);
       }
     } catch (err) {
