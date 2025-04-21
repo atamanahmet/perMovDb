@@ -2,7 +2,8 @@ package com.permovdb.permovdb.domain;
 
 import java.sql.Date;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -11,6 +12,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,12 +20,16 @@ import lombok.Setter;
 @Table(name = "movies")
 @Getter
 @Setter
+@AllArgsConstructor
 public class Movie {
 
-    // @Id
-    // @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    // @Column(nullable = false, unique = true)
-    // private long dbId;
+    public Movie() {
+
+    }
+
+    @Id
+    @Column(nullable = false, unique = true)
+    private long id;
 
     @Column
     private boolean adult;
@@ -33,10 +39,6 @@ public class Movie {
 
     @Column
     private ArrayList<Integer> genre_ids;
-
-    @Id
-    @Column
-    private long id;
 
     @Column
     private String original_language;
@@ -70,6 +72,6 @@ public class Movie {
     private int vote_count;
 
     @ManyToMany(mappedBy = "watchlist")
-    private List<User> userList = new ArrayList<>();
+    private Set<User> userList = new HashSet<>();
 
 }

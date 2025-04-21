@@ -20,7 +20,6 @@ public class UserService {
 
     @Autowired
     private BCryptPasswordEncoder bCrypt;
-    // private
 
     public AuthResponse saveUser(User user) {
         if (userRepository.findByUsername(user.getUsername()) == null) {
@@ -35,30 +34,28 @@ public class UserService {
 
             return new AuthResponse(user.getUsername(), token);
         }
-        return null; // User already exist
+        return null; // user already exist
     }
 
     public AuthResponse authUser(User user) {
         User existingUser = userRepository.findByUsername(user.getUsername());
 
         if (existingUser != null) {
+
             if (bCrypt.matches(user.getPassword(), existingUser.getPassword())) {
 
                 String token = jwtUtil.generateToken(existingUser);
 
-                String requestToken = user.getJWToken();
+                existingUser.setJWToken(token);
 
-                if (jwtUtil.validateToken(requestToken, existingUser)) {
+                userRepository.save(existingUser);
 
-                    existingUser.setJWToken(token);
-
-                    userRepository.save(existingUser);
-
-                    return new AuthResponse(existingUser.getUsername(), token);
-                }
+                return new AuthResponse(user.getUsername(), token);
             }
+            return null;
         }
         return null;
+
     }
 
     public User loadByUserName(String username) {

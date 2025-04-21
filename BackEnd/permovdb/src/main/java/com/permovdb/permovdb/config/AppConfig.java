@@ -1,4 +1,4 @@
-package com.permovdb.permovdb;
+package com.permovdb.permovdb.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

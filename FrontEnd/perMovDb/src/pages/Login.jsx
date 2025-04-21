@@ -1,16 +1,24 @@
 import { React, useState } from "react";
-import axios from "axios";
+// import axios from "axios";
 // import collage from "../assets/collage.jpg";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 
-export default function Login() {
-  const navigate = useNavigate();
+export default function Login({ handleSubmit }) {
+  // const navigate = useNavigate();
   const [response, setResponse] = useState("Cmon");
   const [formData, setFormData] = useState({
     username: "",
     password: "",
     confirmPassword: "",
   });
+  // const [user, setUser] = useState({
+  //   username: "",
+  //   token: "",
+  // });
+
+  // useEffect(() => {
+  //   console.log("response user token: " + user.token);
+  // }, [user]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -19,27 +27,34 @@ export default function Login() {
       [name]: value,
     }));
   };
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
 
-    try {
-      const response = await axios.post("http://localhost:8080/login", {
-        username: formData.username,
-        password: formData.password,
-      });
+  //   try {
+  //     const response = await axios
+  //       .post("http://localhost:8080/login", {
+  //         username: formData.username,
+  //         password: formData.password,
+  //       })
+  //       .catch((err) => console.error("Backend error:", err));
 
-      if (response.status === 201) {
-        setResponse("Logged-in succesfully. Redirecting...");
-        setTimeout(function () {
-          //do what you need here
-          navigate("/profile");
-        }, 2000);
-      }
-    } catch (err) {
-      console.log(err);
-      setResponse("Got some issue. Try again");
-    }
-  };
+  //     if (response.status === 200) {
+  //       setUser((prevState) => ({
+  //         ...prevState,
+  //         username: response.data.username,
+  //         token: response.data.token,
+  //       }));
+
+  //       setResponse("Logged-in succesfully. Redirecting...");
+  //       setTimeout(function () {
+  //         navigate("/profile", user);
+  //       }, 2000);
+  //     }
+  //   } catch (err) {
+  //     console.log("Error :" + err);
+  //     setResponse("Got some issue. Try again");
+  //   }
+  // };
   return (
     <>
       <section className="mt-10">
@@ -55,7 +70,13 @@ export default function Login() {
               <h1 className="text-xl font-bold leading-tight tracking-tight text-amber-50 md:text-2xl dark:text-amber-50">
                 Log-in to your accout
               </h1>
-              <form className="space-y-4 md:space-y-6" onSubmit={handleSubmit}>
+              <form
+                className="space-y-4 md:space-y-6"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleSubmit(formData);
+                }}
+              >
                 <div>
                   <label
                     htmlFor="username"

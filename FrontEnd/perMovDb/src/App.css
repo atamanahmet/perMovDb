@@ -1,7 +1,9 @@
 @import "tailwindcss";
-
+body {
+  background-color: #fef3c6;
+}
 .card {
-  box-shadow: 0 4px 8px 0 rgba(90, 44, 0, 0.274);
+  box-shadow: 2px 4px 8px 0 rgba(90, 44, 0, 0.5);
   transition: 0.3s;
   width: 200px;
   height: 360px;
@@ -35,8 +37,8 @@
   margin-top: 0.3%;
 }
 .header {
-  margin-left: 20%;
-  margin-right: 19.6%;
+  margin-left: 15%;
+  margin-right: 15%;
 }
 .top-buttons {
   transition: 0.3s;
@@ -48,4 +50,38 @@
 }
 .register {
   margin-left: 19.3%;
+}
+.addButton {
+  box-shadow: 0 4px 8px 0 rgba(90, 44, 0, 0.274);
+  color: #fef3c6;
+  font-weight: 500;
+  background-color: oklch(76.9% 0.188 70.08);
+  transform: translateY(2px);
+  top: -1.75rem;
+}
+.addButton:hover {
+  background-color: oklch(80.9% 0.188 70.08);
+  transition: 0.3s;
+  transform: translateY(0px);
+}
+.page-title {
+  background-color: rgb(133, 60, 0);
+}
+.remove {
+  /* font-size: 1.4rem; */
+  text-align: center;
+  top: -0.25rem;
+  left: 0.65rem;
+  font-size: 1.3rem;
+  color: firebrick;
+}
+.add {
+  text-align: center;
+  top: -0.25rem;
+  left: 0.45rem;
+  font-size: 1.3rem;
+  color: whitesmoke;
+}
+.remove:hover {
+  transform: tran;
 }

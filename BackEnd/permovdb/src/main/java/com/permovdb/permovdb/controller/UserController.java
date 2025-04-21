@@ -2,6 +2,7 @@ package com.permovdb.permovdb.controller;
 
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.permovdb.permovdb.domain.Movie;
 import com.permovdb.permovdb.domain.User;
 import com.permovdb.permovdb.security.AuthResponse;
@@ -49,6 +50,8 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody User user) {
         try {
+            System.out.println("username: " + user.getUsername());
+            System.out.println("password: " + user.getPassword());
             AuthResponse authResponse = userService.authUser(user);
 
             if (authResponse.getToken() == null) {
@@ -58,21 +61,26 @@ public class UserController {
                 return new ResponseEntity<>("Username null.", HttpStatus.EXPECTATION_FAILED);
 
             }
-            return new ResponseEntity<>(authResponse, HttpStatus.ACCEPTED);
+
+            ObjectMapper mapper = new ObjectMapper();
+
+            String response = mapper.writeValueAsString(authResponse);
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
 
         } catch (Exception e) {
-            System.out.println(e.getLocalizedMessage());
+            System.out.println("error : " + e.getLocalizedMessage());
             return new ResponseEntity<>("Both nonNull but failed", HttpStatus.NOT_FOUND);
         }
     }
 
-    @GetMapping("/user/{username}/watchlist/{id}")
+    @GetMapping("/user/{username}/watchlist/{id}/{actionType}")
     public ResponseEntity<?> addToWatchList(@PathVariable(name = "id") String id,
-            @PathVariable(name = "username") String username) {
+            @PathVariable(name = "username") String username, @PathVariable(name = "actionType") String actionType) {
 
         Long movieId = (id == null) ? null : Long.valueOf(id);
 
-        if (username == null || movieId == null) {
+        if (username == null || movieId == null || actionType == null) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
@@ -88,12 +96,24 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
-        if (!user.getWatchlist().contains(movie)) {
-            user.getWatchlist().add(movie);
-        }
+        if (actionType.equals("add")) {
+            if (!user.getWatchlist().contains(movie)) {
+                user.getWatchlist().add(movie);
+            }
 
-        if (!movie.getUserList().contains(user)) {
-            movie.getUserList().add(user);
+            if (!movie.getUserList().contains(user)) {
+                movie.getUserList().add(user);
+            }
+        } else if (actionType.equals("del")) {
+            if (user.getWatchlist().contains(movie)) {
+                user.getWatchlist().remove(movie);
+            }
+
+            if (movie.getUserList().contains(user)) {
+                movie.getUserList().remove(user);
+            }
+        } else {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
         userService.saveUser(user);
@@ -105,6 +125,11 @@ public class UserController {
             response = response + " " + i.getId();
         }
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/test")
+    public String test() {
+        return new String("Successfull");
     }
 
 }

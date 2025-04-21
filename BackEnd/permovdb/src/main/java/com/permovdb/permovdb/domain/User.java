@@ -1,7 +1,7 @@
 package com.permovdb.permovdb.domain;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,7 +12,10 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
+
 import jakarta.validation.constraints.NotBlank;
+
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,7 +23,11 @@ import lombok.Setter;
 @Table(name = "users")
 @Getter
 @Setter
+@AllArgsConstructor
 public class User {
+    public User() {
+
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,7 +37,7 @@ public class User {
     @Column(nullable = false, unique = true)
     private String username;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = true, unique = true)
     private String JWToken;
 
     @NotBlank(message = "Password can not be empty")
@@ -38,9 +45,7 @@ public class User {
     private String password;
 
     @ManyToMany
-    @JoinTable(name = "user_watchlist", // The name of the join table
-            joinColumns = @JoinColumn(name = "user_id"), // The column for User's ID
-            inverseJoinColumns = @JoinColumn(name = "movie_id") // The column for Movie's ID
-    )
-    private List<Movie> watchlist = new ArrayList<>();
+    @JoinTable(name = "user_watchlist", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "movie_id"))
+    private Set<Movie> watchlist = new HashSet<>();
+
 }

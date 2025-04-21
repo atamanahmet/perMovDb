@@ -2,21 +2,21 @@ import movieLogo from "/movie.png";
 import SingleButton from "./SingleButton";
 import { useNavigate, useLocation } from "react-router-dom";
 
-export default function Header() {
+export default function Header({ buttonText, user }) {
   const navigate = useNavigate();
   const location = useLocation();
 
   const openRegister = () => {
     navigate("/register", { state: { backgroundLocation: location } });
   };
-  const openLogin = () => {
-    navigate("/login", { state: { backgroundLocation: location } });
+  const LoginOrLogOut = () => {
+    navigate("/" + buttonText, { state: { backgroundLocation: location } });
   };
 
   return (
     <>
       <nav className="bg-amber-600  dark:bg-amber-600">
-        <div className="max-w-screen-xl flex flex-wrap items-center justify-between p-3 header">
+        <div className="max-w-screen-xxl flex flex-wrap items-center justify-between p-3 header">
           <a
             href="/"
             className="flex items-center space-x-3 rtl:space-x-reverse"
@@ -51,6 +51,7 @@ export default function Header() {
               </svg>
               <span className="sr-only">Search</span>
             </button>
+            <a href="/profile">{user ? user.username : "nouser"}</a>
             <div className="relative hidden md:block">
               <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
                 <svg
@@ -83,7 +84,11 @@ export default function Header() {
                 path="/register"
                 onClick={openRegister}
               />
-              <SingleButton text="Login" path="/login" onClick={openLogin} />
+              <SingleButton
+                text={buttonText}
+                path={"/" + buttonText}
+                onClick={LoginOrLogOut}
+              />
             </div>
             {/* <button
               data-collapse-toggle="navbar-search"

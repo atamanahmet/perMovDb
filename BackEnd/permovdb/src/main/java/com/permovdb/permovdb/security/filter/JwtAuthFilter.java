@@ -5,11 +5,14 @@ import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.permovdb.permovdb.domain.User;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
 import com.permovdb.permovdb.security.JwtUtil;
+import com.permovdb.permovdb.security.SecurityConstants;
 import com.permovdb.permovdb.service.UserService;
 
 import jakarta.servlet.FilterChain;
@@ -29,27 +32,20 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         String header = request.getHeader("Authorization");
-        String bearerToken = null;
-        String username = null;
 
         if (header == null || !header.startsWith("Bearer")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        bearerToken = header.substring(7);
-        username = jwtUtil.extractUsername(bearerToken);
+        String token = header.replace(SecurityConstants.BEARER, "");
+        String user = JWT.require(Algorithm.HMAC512(SecurityConstants.SECRET_KEY))
+                .build()
+                .verify(token)
+                .getSubject();
 
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            User user = userService.loadByUserName(username);
-            if (jwtUtil.validateToken(bearerToken, user)) {
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        user.getUsername(), null, Arrays.asList());
-
-                SecurityContextHolder.getContext().setAuthentication(authToken);
-            }
-        }
-
+        Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, Arrays.asList());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
         filterChain.doFilter(request, response);
 
     }
