@@ -17,6 +17,7 @@ import com.permovdb.permovdb.service.UserService;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -31,14 +32,22 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        String header = request.getHeader("Authorization");
 
-        if (header == null || !header.startsWith("Bearer")) {
+        String token = null;
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("jwt_token")) {
+                    token = cookie.getValue();
+                }
+            }
+        }
+
+        if (token == null) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        String token = header.replace(SecurityConstants.BEARER, "");
         String user = JWT.require(Algorithm.HMAC512(SecurityConstants.SECRET_KEY))
                 .build()
                 .verify(token)

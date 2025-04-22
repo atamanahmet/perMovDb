@@ -9,6 +9,9 @@ import com.permovdb.permovdb.security.AuthResponse;
 import com.permovdb.permovdb.service.MovieService;
 import com.permovdb.permovdb.service.UserService;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -48,29 +51,34 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> loginUser(@RequestBody User user) {
+    public ResponseEntity<?> loginUser(@RequestBody User user, HttpServletResponse response) {
         try {
-            System.out.println("username: " + user.getUsername());
-            System.out.println("password: " + user.getPassword());
+
             AuthResponse authResponse = userService.authUser(user);
 
-            if (authResponse.getToken() == null) {
-                return new ResponseEntity<>("Token null.", HttpStatus.EXPECTATION_FAILED);
+            if (authResponse.getToken() == null || authResponse.getUsername() == null) {
+                return new ResponseEntity<>("Server error. response null.", HttpStatus.EXPECTATION_FAILED);
             }
-            if (authResponse.getUsername() == null) {
-                return new ResponseEntity<>("Username null.", HttpStatus.EXPECTATION_FAILED);
 
-            }
+            String token = authResponse.getToken();
+
+            Cookie jwtCookie = new Cookie("jwt_token", token);
+
+            jwtCookie.setHttpOnly(true);
+            jwtCookie.setSecure(true);
+            jwtCookie.setPath("/");
+            jwtCookie.setDomain("localhost");
+            jwtCookie.setAttribute("SameSite", token);
+
+            response.addCookie(jwtCookie);
 
             ObjectMapper mapper = new ObjectMapper();
 
-            String response = mapper.writeValueAsString(authResponse);
-
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            return new ResponseEntity<>(user.getUsername(), HttpStatus.OK);
 
         } catch (Exception e) {
             System.out.println("error : " + e.getLocalizedMessage());
-            return new ResponseEntity<>("Both nonNull but failed", HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("Authentication Failed.", HttpStatus.NOT_FOUND);
         }
     }
 

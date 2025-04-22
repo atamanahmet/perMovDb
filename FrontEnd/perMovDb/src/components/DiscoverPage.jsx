@@ -1,7 +1,12 @@
 import Card from "./card";
 import { useState } from "react";
 
-export default function DiscoverPage({ result, onCardClick, onWatchListAdd }) {
+export default function DiscoverPage({
+  result,
+  onCardClick,
+  onWatchListAdd,
+  user,
+}) {
   return (
     <>
       <h2 className="text-center p-7  text-amber-100 font-bold text-4xl page-title">
@@ -13,13 +18,14 @@ export default function DiscoverPage({ result, onCardClick, onWatchListAdd }) {
           result={result}
           onCardClick={onCardClick}
           onWatchListAdd={onWatchListAdd}
+          user={user}
         />
       </main>
     </>
   );
 }
 
-function CardList({ result, onCardClick, onWatchListAdd }) {
+function CardList({ result, onCardClick, onWatchListAdd, user }) {
   const [watchlistIds, setWatchlistIds] = useState(new Set());
 
   function handleWatchlistToogle(id) {

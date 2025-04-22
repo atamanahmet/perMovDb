@@ -12,10 +12,12 @@ import ProfilePage from "./components/ProfilePage";
 import Cookies from "universal-cookie";
 
 function App() {
-  const getAuthHeaders = () => {
-    const token = cookies.get("jwt_token");
-    return token ? { Authorization: `Bearer ${token}` } : {};
-  };
+  const cookies = new Cookies();
+
+  // const getAuthHeaders = () => {
+  //   // const token = cookies.get("jwt_token");
+  //   // return token ? { Authorization: `Bearer ${token}` } : {};
+  // };
 
   // For login and jwt token
   const [formData, setFormData] = useState({
@@ -25,11 +27,11 @@ function App() {
   });
 
   const [user, setUser] = useState({
-    username: "",
-    token: "",
+    username: cookies.get("user") || "",
+    authenticated: false,
   });
 
-  const cookies = new Cookies();
+  const [test, setTest] = useState(false);
 
   const [result, setResult] = useState();
   const [buttonText, setButtonText] = useState("Login");
@@ -52,21 +54,28 @@ function App() {
   const login = async (formData) => {
     try {
       const response = await axios
-        .post("http://localhost:8080/login", {
-          username: formData.username,
-          password: formData.password,
-        })
+        .post(
+          "http://localhost:8080/login",
+          {
+            username: formData.username,
+            password: formData.password,
+          },
+          { withCredentials: true }
+        )
         .catch((err) => console.error("Backend error:", err));
 
-      if (response.status === 200) {
-        setUser({
-          username: formData.username,
-          token: response.data.token,
-        });
-        cookies.set("jwt_token", response.data.token);
-        cookies.set("user", response.data.username);
+      console.log(response.status);
 
-        console.log("login successsfull. Token: " + user.token);
+      if (response.status == 200) {
+        setUser({
+          username: response.data,
+          authenticated: true,
+        });
+        console.log("username : " + response.data);
+
+        cookies.set("user", response.data);
+
+        console.log("login successsfull. Redirecting");
 
         setButtonText("LogOut");
         // alert("Login successfull");
@@ -88,7 +97,7 @@ function App() {
   //first api call for discovery page
   useEffect(() => {
     axios
-      .get("http://localhost:8080/")
+      .get("http://localhost:8080/", { withCredentials: true })
       .then((res) => setResult(res.data))
       .catch((err) => console.error("Backend error:", err));
   }, []);
@@ -104,7 +113,7 @@ function App() {
             movieId +
             "/" +
             actionType,
-          { headers: getAuthHeaders() }
+          { withCredentials: true }
         )
         .catch((err) => console.error("Backend error:", err));
     }
@@ -115,10 +124,25 @@ function App() {
     useEffect(() => {
       logOut();
       setButtonText("Login");
-      navigate("/discover"); // or wherever you want to go
+      navigate("/discover");
     }, []);
     return null;
   }
+
+  function testFunc() {
+    setTest(true);
+  }
+
+  useEffect(() => {
+    if (test) {
+      axios
+        .get("http://localhost:8080/test", { withCredentials: true })
+        .then((res) => console.log(res.data))
+        .catch((err) => console.error("Backend error:", err));
+    } else {
+      console.log("noauth");
+    }
+  }, [test]);
 
   return (
     <>
@@ -134,6 +158,7 @@ function App() {
                 result={result}
                 onCardClick={setSelectedMovie}
                 onWatchListAdd={handleWatchList}
+                user={user}
               />
             )
           }
@@ -148,6 +173,7 @@ function App() {
             />
           }
         />
+
         <Route path="/register" element={<Register />} />
         <Route path="/Login" element={<Login handleSubmit={handleSubmit} />} />
         <Route path="/LogOut" element={<LogOutRoute logOut={logOut} />} />
@@ -156,6 +182,12 @@ function App() {
           element={<ProfilePage user={cookies.get("user")} />}
         />
       </Routes>
+      <button
+        className="bg-amber-900 text-amber-50  rounded-lg text-sm py-2 px-4 me-1 trans top-buttons"
+        onClick={testFunc}
+      >
+        Click
+      </button>
     </>
   );
 }
