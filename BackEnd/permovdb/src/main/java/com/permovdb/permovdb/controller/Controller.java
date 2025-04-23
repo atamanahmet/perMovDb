@@ -17,6 +17,10 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 @RestController
 class Controller {
@@ -28,11 +32,12 @@ class Controller {
 
         @RestController
         class MovieController {
+
                 @GetMapping("/")
                 public ResponseEntity<?> getMethodName() throws IOException, InterruptedException {
                         HttpRequest request = HttpRequest.newBuilder()
                                         .uri(URI.create(
-                                                        "https://api.themoviedb.org/3/discover/movie?include_adult=true&include_video=false&language=en-US&page=1&sort_by=popularity.desc"))
+                                                        "https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=en-US&page=1&sort_by=popularity.desc"))
                                         .header("accept", "application/json")
                                         .header("Authorization",
                                                         "Bearer " + apiKey)
@@ -57,6 +62,9 @@ class Controller {
 
                                 movieService.saveMovie(movie);
                         }
+
+                        Map<Integer, Integer> set = new HashMap<>();
+                        set.containsValue(set)
 
                         String result = mapper.writeValueAsString(root.results);
                         return new ResponseEntity<String>(result, HttpStatus.OK);

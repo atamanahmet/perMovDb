@@ -45,12 +45,6 @@ function App() {
     login(formData);
   }
 
-  const logOut = () => {
-    setUser(null);
-    cookies.remove("jwt_token");
-    console.log("removed");
-  };
-
   const login = async (formData) => {
     try {
       const response = await axios
@@ -84,6 +78,23 @@ function App() {
       }
     } catch (err) {
       console.log("Error :" + err);
+    }
+  };
+  const logOut = async () => {
+    const response = await axios
+      .get("http://localhost:8080/logout", { withCredentials: true })
+      .catch((err) => console.error("Backend error:", err));
+
+    if (response.status == 200) {
+      cookies.remove("user");
+      setUser({
+        username: null,
+        authenticated: false,
+      });
+
+      console.log("removed");
+    } else {
+      console.log("error. cannot logout");
     }
   };
 

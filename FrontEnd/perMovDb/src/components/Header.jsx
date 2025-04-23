@@ -10,7 +10,9 @@ export default function Header({ buttonText, user }) {
     navigate("/register", { state: { backgroundLocation: location } });
   };
   const LoginOrLogOut = () => {
-    navigate("/" + buttonText, { state: { backgroundLocation: location } });
+    navigate("/" + user.authenticated ? "LogOut" : "Login", {
+      state: { backgroundLocation: location },
+    });
   };
 
   return (
@@ -26,7 +28,7 @@ export default function Header({ buttonText, user }) {
               PerMovDb
             </span>
           </a>
-          <div className="flex md:order-2">
+          <div className="flex md:order-2 gap-3">
             <button
               type="button"
               data-collapse-toggle="navbar-search"
@@ -78,12 +80,21 @@ export default function Header({ buttonText, user }) {
                 placeholder="Search..."
               />
             </div>
-            <div className="ml-1 smallPX">
-              <SingleButton
-                text="Sign Up"
-                path="/register"
-                onClick={openRegister}
-              />
+            <div className="ml-1 smallPX flex gap-3">
+              {user.authenticated && (
+                <img
+                  className="w-10 h-10 p-1 rounded-full ring-2 ring-gray-300 dark:ring-gray-500"
+                  src={movieLogo}
+                  alt="Bordered avatar"
+                />
+              )}
+              {!user.authenticated && (
+                <SingleButton
+                  text="Sign Up"
+                  path="/register"
+                  onClick={openRegister}
+                />
+              )}
               <SingleButton
                 text={buttonText}
                 path={"/" + buttonText}

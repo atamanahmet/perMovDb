@@ -14,11 +14,13 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 public class UserController {
@@ -138,6 +140,16 @@ public class UserController {
     @GetMapping("/test")
     public String test() {
         return new String("Successfull");
+    }
+
+    @GetMapping("/logout")
+    public ResponseEntity<String> logOut(HttpServletResponse response) {
+        Cookie cookie = new Cookie("jwt_token", "");
+
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        response.addCookie(cookie);
+        return new ResponseEntity<>("Loged Out", HttpStatus.OK);
     }
 
 }
