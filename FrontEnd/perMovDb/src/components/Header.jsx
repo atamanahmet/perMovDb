@@ -10,7 +10,7 @@ export default function Header({ buttonText, user }) {
     navigate("/register", { state: { backgroundLocation: location } });
   };
   const LoginOrLogOut = () => {
-    navigate("/" + user.authenticated ? "LogOut" : "Login", {
+    navigate("/" + !user ? "LogOut" : "Login", {
       state: { backgroundLocation: location },
     });
   };
@@ -53,7 +53,7 @@ export default function Header({ buttonText, user }) {
               </svg>
               <span className="sr-only">Search</span>
             </button>
-            <a href="/profile">{user ? user.username : "nouser"}</a>
+            <a href="/profile">{user ? user : "nouser"}</a>
             <div className="relative hidden md:block">
               <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
                 <svg
@@ -81,14 +81,14 @@ export default function Header({ buttonText, user }) {
               />
             </div>
             <div className="ml-1 smallPX flex gap-3">
-              {user.authenticated && (
+              {user && (
                 <img
                   className="w-10 h-10 p-1 rounded-full ring-2 ring-gray-300 dark:ring-gray-500"
                   src={movieLogo}
                   alt="Bordered avatar"
                 />
               )}
-              {!user.authenticated && (
+              {!user && (
                 <SingleButton
                   text="Sign Up"
                   path="/register"

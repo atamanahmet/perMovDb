@@ -25,7 +25,7 @@ export default function DiscoverPage({
   );
 }
 
-function CardList({ result, onCardClick, onWatchListAdd, user }) {
+function CardList({ result, onCardClick, onWatchListAdd }) {
   const [watchlistIds, setWatchlistIds] = useState(new Set());
 
   function handleWatchlistToogle(id) {

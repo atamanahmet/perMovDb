@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-// import reactLogo from "./assets/react.svg";
 import "./App.css";
 import axios from "axios";
 import DiscoverPage from "./components/DiscoverPage";
@@ -9,16 +8,8 @@ import { Routes, Route, useNavigate } from "react-router-dom";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import ProfilePage from "./components/ProfilePage";
-import Cookies from "universal-cookie";
 
 function App() {
-  const cookies = new Cookies();
-
-  // const getAuthHeaders = () => {
-  //   // const token = cookies.get("jwt_token");
-  //   // return token ? { Authorization: `Bearer ${token}` } : {};
-  // };
-
   // For login and jwt token
   const [formData, setFormData] = useState({
     username: "",
@@ -26,20 +17,26 @@ function App() {
     confirmPassword: "",
   });
 
-  const [user, setUser] = useState({
-    username: cookies.get("user") || "",
-    authenticated: false,
-  });
+  //user state
+  const [user, setUser] = useState(null);
 
-  const [test, setTest] = useState(false);
-
+  // const [response, setResponse] = useState();
   const [result, setResult] = useState();
   const [buttonText, setButtonText] = useState("Login");
   const [selectedMovie, setSelectedMovie] = useState(null);
-  const [movieId, setMovieId] = useState(null);
-  const [actionType, setActionType] = useState(null);
+  // const [movieId, setMovieId] = useState(null);
+  // const [actionType, setActionType] = useState(null);
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    axios
+      .get("http://localhost:8080/api/me", { withCredentials: true })
+      .then((res) => console.log("api/me" + res.data))
+
+      .catch((err) => console.error("Backend error:", err));
+    // console.log(user);
+  }, []);
 
   function handleSubmit(formData) {
     login(formData);
@@ -61,18 +58,11 @@ function App() {
       console.log(response.status);
 
       if (response.status == 200) {
-        setUser({
-          username: response.data,
-          authenticated: true,
-        });
+        setUser(response.data);
         console.log("username : " + response.data);
-
-        cookies.set("user", response.data);
-
         console.log("login successsfull. Redirecting");
 
         setButtonText("LogOut");
-        // alert("Login successfull");
         setInterval(() => {}, 2000);
         navigate("/profile");
       }
@@ -84,26 +74,15 @@ function App() {
     const response = await axios
       .get("http://localhost:8080/logout", { withCredentials: true })
       .catch((err) => console.error("Backend error:", err));
-
-    if (response.status == 200) {
-      cookies.remove("user");
-      setUser({
-        username: null,
-        authenticated: false,
-      });
-
-      console.log("removed");
-    } else {
-      console.log("error. cannot logout");
-    }
+    console.log(response);
   };
 
   // const location = useLocation();
 
-  function handleWatchList(id, action) {
-    setMovieId(id);
-    setActionType(action);
-  }
+  // function handleWatchList(id, action) {
+  //   setMovieId(id);
+  //   setActionType(action);
+  // }
 
   //first api call for discovery page
   useEffect(() => {
@@ -114,21 +93,21 @@ function App() {
   }, []);
 
   //watchlist add and remove calls for api
-  useEffect(() => {
-    if (movieId && actionType) {
-      axios
-        .get(
-          "http://localhost:8080/user/" +
-            cookies.get("user") +
-            "/watchlist/" +
-            movieId +
-            "/" +
-            actionType,
-          { withCredentials: true }
-        )
-        .catch((err) => console.error("Backend error:", err));
-    }
-  }, [movieId, actionType]);
+  // useEffect(() => {
+  //   if (movieId && actionType) {
+  //     axios
+  //       .get(
+  //         "http://localhost:8080/user/" +
+  //           cookies.get("user") +
+  //           "/watchlist/" +
+  //           movieId +
+  //           "/" +
+  //           actionType,
+  //         { withCredentials: true }
+  //       )
+  //       .catch((err) => console.error("Backend error:", err));
+  //   }
+  // }, [movieId, actionType]);
 
   function LogOutRoute({ logOut }) {
     const navigate = useNavigate();
@@ -139,21 +118,6 @@ function App() {
     }, []);
     return null;
   }
-
-  function testFunc() {
-    setTest(true);
-  }
-
-  useEffect(() => {
-    if (test) {
-      axios
-        .get("http://localhost:8080/test", { withCredentials: true })
-        .then((res) => console.log(res.data))
-        .catch((err) => console.error("Backend error:", err));
-    } else {
-      console.log("noauth");
-    }
-  }, [test]);
 
   return (
     <>
@@ -168,7 +132,7 @@ function App() {
               <DiscoverPage
                 result={result}
                 onCardClick={setSelectedMovie}
-                onWatchListAdd={handleWatchList}
+                onWatchListAdd={setSelectedMovie}
                 user={user}
               />
             )
@@ -180,7 +144,7 @@ function App() {
             <DiscoverPage
               result={result}
               onCardClick={setSelectedMovie}
-              onWatchListAdd={handleWatchList}
+              onWatchListAdd={setSelectedMovie}
             />
           }
         />
@@ -188,17 +152,14 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/Login" element={<Login handleSubmit={handleSubmit} />} />
         <Route path="/LogOut" element={<LogOutRoute logOut={logOut} />} />
-        <Route
-          path="/profile"
-          element={<ProfilePage user={cookies.get("user")} />}
-        />
+        <Route path="/profile" element={<ProfilePage user={user} />} />
       </Routes>
-      <button
+      {/* <button
         className="bg-amber-900 text-amber-50  rounded-lg text-sm py-2 px-4 me-1 trans top-buttons"
         onClick={testFunc}
       >
         Click
-      </button>
+      </button> */}
     </>
   );
 }

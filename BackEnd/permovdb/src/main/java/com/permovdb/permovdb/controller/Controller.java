@@ -63,9 +63,6 @@ class Controller {
                                 movieService.saveMovie(movie);
                         }
 
-                        Map<Integer, Integer> set = new HashMap<>();
-                        set.containsValue(set)
-
                         String result = mapper.writeValueAsString(root.results);
                         return new ResponseEntity<String>(result, HttpStatus.OK);
                 }

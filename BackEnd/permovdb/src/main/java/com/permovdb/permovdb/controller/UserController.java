@@ -3,13 +3,16 @@ package com.permovdb.permovdb.controller;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.permovdb.permovdb.annotation.CurrentUser;
 import com.permovdb.permovdb.domain.Movie;
 import com.permovdb.permovdb.domain.User;
 import com.permovdb.permovdb.security.AuthResponse;
+import com.permovdb.permovdb.security.JwtUtil;
 import com.permovdb.permovdb.service.MovieService;
 import com.permovdb.permovdb.service.UserService;
 
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +33,9 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private JwtUtil jwtUtil;
 
     UserController() {
     }
@@ -73,8 +79,6 @@ public class UserController {
             jwtCookie.setAttribute("SameSite", token);
 
             response.addCookie(jwtCookie);
-
-            ObjectMapper mapper = new ObjectMapper();
 
             return new ResponseEntity<>(user.getUsername(), HttpStatus.OK);
 
@@ -137,18 +141,25 @@ public class UserController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @GetMapping("/test")
-    public String test() {
-        return new String("Successfull");
+    @GetMapping("/api/me")
+    public ResponseEntity<String> getCurrentUser(@CurrentUser String username) {
+
+        System.out.println("/api/me call made. Returned: " + username);
+
+        return new ResponseEntity<>(
+                username,
+                (username == null) ? HttpStatus.UNAUTHORIZED : HttpStatus.OK);
     }
 
     @GetMapping("/logout")
     public ResponseEntity<String> logOut(HttpServletResponse response) {
+
         Cookie cookie = new Cookie("jwt_token", "");
 
         cookie.setHttpOnly(true);
         cookie.setPath("/");
         response.addCookie(cookie);
+
         return new ResponseEntity<>("Loged Out", HttpStatus.OK);
     }
 
