@@ -42,34 +42,7 @@ function App() {
     login(formData);
   }
 
-  const login = async (formData) => {
-    try {
-      const response = await axios
-        .post(
-          "http://localhost:8080/login",
-          {
-            username: formData.username,
-            password: formData.password,
-          },
-          { withCredentials: true }
-        )
-        .catch((err) => console.error("Backend error:", err));
-
-      console.log(response.status);
-
-      if (response.status == 200) {
-        setUser(response.data);
-        console.log("username : " + response.data);
-        console.log("login successsfull. Redirecting");
-
-        setButtonText("LogOut");
-        setInterval(() => {}, 2000);
-        navigate("/profile");
-      }
-    } catch (err) {
-      console.log("Error :" + err);
-    }
-  };
+  
   const logOut = async () => {
     const response = await axios
       .get("http://localhost:8080/logout", { withCredentials: true })
