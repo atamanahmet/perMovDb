@@ -2,28 +2,24 @@ package com.permovdb.permovdb.controller;
 
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.permovdb.permovdb.annotation.CurrentUser;
 import com.permovdb.permovdb.domain.Movie;
 import com.permovdb.permovdb.domain.User;
 import com.permovdb.permovdb.security.AuthResponse;
-import com.permovdb.permovdb.security.JwtUtil;
+import com.permovdb.permovdb.security.JwtCookieUtil;
 import com.permovdb.permovdb.service.MovieService;
 import com.permovdb.permovdb.service.UserService;
 
 import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 public class UserController {
@@ -34,8 +30,11 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    // @Autowired
+    // private JwtUtil jwtUtil;
+
     @Autowired
-    private JwtUtil jwtUtil;
+    private JwtCookieUtil jwtCookieUtil;
 
     UserController() {
     }
@@ -47,9 +46,11 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@RequestBody User user) {
+    public ResponseEntity<String> registerUser(@RequestBody User user, HttpServletResponse response) {
         try {
-            userService.saveUser(user);
+
+            AuthResponse authResponse = userService.saveUser(user);
+            jwtCookieUtil.addJwtCookie(response, authResponse.getToken());
 
         } catch (Exception e) {
             System.out.println(e.getLocalizedMessage());
@@ -61,24 +62,13 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody User user, HttpServletResponse response) {
         try {
-
             AuthResponse authResponse = userService.authUser(user);
 
-            if (authResponse.getToken() == null || authResponse.getUsername() == null) {
+            if (authResponse == null) {
                 return new ResponseEntity<>("Server error. response null.", HttpStatus.EXPECTATION_FAILED);
             }
 
-            String token = authResponse.getToken();
-
-            Cookie jwtCookie = new Cookie("jwt_token", token);
-
-            jwtCookie.setHttpOnly(true);
-            jwtCookie.setSecure(true);
-            jwtCookie.setPath("/");
-            jwtCookie.setDomain("localhost");
-            jwtCookie.setAttribute("SameSite", token);
-
-            response.addCookie(jwtCookie);
+            jwtCookieUtil.addJwtCookie(response, authResponse.getToken());
 
             return new ResponseEntity<>(user.getUsername(), HttpStatus.OK);
 

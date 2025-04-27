@@ -10,7 +10,6 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 
 import com.permovdb.permovdb.annotation.CurrentUser;
 
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 
 @Component
@@ -27,9 +26,7 @@ public class CurrentUserResolver implements HandlerMethodArgumentResolver {
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
             NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
         HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
-        for (Cookie i : request.getCookies()) {
-            System.out.println(i);
-        }
+
         return jwtUtil.extractUsernameFromRequest(request);
     }
 

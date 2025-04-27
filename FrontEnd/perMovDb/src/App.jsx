@@ -1,69 +1,72 @@
 import { useState, useEffect } from "react";
-import "./App.css";
+import { Routes, Route, useNavigate } from "react-router-dom";
+import { useUser } from "./context/UserContext";
+
 import axios from "axios";
+
+import "./App.css";
+
 import DiscoverPage from "./components/DiscoverPage";
 import Header from "./components/Header";
 import DetailsPage from "./components/DetailsPage";
-import { Routes, Route, useNavigate } from "react-router-dom";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import ProfilePage from "./components/ProfilePage";
 
 function App() {
-  // For login and jwt token
-  const [formData, setFormData] = useState({
-    username: "",
-    password: "",
-    confirmPassword: "",
-  });
-
-  //user state
-  const [user, setUser] = useState(null);
-
+  const { user, login } = useUser();
   // const [response, setResponse] = useState();
   const [result, setResult] = useState();
-  const [buttonText, setButtonText] = useState("Login");
-  const [selectedMovie, setSelectedMovie] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
   // const [movieId, setMovieId] = useState(null);
   // const [actionType, setActionType] = useState(null);
 
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
+  // useEffect(() => {
+  //   const fetchUser = async () => {
+  //     try {
+  //       const res = await axios.get("http://localhost:8080/api/me", {
+  //         withCredentials: true,
+  //       });
+  //       login(res.data); // Assuming login sets the user data in context
+  //     } catch (err) {
+  //       console.error("Backend error:", err);
+  //     } finally {
+  //       setLoading(false); // Once the request finishes, stop loading
+  //     }
+  //   };
 
+  //   fetchUser();
+  // }, [login]);
+  console.log("user: " + user);
   useEffect(() => {
-    axios
-      .get("http://localhost:8080/api/me", { withCredentials: true })
-      .then((res) => console.log("api/me" + res.data))
+    const fetchUser = async () => {
+      const res = await axios
+        .get("http://localhost:8080/api/me", { withCredentials: true })
+        .catch((err) => console.error("User not exist."));
+      if (res == null) {
+        console.log("res null no user");
+      } else {
+        login(res.data);
+      }
 
-      .catch((err) => console.error("Backend error:", err));
-    // console.log(user);
+      axios
+        .get("http://localhost:8080/", { withCredentials: true })
+        .then((res) => setResult(res.data))
+        .catch((err) => console.error("Backend error:", err));
+    };
+    fetchUser();
   }, []);
-
-  function handleSubmit(formData) {
-    login(formData);
-  }
-
-  
-  const logOut = async () => {
-    const response = await axios
-      .get("http://localhost:8080/logout", { withCredentials: true })
-      .catch((err) => console.error("Backend error:", err));
-    console.log(response);
-  };
-
-  // const location = useLocation();
-
-  // function handleWatchList(id, action) {
-  //   setMovieId(id);
-  //   setActionType(action);
-  // }
+  console.log("user: " + user);
 
   //first api call for discovery page
-  useEffect(() => {
-    axios
-      .get("http://localhost:8080/", { withCredentials: true })
-      .then((res) => setResult(res.data))
-      .catch((err) => console.error("Backend error:", err));
-  }, []);
+  // useEffect(() => {
+  //   axios
+  //     .get("http://localhost:8080/", { withCredentials: true })
+  //     .then((res) => setResult(res.data))
+  //     .catch((err) => console.error("Backend error:", err));
+  // }, []);
 
   //watchlist add and remove calls for api
   // useEffect(() => {
@@ -82,57 +85,40 @@ function App() {
   //   }
   // }, [movieId, actionType]);
 
-  function LogOutRoute({ logOut }) {
-    const navigate = useNavigate();
-    useEffect(() => {
-      logOut();
-      setButtonText("Login");
-      navigate("/discover");
-    }, []);
-    return null;
-  }
-
   return (
     <>
-      <Header buttonText={buttonText} user={user} />
+      <Header />
       <Routes>
-        <Route
+        {/* <Route
           path="/"
           element={
-            selectedMovie ? (
-              <DetailsPage item={selectedMovie} />
+            isLoading ? (
+             
             ) : (
               <DiscoverPage
                 result={result}
-                onCardClick={setSelectedMovie}
-                onWatchListAdd={setSelectedMovie}
-                user={user}
+                // onCardClick={setSelectedMovie}
+                // onWatchListAdd={setSelectedMovie}
+                // user={user}
               />
             )
           }
-        />
+        /> */}
         <Route
-          path="/discover"
+          path="/"
           element={
             <DiscoverPage
               result={result}
-              onCardClick={setSelectedMovie}
-              onWatchListAdd={setSelectedMovie}
+              // onCardClick={setSelectedMovie}
+              // onWatchListAdd={setSelectedMovie}
             />
           }
         />
 
         <Route path="/register" element={<Register />} />
-        <Route path="/Login" element={<Login handleSubmit={handleSubmit} />} />
-        <Route path="/LogOut" element={<LogOutRoute logOut={logOut} />} />
+        <Route path="/Login" element={<Login />} />
         <Route path="/profile" element={<ProfilePage user={user} />} />
       </Routes>
-      {/* <button
-        className="bg-amber-900 text-amber-50  rounded-lg text-sm py-2 px-4 me-1 trans top-buttons"
-        onClick={testFunc}
-      >
-        Click
-      </button> */}
     </>
   );
 }

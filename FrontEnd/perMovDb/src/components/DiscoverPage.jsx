@@ -1,12 +1,9 @@
 import Card from "./card";
 import { useState } from "react";
+import { useUser } from "../context/UserContext";
 
-export default function DiscoverPage({
-  result,
-  onCardClick,
-  onWatchListAdd,
-  user,
-}) {
+export default function DiscoverPage({ result, onCardClick, onWatchListAdd }) {
+  const user = useUser();
   return (
     <>
       <h2 className="text-center p-7  text-amber-100 font-bold text-4xl page-title">
@@ -18,7 +15,6 @@ export default function DiscoverPage({
           result={result}
           onCardClick={onCardClick}
           onWatchListAdd={onWatchListAdd}
-          user={user}
         />
       </main>
     </>
@@ -43,7 +39,7 @@ function CardList({ result, onCardClick, onWatchListAdd }) {
     onWatchListAdd(id, actionType);
   }
 
-  if (!result) return <div>Loading film...</div>;
+  // if (!result) return <div>Loading film...</div>;
   if (!Array.isArray(result))
     return <div className="text-center text-amber-700">Loading...</div>;
 

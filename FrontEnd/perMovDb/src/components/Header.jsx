@@ -1,18 +1,19 @@
 import movieLogo from "/movie.png";
 import SingleButton from "./SingleButton";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useUser } from "../context/UserContext";
+import { useNavigate } from "react-router-dom";
 
-export default function Header({ buttonText, user }) {
+export default function Header() {
   const navigate = useNavigate();
-  const location = useLocation();
+
+  const user = sessionStorage.getItem("userData");
+  const { logOut } = useUser();
 
   const openRegister = () => {
-    navigate("/register", { state: { backgroundLocation: location } });
+    navigate("/register");
   };
-  const LoginOrLogOut = () => {
-    navigate("/" + !user ? "LogOut" : "Login", {
-      state: { backgroundLocation: location },
-    });
+  const navigateLogin = () => {
+    navigate("/login");
   };
 
   return (
@@ -28,6 +29,8 @@ export default function Header({ buttonText, user }) {
               PerMovDb
             </span>
           </a>
+
+          <a href="/"></a>
           <div className="flex md:order-2 gap-3">
             <button
               type="button"
@@ -95,11 +98,16 @@ export default function Header({ buttonText, user }) {
                   onClick={openRegister}
                 />
               )}
-              <SingleButton
-                text={buttonText}
-                path={"/" + buttonText}
-                onClick={LoginOrLogOut}
-              />
+              {!user && (
+                <SingleButton
+                  text="Login"
+                  path="/login"
+                  onClick={navigateLogin}
+                />
+              )}
+              {user && (
+                <SingleButton text="Log Out" path="/login" onClick={logOut} />
+              )}
             </div>
             {/* <button
               data-collapse-toggle="navbar-search"

@@ -17,10 +17,6 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 @RestController
 class Controller {
@@ -51,7 +47,7 @@ class Controller {
 
                         Root root = mapper.readValue(response.body(), Root.class);
 
-                        for (Movie movie : root.results) { // redirecting poster paths to the image
+                        for (Movie movie : root.results) { // redirecting poster paths to the image url
 
                                 movie.setPoster_path("https://image.tmdb.org/t/p/original" +
                                                 movie.getPoster_path());

@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 export default function SingleButton({ text, path, onClick }) {
   const navigate = useNavigate();
   const handleClick = () => {
-    onClick(); // Call the passed down onClick prop
-    navigate(path); // Navigate to the provided path
+    onClick();
+    navigate(path);
   };
 
   return (
