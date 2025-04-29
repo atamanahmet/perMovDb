@@ -1,20 +1,22 @@
 import movieLogo from "/movie.png";
-import SingleButton from "./SingleButton";
+// import SingleButton from "./SingleButton";
 import { useUser } from "../context/UserContext";
 import { useNavigate } from "react-router-dom";
 
 export default function Header() {
   const navigate = useNavigate();
 
-  const user = sessionStorage.getItem("userData");
-  const { logOut } = useUser();
+  const { user, logOut } = useUser();
 
-  const openRegister = () => {
-    navigate("/register");
-  };
+  // const navigateRegister = () => {
+  //   navigate("/register");
+  // };
   const navigateLogin = () => {
     navigate("/login");
   };
+  function handleLogOut(){
+    logOut();
+  }
 
   return (
     <>
@@ -91,22 +93,27 @@ export default function Header() {
                   alt="Bordered avatar"
                 />
               )}
+              {/* {!user && (
+                <button
+                  className="bg-amber-900 text-amber-50  rounded-lg text-sm py-2 px-4 me-1 top-buttons"
+                  onClick={navigateRegister}
+                >
+                  Register
+                </button>
+              )}*/}
               {!user && (
-                <SingleButton
-                  text="Sign Up"
-                  path="/register"
-                  onClick={openRegister}
-                />
-              )}
-              {!user && (
-                <SingleButton
-                  text="Login"
-                  path="/login"
+                <button
+                  className="bg-amber-900 text-amber-50  rounded-lg text-sm py-2 px-4 me-1 top-buttons"
                   onClick={navigateLogin}
-                />
-              )}
+                >Login</button>
+              )} 
               {user && (
-                <SingleButton text="Log Out" path="/login" onClick={logOut} />
+                <button
+                  className="bg-amber-900 text-amber-50  rounded-lg text-sm py-2 px-4 me-1 top-buttons"
+                  onClick={handleLogOut}
+                >
+                  Log Out
+                </button>
               )}
             </div>
             {/* <button

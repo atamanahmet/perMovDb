@@ -32,13 +32,13 @@ export default function Register() {
       const response = await axios.post("http://localhost:8080/register", {
         username: formData.username,
         password: formData.password,
-      });
+      }, {withCredentials:true});
 
       if (response.status === 201) {
         setResponse("Account created succesfully. Redirecting...");
         setTimeout(function () {
           //do what you need here
-          navigate("/login", formData.username, formData.password);
+          navigate("/discover");
         }, 2000);
       }
     } catch (err) {

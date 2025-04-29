@@ -23,19 +23,20 @@ export default function Login() {
   };
 
   const handleSubmit = async () => {
+    console.log("login requested")
     try {
       const response = await axios
         .post("http://localhost:8080/login", {
           username: formData.username,
           password: formData.password,
-        })
+        },{withCredentials:true})
         .catch((err) => console.error("Backend error:", err));
-
+        console.log(response.data)
       if (response.status === 200) {
         setResponse("Logged-in succesfully. Redirecting...");
         login(response.data);
         setTimeout(function () {
-          navigate("/profile");
+          navigate("/");
         }, 2000);
       }
     } catch (err) {

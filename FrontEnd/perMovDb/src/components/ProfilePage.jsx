@@ -1,4 +1,6 @@
 import { useUser } from "../context/UserContext";
+
+
 export default function ProfilePage() {
   const { user, logout } = useUser();
 

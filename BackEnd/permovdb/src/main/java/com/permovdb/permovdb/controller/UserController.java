@@ -1,17 +1,7 @@
 package com.permovdb.permovdb.controller;
 
-import org.springframework.web.bind.annotation.RestController;
-
-import com.permovdb.permovdb.annotation.CurrentUser;
-import com.permovdb.permovdb.domain.Movie;
-import com.permovdb.permovdb.domain.User;
-import com.permovdb.permovdb.security.AuthResponse;
-import com.permovdb.permovdb.security.JwtCookieUtil;
-import com.permovdb.permovdb.service.MovieService;
-import com.permovdb.permovdb.service.UserService;
-
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,6 +10,20 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.permovdb.permovdb.domain.Movie;
+import com.permovdb.permovdb.domain.User;
+import com.permovdb.permovdb.security.AuthResponse;
+import com.permovdb.permovdb.security.JwtCookieUtil;
+import com.permovdb.permovdb.security.JwtUtil;
+import com.permovdb.permovdb.service.MovieService;
+import com.permovdb.permovdb.service.UserService;
+
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
 public class UserController {
@@ -30,14 +34,11 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    // @Autowired
-    // private JwtUtil jwtUtil;
+    @Autowired
+    private JwtUtil jwtUtil;
 
     @Autowired
     private JwtCookieUtil jwtCookieUtil;
-
-    UserController() {
-    }
 
     @GetMapping("/signup")
     public String getForm() {
@@ -61,16 +62,18 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody User user, HttpServletResponse response) {
+        System.out.println("username" + user.getUsername());
         try {
             AuthResponse authResponse = userService.authUser(user);
 
             if (authResponse == null) {
                 return new ResponseEntity<>("Server error. response null.", HttpStatus.EXPECTATION_FAILED);
             }
+            System.out.println("created token: " + authResponse.getToken());
 
             jwtCookieUtil.addJwtCookie(response, authResponse.getToken());
 
-            return new ResponseEntity<>(user.getUsername(), HttpStatus.OK);
+            return new ResponseEntity<>(authResponse.getUsername(), HttpStatus.OK);
 
         } catch (Exception e) {
             System.out.println("error : " + e.getLocalizedMessage());
@@ -78,9 +81,11 @@ public class UserController {
         }
     }
 
-    @GetMapping("/user/{username}/watchlist/{id}/{actionType}")
+    @GetMapping("/user/watchlist/{id}/{actionType}")
     public ResponseEntity<?> addToWatchList(@PathVariable(name = "id") String id,
-            @PathVariable(name = "username") String username, @PathVariable(name = "actionType") String actionType) {
+            @PathVariable(name = "actionType") String actionType, HttpServletRequest request) {
+
+        String username = jwtUtil.extractUsernameFromRequest(request);
 
         Long movieId = (id == null) ? null : Long.valueOf(id);
 
@@ -132,25 +137,49 @@ public class UserController {
     }
 
     @GetMapping("/api/me")
-    public ResponseEntity<String> getCurrentUser(@CurrentUser String username) {
+    public ResponseEntity<String> getCurrentUser(HttpServletRequest request) {
+        if (request.getCookies() == null) {
+            return new ResponseEntity<>(null, HttpStatus.OK);
+        }
+        Cookie cookie = jwtCookieUtil.getJWTCookie(request);
 
-        System.out.println("/api/me call made. Returned: " + username);
+        if (cookie != null) {
 
-        return new ResponseEntity<>(
-                username,
-                (username == null) ? HttpStatus.UNAUTHORIZED : HttpStatus.OK);
+            String token = cookie.getValue();
+            System.out.println("request token = " + token);
+
+            String username = jwtUtil.extractUsername(token);
+            System.out.println("Response username to return : " + username);
+            if (username == null) {
+                return new ResponseEntity<>(username, HttpStatus.OK);
+
+            }
+            return new ResponseEntity<>(username, HttpStatus.OK);
+        }
+        return new ResponseEntity<>("cookie is null", HttpStatus.OK);
     }
 
-    @GetMapping("/logout")
-    public ResponseEntity<String> logOut(HttpServletResponse response) {
+    @GetMapping("/user/watchlist")
+    public ResponseEntity<String> getWatchlist(HttpServletRequest request) {
+        String username = jwtUtil.extractUsernameFromRequest(request);
 
-        Cookie cookie = new Cookie("jwt_token", "");
+        User user = userService.loadByUserName(username);
 
-        cookie.setHttpOnly(true);
-        cookie.setPath("/");
-        response.addCookie(cookie);
+        if (user != null) {
+            ObjectMapper mapper = new ObjectMapper();
+            try {
+                Set<Long> watchListIds = new HashSet<>();
+                for (Movie movie : user.getWatchlist()) {
+                    watchListIds.add(movie.getId()); // Add only the movie IDs
+                }
 
-        return new ResponseEntity<>("Loged Out", HttpStatus.OK);
+                return new ResponseEntity<>(mapper.writeValueAsString(watchListIds), HttpStatus.OK);
+            } catch (Exception e) {
+                System.out.println(e.getLocalizedMessage());
+            }
+        }
+        return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+
     }
 
 }

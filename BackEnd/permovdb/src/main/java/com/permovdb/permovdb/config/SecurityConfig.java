@@ -2,7 +2,6 @@ package com.permovdb.permovdb.config;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -10,10 +9,12 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import com.permovdb.permovdb.security.JwtLogoutHandler;
 import com.permovdb.permovdb.security.filter.JwtAuthFilter;
 
 @Configuration
@@ -23,6 +24,10 @@ public class SecurityConfig {
     @Bean
     public JwtAuthFilter jwtAuthFilter() {
         return new JwtAuthFilter();
+    }
+    @Bean
+    public JwtLogoutHandler jwtLogoutHandler() {
+        return new JwtLogoutHandler();
     }
 
     @Bean
@@ -35,12 +40,21 @@ public class SecurityConfig {
                         .requestMatchers("/").permitAll()
                         .requestMatchers("/register").permitAll()
                         .requestMatchers("/login").permitAll()
+                        .requestMatchers("/logout").permitAll()
+                        // .requestMatchers("/login?logout").permitAll()
                         .requestMatchers("/user/**").permitAll()
                         .requestMatchers("/api/me").permitAll()
                         .anyRequest().authenticated())
+                .logout(logout -> logout
+                        .logoutUrl("/logout") // Define the logout URL (POST by default)
+                        .logoutSuccessUrl("/") // Redirect after logout
+                        .addLogoutHandler(jwtLogoutHandler())
+                        // .logoutSuccessHandler(customlogoutSuccessHandler())
+                        .invalidateHttpSession(true) // Invalidate session after logout
+                        .clearAuthentication(true) // Clear authentication after logout
+                        .permitAll())
                 .addFilterBefore(jwtAuthFilter(), UsernamePasswordAuthenticationFilter.class)
                 .build();
-
     }
 
     @Bean
@@ -55,6 +69,10 @@ public class SecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
+    }
+
+    private LogoutSuccessHandler logoutSuccessHandler() {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
 }
