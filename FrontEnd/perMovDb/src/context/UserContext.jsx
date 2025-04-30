@@ -22,6 +22,7 @@ export const UserProvider = ({ children }) => {
       .then((res) => {
         console.log("Token verification, username: " + res.data);
         login(res.data);
+        getWatchList();
       })
       .catch((err) => {
         console.log("Error: " + err);
@@ -37,14 +38,20 @@ export const UserProvider = ({ children }) => {
   }, [location.pathname]);
 
   useEffect(() => {
-    if(user){
+    if (user) {
       getWatchList();
     }
   }, [user]);
 
   const getWatchList = async () => {
-    if(user){
-      await axios.get("http://localhost:8080/user/watchlist",{withCredentials:true}).then((res)=>setWatchlist(res.data)).catch((err)=>console.log(err))
+    if (user) {
+      await axios
+        .get("http://localhost:8080/user/watchlistIdSet", {
+          withCredentials: true,
+        })
+        .then((res) => setWatchlist(res.data))
+        .catch((err) => console.log(err));
+      // console.log(watchlist);
     }
   };
 
@@ -76,17 +83,36 @@ export const UserProvider = ({ children }) => {
 
   const handleWatchList = async (movieId, actionType) => {
     console.log("watchlist context called");
+
     if (movieId && actionType) {
-      axios
-        .get(
-          "http://localhost:8080/user/watchlist/" + movieId + "/" + actionType,
+      try {
+        const res = await axios.get(
+          `http://localhost:8080/user/watchlist/${movieId}/${actionType}`,
           { withCredentials: true }
-        )
-        .catch((err) => console.error("Backend error:", err));
-        watchlist.add(movieId);
+        );
+
+        if (res.status === 200) {
+          // Convert the watchlist Set to an array
+          const updatedArray = [...watchlist];
+
+          if (actionType === "del") {
+            const index = updatedArray.indexOf(movieId);
+            if (index !== -1) {
+              updatedArray.splice(index, 1); // Remove movieId from array
+            }
+          } else {
+            updatedArray.push(movieId); // Add movieId to array
+          }
+
+          // Update the state with the modified array
+          setWatchlist(updatedArray);
+        }
+      } catch (err) {
+        console.error("Backend error:", err);
+      }
     }
   };
-  
+
   return (
     <UserContext.Provider
       value={{
@@ -96,7 +122,6 @@ export const UserProvider = ({ children }) => {
         logOut,
         handleWatchList,
         watchlist,
-        setWatchlist,
       }}
     >
       {children}

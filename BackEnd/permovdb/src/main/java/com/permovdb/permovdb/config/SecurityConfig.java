@@ -25,6 +25,7 @@ public class SecurityConfig {
     public JwtAuthFilter jwtAuthFilter() {
         return new JwtAuthFilter();
     }
+
     @Bean
     public JwtLogoutHandler jwtLogoutHandler() {
         return new JwtLogoutHandler();
@@ -44,6 +45,7 @@ public class SecurityConfig {
                         // .requestMatchers("/login?logout").permitAll()
                         .requestMatchers("/user/**").permitAll()
                         .requestMatchers("/api/me").permitAll()
+                        .requestMatchers("/movie/**").permitAll()
                         .anyRequest().authenticated())
                 .logout(logout -> logout
                         .logoutUrl("/logout") // Define the logout URL (POST by default)

@@ -1,15 +1,14 @@
 import Card from "./Card";
 import { useState } from "react";
 import { useUser } from "../context/UserContext";
+import WatchlistButton from "./WatchlistButton";
 
 export default function DiscoverPage({ result, onCardClick }) {
-  const {user, loading, handleWatchList, watchlist} = useUser();
+  const { user, loading, handleWatchList, watchlist } = useUser();
 
   if (loading) {
     return <div>Loading...</div>; // wait for fetch
   }
-  
-  
 
   return (
     <>
@@ -30,18 +29,15 @@ export default function DiscoverPage({ result, onCardClick }) {
   );
 }
 
-function CardList({ result, onCardClick, addOrRemove, user, watchlist, setWatchlist }) {
-  
-
+function CardList({ result, onCardClick, addOrRemove }) {
+  const { user, watchlist } = useUser();
   function handleWatchlistToogle(id) {
     let actionType = null;
     const updateSet = new Set(watchlist);
     console.log(updateSet);
     if (updateSet.has(id)) {
-      updateSet.delete(id);
       actionType = "del";
     } else {
-      updateSet.add(id);
       actionType = "add";
     }
     addOrRemove(id, actionType);
@@ -51,34 +47,11 @@ function CardList({ result, onCardClick, addOrRemove, user, watchlist, setWatchl
   if (!Array.isArray(result))
     return <div className="text-center text-amber-700">Loading...</div>;
 
-      
-  function isUserExist(user,item,watchlist) {
-
-    if (user != null) {
-      return (
-        <>
-          <button
-            className="absolute h-7 w-7 text-amber-100 bg-amber-200 rounded left-1 z-0 addButton"
-            onClick={() => {
-              handleWatchlistToogle(item.id);
-            }}
-          >
-            {watchlist.has(item.id) ? (
-              <span className="text-amber-100 remove absolute">-</span>
-            ) : (
-              <span className="text-amber-100 add absolute">+</span>
-            )}
-          </button>
-        </>
-      )
-    }
-  }
-
   return (
     <>
       {result.map((item) => (
         <div key={item.id} className="relative mb-4">
-          {isUserExist(user, item, watchlist)}
+          {user && <WatchlistButton item={item} />}
           <div onClick={() => onCardClick(item)} className="z-1 relative">
             <Card
               key={item.id}

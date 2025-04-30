@@ -7,6 +7,9 @@ import java.util.Set;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -21,6 +24,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Movie {
 
     public Movie() {
@@ -71,6 +75,7 @@ public class Movie {
     @Column
     private int vote_count;
 
+    @JsonIgnore
     @ManyToMany(mappedBy = "watchlist")
     private Set<User> userList = new HashSet<>();
 

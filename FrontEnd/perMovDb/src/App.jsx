@@ -16,7 +16,7 @@ import Login from "./pages/Login";
 import ProfilePage from "./components/ProfilePage";
 
 function App() {
-  const { user, login, logOut } = useUser();
+  const { user, login, logOut, watchlist } = useUser();
   const [result, setResult] = useState();
   const [isLoading, setIsLoading] = useState(true);
   const [username, setUsername] = useState(null);
@@ -44,7 +44,7 @@ function App() {
         )
         .catch((err) => console.error("Backend error:", err));
     }
-  }, [movieId, actionType]);
+  }, [movieId, actionType, watchlist]);
 
   return (
     <>

@@ -48,4 +48,7 @@ public class User {
     @JoinTable(name = "user_watchlist", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "movie_id"))
     private Set<Movie> watchlist = new HashSet<>();
 
+    @Column(nullable = true, unique = false)
+    private Set<Long> watchListIdSet = new HashSet<>();
+
 }

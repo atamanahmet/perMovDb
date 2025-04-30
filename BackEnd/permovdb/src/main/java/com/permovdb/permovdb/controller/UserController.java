@@ -1,6 +1,5 @@
 package com.permovdb.permovdb.controller;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.permovdb.permovdb.domain.Movie;
 import com.permovdb.permovdb.domain.User;
 import com.permovdb.permovdb.security.AuthResponse;
@@ -108,6 +107,7 @@ public class UserController {
         if (actionType.equals("add")) {
             if (!user.getWatchlist().contains(movie)) {
                 user.getWatchlist().add(movie);
+                user.getWatchListIdSet().add(movie.getId());
             }
 
             if (!movie.getUserList().contains(user)) {
@@ -116,6 +116,7 @@ public class UserController {
         } else if (actionType.equals("del")) {
             if (user.getWatchlist().contains(movie)) {
                 user.getWatchlist().remove(movie);
+                user.getWatchListIdSet().remove(movie.getId());
             }
 
             if (movie.getUserList().contains(user)) {
@@ -128,11 +129,8 @@ public class UserController {
         userService.saveUser(user);
         movieService.saveMovie(movie);
 
-        String response = "";
+        String response = "Removed";
 
-        for (Movie i : user.getWatchlist()) {
-            response = response + " " + i.getId();
-        }
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -160,26 +158,34 @@ public class UserController {
     }
 
     @GetMapping("/user/watchlist")
-    public ResponseEntity<String> getWatchlist(HttpServletRequest request) {
-        String username = jwtUtil.extractUsernameFromRequest(request);
+    public ResponseEntity<Set<Movie>> getWatchlist(HttpServletRequest request) throws JsonProcessingException {
+        String username = (jwtUtil.extractUsernameFromRequest(request) != null)
+                ? jwtUtil.extractUsernameFromRequest(request)
+                : "123";
+        // String username = jwtUtil.extractUsernameFromRequest(request);
 
         User user = userService.loadByUserName(username);
-
-        if (user != null) {
-            ObjectMapper mapper = new ObjectMapper();
-            try {
-                Set<Long> watchListIds = new HashSet<>();
-                for (Movie movie : user.getWatchlist()) {
-                    watchListIds.add(movie.getId()); // Add only the movie IDs
-                }
-
-                return new ResponseEntity<>(mapper.writeValueAsString(watchListIds), HttpStatus.OK);
-            } catch (Exception e) {
-                System.out.println(e.getLocalizedMessage());
-            }
+        if (user == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        // ObjectMapper mapper = new ObjectMapper();
+        return new ResponseEntity<>(user.getWatchlist(), HttpStatus.OK);
+    }
 
+    @GetMapping("/user/watchlistIdSet")
+    public ResponseEntity<Set<Long>> getWatchlistIdSet(HttpServletRequest request) throws JsonProcessingException {
+        String username = (jwtUtil.extractUsernameFromRequest(request) != null)
+                ? jwtUtil.extractUsernameFromRequest(request)
+                : "123";
+
+        // String username = jwtUtil.extractUsernameFromRequest(request);
+
+        User user = userService.loadByUserName(username);
+        if (user == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        // ObjectMapper mapper = new ObjectMapper();
+        return new ResponseEntity<>(user.getWatchListIdSet(), HttpStatus.OK);
     }
 
 }
