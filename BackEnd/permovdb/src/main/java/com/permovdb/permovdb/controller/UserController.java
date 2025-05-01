@@ -9,7 +9,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.permovdb.permovdb.domain.Movie;
@@ -48,8 +50,14 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<String> registerUser(@RequestBody User user, HttpServletResponse response) {
         try {
+            AuthResponse authResponse = new AuthResponse();
+            // if (file != null) {
+            // authResponse = userService.saveUser(username, password, file);
 
-            AuthResponse authResponse = userService.saveUser(user);
+            // } else {
+            // authResponse = userService.saveUser(username, password);
+            // }
+            System.out.println("authtoken cr3eated: " + authResponse.getToken());
             jwtCookieUtil.addJwtCookie(response, authResponse.getToken());
 
         } catch (Exception e) {
@@ -60,8 +68,9 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> loginUser(@RequestBody User user, HttpServletResponse response) {
+    public ResponseEntity<String> loginUser(@RequestBody User user, HttpServletResponse response) {
         System.out.println("username" + user.getUsername());
+        System.out.println("username" + user.getPassword());
         try {
             AuthResponse authResponse = userService.authUser(user);
 
@@ -126,7 +135,7 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
-        userService.saveUser(user);
+        userService.updateUser(user);
         movieService.saveMovie(movie);
 
         String response = "Removed";

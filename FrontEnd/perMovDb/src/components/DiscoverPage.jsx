@@ -63,6 +63,7 @@ function CardList({ result, onCardClick, addOrRemove }) {
               title={item.title}
               vote_average={item.vote_average.toFixed(1)}
               original_language={item.original_language}
+              release_date={item.release_date}
             />
           </div>
         </div>

@@ -44,7 +44,7 @@ class Controller {
                         HttpResponse<String> response = HttpClient.newHttpClient().send(request,
                                         HttpResponse.BodyHandlers.ofString());
 
-                        // System.out.println(response.body());
+                        System.out.println(response.body());
 
                         ObjectMapper mapper = new ObjectMapper();
 

@@ -5,8 +5,8 @@ body {
 .card {
   box-shadow: 2px 4px 8px 0 rgba(90, 44, 0, 0.5);
   transition: 0.3s;
-  width: 200px;
-  height: 360px;
+  width: 215px;
+  height: 390px;
   border-radius: 5px;
   border: 0.01rem solid gray;
   background-color: rgb(241, 241, 241);
@@ -18,6 +18,8 @@ body {
 }
 
 .poster {
+  border-radius: 5px 5px 0px 0px;
+
   top: 0;
   width: 200;
   height: 82%;
@@ -48,8 +50,20 @@ body {
   box-shadow: 5px 8px 16px 5px rgba(170, 68, 1, 0.2);
   transform: translateY(-3px);
 }
-.register {
-  margin-left: 19.3%;
+.register-form {
+  /* min-width: 10rem; */
+  width: 28rem;
+}
+.register-parent {
+  width: 100%;
+}
+/* .register-inputs {
+} */
+.upload-area {
+  padding: 0.35rem;
+  padding-left: 1rem;
+  width: 20rem;
+  height: 2rem;
 }
 .addButton {
   box-shadow: 0 4px 8px 0 rgba(90, 44, 0, 0.274);
@@ -84,4 +98,7 @@ body {
 }
 .remove:hover {
   transform: tran;
+}
+.login-form {
+  margin-left: 15%;
 }

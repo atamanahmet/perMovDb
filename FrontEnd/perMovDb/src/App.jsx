@@ -59,6 +59,15 @@ function App() {
             />
           }
         />
+        <Route
+          path="/discover"
+          element={
+            <DiscoverPage
+              result={result}
+              // onCardClick={setSelectedMovie}
+            />
+          }
+        />
         <Route path="/register" element={<Register />} />
         <Route path="/Login" element={<Login />} />
         <Route path="/profile" element={<ProfilePage />} />

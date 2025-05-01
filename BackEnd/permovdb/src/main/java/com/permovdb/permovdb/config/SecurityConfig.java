@@ -2,6 +2,7 @@ package com.permovdb.permovdb.config;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -21,10 +22,8 @@ import com.permovdb.permovdb.security.filter.JwtAuthFilter;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Bean
-    public JwtAuthFilter jwtAuthFilter() {
-        return new JwtAuthFilter();
-    }
+    @Autowired
+    private JwtAuthFilter jwtAuthFilter;
 
     @Bean
     public JwtLogoutHandler jwtLogoutHandler() {
@@ -46,6 +45,7 @@ public class SecurityConfig {
                         .requestMatchers("/user/**").permitAll()
                         .requestMatchers("/api/me").permitAll()
                         .requestMatchers("/movie/**").permitAll()
+                        // .requestMatchers("/upload/**").permitAll()
                         .anyRequest().authenticated())
                 .logout(logout -> logout
                         .logoutUrl("/logout") // Define the logout URL (POST by default)
@@ -55,7 +55,7 @@ public class SecurityConfig {
                         .invalidateHttpSession(true) // Invalidate session after logout
                         .clearAuthentication(true) // Clear authentication after logout
                         .permitAll())
-                .addFilterBefore(jwtAuthFilter(), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 

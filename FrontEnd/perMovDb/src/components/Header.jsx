@@ -1,4 +1,5 @@
 import movieLogo from "/movie.png";
+import profile from "../assets/profile.png";
 // import SingleButton from "./SingleButton";
 import { useUser } from "../context/UserContext";
 import { useNavigate } from "react-router-dom";
@@ -8,13 +9,16 @@ export default function Header() {
 
   const { user, logOut } = useUser();
 
-  // const navigateRegister = () => {
-  //   navigate("/register");
-  // };
+  const navigateRegister = () => {
+    navigate("/register");
+  };
   const navigateLogin = () => {
     navigate("/login");
   };
-  function handleLogOut(){
+  const navigateProfile = () => {
+    navigate("/profile");
+  };
+  function handleLogOut() {
     logOut();
   }
 
@@ -89,24 +93,27 @@ export default function Header() {
               {user && (
                 <img
                   className="w-10 h-10 p-1 rounded-full ring-2 ring-gray-300 dark:ring-gray-500"
-                  src={movieLogo}
+                  src={profile}
                   alt="Bordered avatar"
+                  onClick={navigateProfile}
                 />
               )}
-              {/* {!user && (
+              {!user && (
                 <button
                   className="bg-amber-900 text-amber-50  rounded-lg text-sm py-2 px-4 me-1 top-buttons"
                   onClick={navigateRegister}
                 >
                   Register
                 </button>
-              )}*/}
+              )}
               {!user && (
                 <button
                   className="bg-amber-900 text-amber-50  rounded-lg text-sm py-2 px-4 me-1 top-buttons"
                   onClick={navigateLogin}
-                >Login</button>
-              )} 
+                >
+                  Login
+                </button>
+              )}
               {user && (
                 <button
                   className="bg-amber-900 text-amber-50  rounded-lg text-sm py-2 px-4 me-1 top-buttons"

@@ -60,7 +60,7 @@ export const UserProvider = ({ children }) => {
   };
 
   const logOut = async () => {
-    console.log("Logoutrequested");
+    console.log("Log out requested");
     const url = "http://localhost:8080/logout";
     try {
       await axios
@@ -74,7 +74,7 @@ export const UserProvider = ({ children }) => {
         .then((res) => setLogoutResult(res.data));
 
       console.log("Logged out");
-      console.log(logoutResult);
+      // console.log(logoutResult);
       setUser(null); // Clear user after server confirmed logout
     } catch (err) {
       console.log("Error during logout: ", err);

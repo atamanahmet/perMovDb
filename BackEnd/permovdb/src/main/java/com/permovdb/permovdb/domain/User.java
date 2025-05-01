@@ -29,6 +29,22 @@ public class User {
 
     }
 
+    public User(User user) {
+        this.username = user.getUsername();
+        this.password = user.getPassword();
+    }
+
+    // public User(String username, String password, String fileName) {
+    // this.username = username;
+    // this.password = password;
+    // this.profileImagePath = fileName;
+    // }
+
+    public User(String username, String password) {
+        this.username = username;
+        this.password = password;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -50,5 +66,8 @@ public class User {
 
     @Column(nullable = true, unique = false)
     private Set<Long> watchListIdSet = new HashSet<>();
+
+    // @Column(nullable = true, unique = true)
+    // private String profileImagePath;
 
 }

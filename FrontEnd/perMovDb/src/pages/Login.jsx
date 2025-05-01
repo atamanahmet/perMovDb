@@ -23,15 +23,20 @@ export default function Login() {
   };
 
   const handleSubmit = async () => {
-    console.log("login requested")
+    console.log("login requested");
+    console.log("username:" + formData.username);
+    console.log("password:" + formData.password);
     try {
-      const response = await axios
-        .post("http://localhost:8080/login", {
+      const response = await axios.post(
+        "http://localhost:8080/login",
+        {
           username: formData.username,
           password: formData.password,
-        },{withCredentials:true})
-        .catch((err) => console.error("Backend error:", err));
-        console.log(response.data)
+        },
+        { withCredentials: true }
+      );
+
+      console.log(response.data);
       if (response.status === 200) {
         setResponse("Logged-in succesfully. Redirecting...");
         login(response.data);
@@ -47,7 +52,7 @@ export default function Login() {
   return (
     <>
       <section className="mt-10">
-        <div className="flex flex-col my-5 px-6 py-8 mx-auto md:h-screen lg:py-0 register">
+        <div className="flex flex-col my-5 px-6 py-8 md:h-screen lg:py-0 login-form">
           <a
             href="#"
             className="flex items-center mb-6 text-2xl font-semibold text-amber-50 dark:text-amber-700"
@@ -63,7 +68,7 @@ export default function Login() {
                 className="space-y-4 md:space-y-6"
                 onSubmit={(e) => {
                   e.preventDefault();
-                  handleSubmit(formData);
+                  handleSubmit();
                 }}
               >
                 <div>
