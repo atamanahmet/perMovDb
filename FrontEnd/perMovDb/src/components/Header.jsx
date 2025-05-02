@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 export default function Header() {
   const navigate = useNavigate();
 
-  const { user, logOut } = useUser();
+  const { user, logOut, getWatchList } = useUser();
 
   const navigateRegister = () => {
     navigate("/register");
@@ -16,6 +16,7 @@ export default function Header() {
     navigate("/login");
   };
   const navigateProfile = () => {
+    getWatchList();
     navigate("/profile");
   };
   function handleLogOut() {
@@ -62,7 +63,7 @@ export default function Header() {
               </svg>
               <span className="sr-only">Search</span>
             </button>
-            <a href="/profile">{user ? user : "nouser"}</a>
+            {/* <a href="/profile">{user ? user : "nouser"}</a> */}
             <div className="relative hidden md:block">
               <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
                 <svg

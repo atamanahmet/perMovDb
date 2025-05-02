@@ -42,7 +42,7 @@ public class SecurityConfig {
                         .requestMatchers("/login").permitAll()
                         .requestMatchers("/logout").permitAll()
                         // .requestMatchers("/login?logout").permitAll()
-                        .requestMatchers("/user/**").permitAll()
+                        // .requestMatchers("/user/**").permitAll()
                         .requestMatchers("/api/me").permitAll()
                         .requestMatchers("/movie/**").permitAll()
                         // .requestMatchers("/upload/**").permitAll()

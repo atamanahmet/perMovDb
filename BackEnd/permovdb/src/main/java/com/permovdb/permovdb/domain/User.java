@@ -67,6 +67,14 @@ public class User {
     @Column(nullable = true, unique = false)
     private Set<Long> watchListIdSet = new HashSet<>();
 
+    @ManyToMany
+    @JoinTable(name = "user_watchedlist", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "movie_id"))
+    @Column(nullable = true, unique = false)
+    private Set<Movie> watchedlist = new HashSet<>();
+
+    @Column(nullable = true, unique = false)
+    private Set<Long> watchedlistIdSet = new HashSet<>();
+
     // @Column(nullable = true, unique = true)
     // private String profileImagePath;
 

@@ -32,7 +32,7 @@ function App() {
       .get("http://localhost:8080/", { withCredentials: true })
       .then((res) => setResult(res.data))
       .catch((err) => console.error("Backend error:", err));
-  }, [user]);
+  }, []);
 
   //watchlist add and remove calls for api
   useEffect(() => {

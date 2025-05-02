@@ -6,61 +6,60 @@ import collage from "../assets/collage.jpg";
 import { useNavigate } from "react-router-dom";
 
 export default function Register() {
-  // const navigate = useNavigate();
-  // const [response, setResponse] = useState("Register");
-  // const [file, setFile] = useState(null);
+  const navigate = useNavigate();
+  const [response, setResponse] = useState("Register");
+  const [file, setFile] = useState(null);
 
-  // const [formData, setFormData] = useState({
-  //   username: "",
-  //   password: "",
-  //   confirmPassword: "",
-  // });
+  const [formData, setFormData] = useState({
+    username: "",
+    password: "",
+    confirmPassword: "",
+  });
 
-  // const handleChange = (e) => {
-  //   const { name, value } = e.target;
-  //   setFormData((prevData) => ({
-  //     ...prevData,
-  //     [name]: value,
-  //   }));
-  // };
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  //   if (formData.password !== formData.confirmPassword) {
-  //     alert("Passwords do not match!");
-  //     return;
-  //   }
-  //   const data = new FormData();
-  //   data.append("username", formData.username);
-  //   data.append("password", formData.password);
-  //   if (file) {
-  //     data.append("file", file);
-  //   }
+    if (formData.password !== formData.confirmPassword) {
+      alert("Passwords do not match!");
+      return;
+    }
+    // const data = new FormData();
+    // data.append("username", formData.username);
+    // data.append("password", formData.password);
+    // if (file) {
+    //   data.append("file", file);
+    // }
 
-  //   try {
-  //     const response = await axios.post(
-  //       "http://localhost:8080/register",
-  //       data,
-  //       { headers: { "Content-Type": "multipart/form-data" } },
-  //       { withCredentials: true }
-  //     );
+    try {
+      const response = await axios.post(
+        "http://localhost:8080/register",
+        { username: formData.username, password: formData.password },
+        { withCredentials: true }
+      );
 
-  //     if (response.status === 201) {
-  //       setResponse("Account created succesfully. Redirecting...");
-  //       setTimeout(function () {
-  //         //do what you need here
-  //         navigate("/discover");
-  //       }, 2000);
-  //     }
-  //   } catch (err) {
-  //     console.log(err);
-  //     setResponse("Got some issue. Try again");
-  //   }
-  // };
+      if (response.status === 201) {
+        setResponse("Account created succesfully. Redirecting...");
+        setTimeout(function () {
+          //do what you need here
+          navigate("/login");
+        }, 2000);
+      }
+    } catch (err) {
+      console.log(err);
+      setResponse("Got some issue. Try again");
+    }
+  };
 
   return (
     <>
-      {/* <div className="flex flex-row justify-center register">
+      <div className="flex flex-row justify-center register">
         <section className="mt-10 min-w-220 register-parent">
           <a
             href="#"
@@ -177,7 +176,7 @@ export default function Register() {
                 </form>
               </div>
             </div>
-            <div className="flex flex-col items-center">
+            {/* <div className="flex flex-col items-center">
               <label
                 htmlFor="profilePicture"
                 className="mb-2 text-sm font-medium flex justify-center w-5/4  text-amber-50 dark:text-amber-50"
@@ -193,12 +192,12 @@ export default function Register() {
                 accept="image/*"
                 required
               />
-            </div>
+            </div> */}
           </div>
         </section>
       </div>
 
-      <img src={collage} alt="" /> */}
+      {/* <img src={collage} alt="" />  */}
     </>
   );
 }

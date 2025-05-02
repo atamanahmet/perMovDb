@@ -1,5 +1,5 @@
 import { createContext, useEffect, useState, useContext } from "react";
-import { useLocation } from "react-router";
+// import { useLocation } from "react-router";
 import axios from "axios";
 
 const UserContext = createContext();
@@ -7,11 +7,13 @@ const UserContext = createContext();
 export const useUser = () => useContext(UserContext);
 
 export const UserProvider = ({ children }) => {
+  // const location = useLocation();
   // const navigate = useNavigate();
-
   const [watchlist, setWatchlist] = useState(new Set());
+  const [watchlistIds, setWatchlistIds] = useState(new Set());
+  const [watchedlist, setWatchedlist] = useState(new Set());
+  const [watchedlistIds, setWatchedlistIds] = useState(new Set());
   const [loading, setLoading] = useState(true);
-  const location = useLocation();
   const [user, setUser] = useState(null);
   const [logoutResult, setLogoutResult] = useState(null);
 
@@ -23,6 +25,7 @@ export const UserProvider = ({ children }) => {
         console.log("Token verification, username: " + res.data);
         login(res.data);
         getWatchList();
+        getWatchedList();
       })
       .catch((err) => {
         console.log("Error: " + err);
@@ -42,16 +45,50 @@ export const UserProvider = ({ children }) => {
       getWatchList();
     }
   }, [user]);
+  useEffect(() => {
+    if (user) {
+      getWatchedList();
+    }
+  }, [user]);
 
   const getWatchList = async () => {
     if (user) {
       await axios
+        .get("http://localhost:8080/user/watchlist", {
+          withCredentials: true,
+        })
+        .then((res) => {
+          setWatchlist(new Set(res.data));
+        })
+        .catch((err) => console.log(err));
+      await axios
         .get("http://localhost:8080/user/watchlistIdSet", {
           withCredentials: true,
         })
-        .then((res) => setWatchlist(res.data))
+        .then((res) => {
+          setWatchlistIds(new Set(res.data));
+        })
         .catch((err) => console.log(err));
-      // console.log(watchlist);
+    }
+  };
+  const getWatchedList = async () => {
+    if (user) {
+      await axios
+        .get("http://localhost:8080/user/watchedlist", {
+          withCredentials: true,
+        })
+        .then((res) => {
+          setWatchedlist(new Set(res.data));
+        })
+        .catch((err) => console.log(err));
+      await axios
+        .get("http://localhost:8080/user/watchedlistIdSet", {
+          withCredentials: true,
+        })
+        .then((res) => {
+          setWatchedlistIds(new Set(res.data));
+        })
+        .catch((err) => console.log(err));
     }
   };
 
@@ -74,8 +111,7 @@ export const UserProvider = ({ children }) => {
         .then((res) => setLogoutResult(res.data));
 
       console.log("Logged out");
-      // console.log(logoutResult);
-      setUser(null); // Clear user after server confirmed logout
+      setUser(null);
     } catch (err) {
       console.log("Error during logout: ", err);
     }
@@ -91,21 +127,17 @@ export const UserProvider = ({ children }) => {
           { withCredentials: true }
         );
 
-        if (res.status === 200) {
-          // Convert the watchlist Set to an array
-          const updatedArray = [...watchlist];
+        if (res.status == 200) {
+          const updatedSet = new Set(watchlist);
 
-          if (actionType === "del") {
-            const index = updatedArray.indexOf(movieId);
-            if (index !== -1) {
-              updatedArray.splice(index, 1); // Remove movieId from array
-            }
+          if (actionType == "del") {
+            updatedSet.delete(movieId);
           } else {
-            updatedArray.push(movieId); // Add movieId to array
+            updatedSet.add(movieId);
           }
 
-          // Update the state with the modified array
-          setWatchlist(updatedArray);
+          setWatchlist(updatedSet);
+          getWatchList();
         }
       } catch (err) {
         console.error("Backend error:", err);
@@ -122,6 +154,10 @@ export const UserProvider = ({ children }) => {
         logOut,
         handleWatchList,
         watchlist,
+        watchedlist,
+        getWatchList,
+        watchlistIds,
+        watchedlistIds,
       }}
     >
       {children}

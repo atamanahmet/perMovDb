@@ -86,22 +86,6 @@ public class UserService {
         return null; // user already exist
     }
 
-    public AuthResponse saveUser(User user) {
-        if (userRepository.findByUsername(user.getUsername()) == null) {
-
-            User newUser = new User(user);
-
-            String token = jwtUtil.generateToken(newUser);
-
-            newUser.setJWToken(token);
-
-            userRepository.save(newUser);
-
-            return new AuthResponse(newUser.getUsername(), token);
-        }
-        return null; // user already exist
-    }
-
     public AuthResponse updateUser(User user) {
         if (userRepository.findByUsername(user.getUsername()) != null) {
 
@@ -118,7 +102,10 @@ public class UserService {
 
     public AuthResponse authUser(User user) {
         User existingUser = userRepository.findByUsername(user.getUsername());
-        System.out.println("existing username" + existingUser.getUsername());
+
+        System.out.println("authUser method info:");
+        System.out.println("existingUser username: " + existingUser.getUsername());
+        System.out.println("existingUser password: " + existingUser.getPassword());
 
         if (existingUser != null) {
 

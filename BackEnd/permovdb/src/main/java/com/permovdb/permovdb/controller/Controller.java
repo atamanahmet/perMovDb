@@ -68,8 +68,6 @@ class Controller {
                 public ResponseEntity<?> getMovieById(@PathVariable(name = "movieId", required = true) String movieId)
                                 throws IOException, InterruptedException {
 
-                        // System.out.println("id: " + movieId);
-
                         HttpRequest request = HttpRequest.newBuilder()
                                         .uri(URI.create(
                                                         "https://api.themoviedb.org/3/movie/"
@@ -85,6 +83,7 @@ class Controller {
 
                         ObjectMapper mapper = new ObjectMapper();
 
+                        // For db entry
                         Movie movie = mapper.readValue(response.body(), Movie.class);
 
                         // System.out.println(movie.getTitle());

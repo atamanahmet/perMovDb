@@ -1,5 +1,6 @@
 package com.permovdb.permovdb.controller;
 
+import java.util.ArrayList;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,14 +51,16 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<String> registerUser(@RequestBody User user, HttpServletResponse response) {
         try {
-            AuthResponse authResponse = new AuthResponse();
+            AuthResponse authResponse = userService.saveUser(user.getUsername(), user.getPassword());
+
             // if (file != null) {
             // authResponse = userService.saveUser(username, password, file);
 
             // } else {
             // authResponse = userService.saveUser(username, password);
             // }
-            System.out.println("authtoken cr3eated: " + authResponse.getToken());
+            // System.out.println("authtoken cr3eated: " + authResponse.getToken());
+
             jwtCookieUtil.addJwtCookie(response, authResponse.getToken());
 
         } catch (Exception e) {
@@ -69,15 +72,19 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<String> loginUser(@RequestBody User user, HttpServletResponse response) {
-        System.out.println("username" + user.getUsername());
-        System.out.println("username" + user.getPassword());
-        try {
-            AuthResponse authResponse = userService.authUser(user);
 
-            if (authResponse == null) {
-                return new ResponseEntity<>("Server error. response null.", HttpStatus.EXPECTATION_FAILED);
-            }
-            System.out.println("created token: " + authResponse.getToken());
+        try {
+            System.out.println("/login endpoint info:");
+            System.out.println("username: " + user.getUsername());
+            System.out.println("password: " + user.getPassword());
+
+            AuthResponse authResponse = userService.authUser(user);
+            System.out.println("token: " + authResponse.getToken());
+
+            // if (authResponse == null) {
+            // return new ResponseEntity<>("Server error. response null.",
+            // HttpStatus.EXPECTATION_FAILED);
+            // }
 
             jwtCookieUtil.addJwtCookie(response, authResponse.getToken());
 
@@ -119,8 +126,8 @@ public class UserController {
                 user.getWatchListIdSet().add(movie.getId());
             }
 
-            if (!movie.getUserList().contains(user)) {
-                movie.getUserList().add(user);
+            if (!movie.getWatchlistUserSet().contains(user)) {
+                movie.getWatchlistUserSet().add(user);
             }
         } else if (actionType.equals("del")) {
             if (user.getWatchlist().contains(movie)) {
@@ -128,8 +135,8 @@ public class UserController {
                 user.getWatchListIdSet().remove(movie.getId());
             }
 
-            if (movie.getUserList().contains(user)) {
-                movie.getUserList().remove(user);
+            if (movie.getWatchlistUserSet().contains(user)) {
+                movie.getWatchlistUserSet().remove(user);
             }
         } else {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -153,10 +160,9 @@ public class UserController {
         if (cookie != null) {
 
             String token = cookie.getValue();
-            System.out.println("request token = " + token);
 
             String username = jwtUtil.extractUsername(token);
-            System.out.println("Response username to return : " + username);
+            // System.out.println("Response username to return : " + username);
             if (username == null) {
                 return new ResponseEntity<>(username, HttpStatus.OK);
 
@@ -167,27 +173,28 @@ public class UserController {
     }
 
     @GetMapping("/user/watchlist")
-    public ResponseEntity<Set<Movie>> getWatchlist(HttpServletRequest request) throws JsonProcessingException {
-        String username = (jwtUtil.extractUsernameFromRequest(request) != null)
-                ? jwtUtil.extractUsernameFromRequest(request)
-                : "123";
-        // String username = jwtUtil.extractUsernameFromRequest(request);
+    public ResponseEntity<?> getWatchlist(HttpServletRequest request) throws JsonProcessingException {
+        // String username = (jwtUtil.extractUsernameFromRequest(request) != null)
+        // ? jwtUtil.extractUsernameFromRequest(request)
+        // : "123";
+        String username = jwtUtil.extractUsernameFromRequest(request);
 
         User user = userService.loadByUserName(username);
         if (user == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         // ObjectMapper mapper = new ObjectMapper();
-        return new ResponseEntity<>(user.getWatchlist(), HttpStatus.OK);
+
+        return new ResponseEntity<>(new ArrayList<>(user.getWatchlist()), HttpStatus.OK);
     }
 
     @GetMapping("/user/watchlistIdSet")
     public ResponseEntity<Set<Long>> getWatchlistIdSet(HttpServletRequest request) throws JsonProcessingException {
-        String username = (jwtUtil.extractUsernameFromRequest(request) != null)
-                ? jwtUtil.extractUsernameFromRequest(request)
-                : "123";
+        // String username = (jwtUtil.extractUsernameFromRequest(request) != null)
+        // ? jwtUtil.extractUsernameFromRequest(request)
+        // : "123";
 
-        // String username = jwtUtil.extractUsernameFromRequest(request);
+        String username = jwtUtil.extractUsernameFromRequest(request);
 
         User user = userService.loadByUserName(username);
         if (user == null) {
@@ -195,6 +202,85 @@ public class UserController {
         }
         // ObjectMapper mapper = new ObjectMapper();
         return new ResponseEntity<>(user.getWatchListIdSet(), HttpStatus.OK);
+    }
+
+    @GetMapping("/user/watchedlistIdSet")
+    public ResponseEntity<Set<Long>> getWatchedlistIdSet(HttpServletRequest request) throws JsonProcessingException {
+
+        String username = jwtUtil.extractUsernameFromRequest(request);
+
+        User user = userService.loadByUserName(username);
+        if (user == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        // ObjectMapper mapper = new ObjectMapper();
+        return new ResponseEntity<>(user.getWatchedlistIdSet(), HttpStatus.OK);
+    }
+
+    @GetMapping("/user/watchedlist")
+    public ResponseEntity<?> getWatchedlist(HttpServletRequest request) throws JsonProcessingException {
+
+        String username = jwtUtil.extractUsernameFromRequest(request);
+
+        User user = userService.loadByUserName(username);
+        if (user == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(new ArrayList<>(user.getWatchedlist()),
+                HttpStatus.OK);
+    }
+
+    @GetMapping("/user/watchedlist/{id}/{actionType}")
+    public ResponseEntity<?> watchedlistEdit(@PathVariable(name = "id") String id,
+            @PathVariable(name = "actionType") String actionType, HttpServletRequest request) {
+
+        String username = jwtUtil.extractUsernameFromRequest(request);
+
+        Long movieId = (id == null) ? null : Long.valueOf(id);
+
+        if (username == null || movieId == null || actionType == null) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        User user = userService.loadByUserName(username);
+
+        if (user == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        Movie movie = movieService.findMovieById(movieId);
+
+        if (movie == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        if (actionType.equals("add")) {
+            if (!user.getWatchedlist().contains(movie)) {
+                user.getWatchedlist().add(movie);
+                user.getWatchedlistIdSet().add(movie.getId());
+            }
+
+            if (!movie.getWatchedlistUserSet().contains(user)) {
+                movie.getWatchedlistUserSet().add(user);
+            }
+        } else if (actionType.equals("del")) {
+            if (user.getWatchedlist().contains(movie)) {
+                user.getWatchedlist().remove(movie);
+                user.getWatchedlistIdSet().remove(movie.getId());
+            }
+
+            if (movie.getWatchedlistUserSet().contains(user)) {
+                movie.getWatchedlistUserSet().remove(user);
+            }
+        } else {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        userService.updateUser(user);
+        movieService.saveMovie(movie);
+
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 }
