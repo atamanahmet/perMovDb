@@ -1,7 +1,5 @@
 package com.permovdb.permovdb.security;
 
-import java.time.Duration;
-
 import org.springframework.stereotype.Component;
 
 import jakarta.servlet.http.Cookie;

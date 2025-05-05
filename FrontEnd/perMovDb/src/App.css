@@ -1,5 +1,6 @@
 @import "tailwindcss";
-body {
+
+html {
   background-color: #fef3c6;
 }
 .card {
@@ -16,7 +17,9 @@ body {
   box-shadow: 5px 8px 16px 5px rgba(170, 68, 1, 0.2);
   transform: translateY(-5px);
 }
-
+.closedEye {
+  margin-left: 0.15rem;
+}
 .poster {
   border-radius: 5px 5px 0px 0px;
 

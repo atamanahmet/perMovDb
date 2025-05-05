@@ -1,5 +1,5 @@
 import { createContext, useEffect, useState, useContext } from "react";
-// import { useLocation } from "react-router";
+import { useNavigate } from "react-router";
 import axios from "axios";
 
 const UserContext = createContext();
@@ -8,14 +8,18 @@ export const useUser = () => useContext(UserContext);
 
 export const UserProvider = ({ children }) => {
   // const location = useLocation();
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
   const [watchlist, setWatchlist] = useState(new Set());
   const [watchlistIds, setWatchlistIds] = useState(new Set());
   const [watchedlist, setWatchedlist] = useState(new Set());
   const [watchedlistIds, setWatchedlistIds] = useState(new Set());
   const [loading, setLoading] = useState(true);
+  const [profilePictureUrl, setProfilePictureUrl] = useState(null); // For creating local url for response blob
   const [user, setUser] = useState(null);
+  const [userPhoto, setUserPhoto] = useState(null);
   const [logoutResult, setLogoutResult] = useState(null);
+  const [searchResponse, setSearchResponse] = useState(null);
+  const storedPhoto = sessionStorage.getItem("profilePhoto");
 
   const fetchUser = () => {
     setLoading(true);
@@ -24,6 +28,7 @@ export const UserProvider = ({ children }) => {
       .then((res) => {
         console.log("Token verification, username: " + res.data);
         login(res.data);
+        getProfilePhoto();
         getWatchList();
         getWatchedList();
       })
@@ -45,12 +50,92 @@ export const UserProvider = ({ children }) => {
       getWatchList();
     }
   }, [user]);
+
+  useEffect(() => {
+    if (user) {
+      getProfilePhoto();
+    }
+  }, []);
+
   useEffect(() => {
     if (user) {
       getWatchedList();
     }
   }, [user]);
 
+  // const [file, setFile] = useState(null);
+  // const [response, setResponse] = useState(null);
+
+  async function handleUpload(file) {
+    console.log(file);
+    if (file != null) {
+      console.log("file not null");
+      const formData = new FormData();
+      formData.append("profilePicture", file);
+
+      const response = await axios
+        .post("http://localhost:8080/user/upload", formData, {
+          headers: {
+            "content-type": "multipart/form-data",
+          },
+          withCredentials: true,
+        })
+        .catch((err) => console.log("Error: " + err));
+    }
+  }
+
+  async function getProfilePhoto() {
+    if (user) {
+      await axios
+        .get(`http://localhost:8080/user/photo`, {
+          responseType: "blob",
+          withCredentials: true,
+        })
+        .then((res) => {
+          const imageObjectUrl = URL.createObjectURL(res.data);
+          setProfilePictureUrl(imageObjectUrl);
+
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            const base64data = reader.result;
+            sessionStorage.setItem("profilePhoto", base64data);
+          };
+          reader.readAsDataURL(res.data);
+        })
+        .catch((err) => console.log(err));
+    }
+  }
+
+  async function searchHandler(searchQuery) {
+    if (searchQuery != null) {
+      await axios
+        .get("http://localhost:8080/search/" + searchQuery, {
+          withCredentials: true,
+        })
+        .then((response) => {
+          setSearchResponse(response);
+          navigate("/search");
+        })
+        .catch((err) => console.log(err));
+
+      if (searchResponse.status == 200) {
+        navigate("/search");
+      }
+    }
+  }
+
+  // const getProfilePictureUrl = async () => {
+  //   if (user) {
+  //     await axios
+  //       .get("http://localhost:8080/user/profile-picture-url", {
+  //         withCredentials: true,
+  //       })
+  //       .then((res) => {
+  //         setProfilePictureUrl("http://localhost:8080/" + res.data);
+  //       })
+  //       .catch((err) => console.log(err));
+  //   }
+  // };
   const getWatchList = async () => {
     if (user) {
       await axios
@@ -71,6 +156,7 @@ export const UserProvider = ({ children }) => {
         .catch((err) => console.log(err));
     }
   };
+
   const getWatchedList = async () => {
     if (user) {
       await axios
@@ -144,6 +230,33 @@ export const UserProvider = ({ children }) => {
       }
     }
   };
+  const handleWatchedList = async (movieId, actionType) => {
+    console.log("watchedlist context called");
+
+    if (movieId && actionType) {
+      try {
+        const res = await axios.get(
+          `http://localhost:8080/user/watchedlist/${movieId}/${actionType}`,
+          { withCredentials: true }
+        );
+
+        if (res.status == 200) {
+          const updatedSet = new Set(watchedlist);
+
+          if (actionType == "del") {
+            updatedSet.delete(movieId);
+          } else {
+            updatedSet.add(movieId);
+          }
+
+          setWatchedlist(updatedSet);
+          getWatchedList();
+        }
+      } catch (err) {
+        console.error("Backend error:", err);
+      }
+    }
+  };
 
   return (
     <UserContext.Provider
@@ -153,11 +266,19 @@ export const UserProvider = ({ children }) => {
         loading,
         logOut,
         handleWatchList,
+        handleWatchedList,
         watchlist,
         watchedlist,
         getWatchList,
+        getWatchedList,
         watchlistIds,
         watchedlistIds,
+        searchHandler,
+        searchResponse,
+        handleUpload,
+        profilePictureUrl,
+        getProfilePhoto,
+        storedPhoto,
       }}
     >
       {children}

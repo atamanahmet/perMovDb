@@ -1,5 +1,12 @@
 import { useState, useEffect } from "react";
-import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
+import {
+  Routes,
+  Route,
+  useNavigate,
+  useLocation,
+  useParams,
+} from "react-router-dom";
+import Search from "./components/Search";
 // import { useUser } from "./context/UserContext";
 // import { useLocation } from "react-router";
 
@@ -14,9 +21,10 @@ import Header from "./components/Header";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import ProfilePage from "./components/ProfilePage";
+import Upload from "./components/Upload";
 
 function App() {
-  const { user, login, logOut, watchlist } = useUser();
+  const { user, login, logOut, watchlist, searchResponse } = useUser();
   const [result, setResult] = useState();
   const [isLoading, setIsLoading] = useState(true);
   const [username, setUsername] = useState(null);
@@ -25,6 +33,13 @@ function App() {
 
   const [movieId, setMovieId] = useState(null);
   const [actionType, setActionType] = useState(null);
+
+  //For external redirect
+  const RedirectToExternal = () => {
+    const { movieId } = useParams();
+    window.location.href = `https://www.themoviedb.org/movie/${movieId}`;
+    return null;
+  };
 
   //first api call for discovery page
   useEffect(() => {
@@ -71,6 +86,14 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/Login" element={<Login />} />
         <Route path="/profile" element={<ProfilePage />} />
+        {searchResponse != null ? (
+          <Route
+            path="/search"
+            element={<Search data={searchResponse.data} />}
+          />
+        ) : null}
+        <Route path="/details/:movieId" element={<RedirectToExternal />} />
+        <Route path="/upload" element={<Upload />} />
       </Routes>
     </>
   );

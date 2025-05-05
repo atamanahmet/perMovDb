@@ -7,7 +7,7 @@ import { useUser } from "../context/UserContext";
 export default function Login() {
   const navigate = useNavigate();
   const { login } = useUser();
-  const [response, setResponse] = useState("Cmon");
+  const [stateInfo, setStateInfo] = useState("Cmon");
   const [formData, setFormData] = useState({
     username: "",
     password: "",
@@ -23,10 +23,11 @@ export default function Login() {
 
   const handleSubmit = async () => {
     console.log("login requested");
-    console.log("username:" + formData.username);
-    console.log("password:" + formData.password);
+    // console.log("username:" + formData.username);
+    // console.log("password:" + formData.password);
+
     try {
-      const response = await axios.post(
+      const apiResponse = await axios.post(
         "http://localhost:8080/login",
         {
           username: formData.username,
@@ -34,20 +35,19 @@ export default function Login() {
         },
         { withCredentials: true }
       );
-
-      console.log(response.data);
-      if (response.status === 200) {
-        setResponse("Logged-in succesfully. Redirecting...");
-        login(response.data);
+      if (apiResponse.status == 200) {
+        setStateInfo("Logged-in succesfully. Redirecting...");
+        login(apiResponse.data);
         setTimeout(function () {
           navigate("/");
         }, 2000);
       }
     } catch (err) {
       console.log("Error :" + err);
-      setResponse("Got some issue. Try again");
+      setStateInfo("Username or password not matching.");
     }
   };
+
   return (
     <>
       <section className="mt-10">
@@ -56,7 +56,7 @@ export default function Login() {
             href="#"
             className="flex items-center mb-6 text-2xl font-semibold text-amber-50 dark:text-amber-700"
           >
-            {response}
+            {stateInfo}
           </a>
           <div className="w-full rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-amber-700 dark:border-amber-700">
             <div className="p-6 space-y-4 md:space-y-6 sm:p-8">

@@ -1,22 +1,29 @@
 import { useUser } from "../context/UserContext";
+import openedEye from "../assets/opened-50-centered.svg";
+import closedEye from "../assets/closed-50-centered.svg";
 
 export default function WatchedlistButton({ item }) {
   const { handleWatchedList, watchedlistIds } = useUser();
 
   const isInWatchedlist = watchedlistIds.has(item.id);
+  // console.log(watchedlistIds);
 
   return (
     <>
       <button
-        className="absolute h-7 w-7 text-amber-100 bg-amber-200 rounded left-1 z-0 addButton"
+        className=" h-7 w-7 text-amber-100 bg-amber-200 rounded z-0 addButton absolute ml-10"
         onClick={() => {
-            handleWatchedList(item.id, isInWatchedlist ? "del" : "add");
+          handleWatchedList(item.id, isInWatchedlist ? "del" : "add");
         }}
       >
         {isInWatchedlist ? (
-          <span className="text-amber-100 remove absolute">-</span>
+          <span className="text-amber-100 add size-5 opacity-80">
+            <img src={closedEye} alt="" className=" closedEye max-w-10/12" />
+          </span>
         ) : (
-          <span className="text-amber-100 add absolute">+</span>
+          <span className="text-amber-100 add size-6 ">
+            <img src={openedEye} alt="" className="closedEye max-w-10/12" />
+          </span>
         )}
       </button>
     </>

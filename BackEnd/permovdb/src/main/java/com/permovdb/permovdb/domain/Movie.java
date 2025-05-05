@@ -50,7 +50,7 @@ public class Movie {
     @Column
     private String original_title;
 
-    @Column(length = 512)
+    @Column(length = 2048)
     private String overview;
 
     @Column

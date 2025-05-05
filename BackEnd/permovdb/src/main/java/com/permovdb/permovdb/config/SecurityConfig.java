@@ -10,7 +10,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+// import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -41,19 +41,18 @@ public class SecurityConfig {
                         .requestMatchers("/register").permitAll()
                         .requestMatchers("/login").permitAll()
                         .requestMatchers("/logout").permitAll()
-                        // .requestMatchers("/login?logout").permitAll()
-                        // .requestMatchers("/user/**").permitAll()
                         .requestMatchers("/api/me").permitAll()
                         .requestMatchers("/movie/**").permitAll()
+                        .requestMatchers("/search/**").permitAll()
                         // .requestMatchers("/upload/**").permitAll()
                         .anyRequest().authenticated())
                 .logout(logout -> logout
-                        .logoutUrl("/logout") // Define the logout URL (POST by default)
-                        .logoutSuccessUrl("/") // Redirect after logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/")
                         .addLogoutHandler(jwtLogoutHandler())
                         // .logoutSuccessHandler(customlogoutSuccessHandler())
-                        .invalidateHttpSession(true) // Invalidate session after logout
-                        .clearAuthentication(true) // Clear authentication after logout
+                        .invalidateHttpSession(true)
+                        .clearAuthentication(true)
                         .permitAll())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
@@ -62,7 +61,6 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        // config.setAllowedOrigins(List.of("/**"));
         config.setAllowedOrigins(List.of("http://localhost:5173"));
         config.setAllowedMethods(List.of("*"));
         config.setAllowedHeaders(List.of("*"));
@@ -73,8 +71,8 @@ public class SecurityConfig {
         return source;
     }
 
-    private LogoutSuccessHandler logoutSuccessHandler() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
+    // private LogoutSuccessHandler logoutSuccessHandler() {
+    // throw new UnsupportedOperationException("Not supported yet.");
+    // }
 
 }

@@ -1,10 +1,20 @@
 package com.permovdb.permovdb.controller;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.permovdb.permovdb.domain.Movie;
 import com.permovdb.permovdb.domain.User;
+
 import com.permovdb.permovdb.security.AuthResponse;
 import com.permovdb.permovdb.security.JwtCookieUtil;
 import com.permovdb.permovdb.security.JwtUtil;
@@ -53,14 +64,6 @@ public class UserController {
         try {
             AuthResponse authResponse = userService.saveUser(user.getUsername(), user.getPassword());
 
-            // if (file != null) {
-            // authResponse = userService.saveUser(username, password, file);
-
-            // } else {
-            // authResponse = userService.saveUser(username, password);
-            // }
-            // System.out.println("authtoken cr3eated: " + authResponse.getToken());
-
             jwtCookieUtil.addJwtCookie(response, authResponse.getToken());
 
         } catch (Exception e) {
@@ -74,17 +77,13 @@ public class UserController {
     public ResponseEntity<String> loginUser(@RequestBody User user, HttpServletResponse response) {
 
         try {
-            System.out.println("/login endpoint info:");
-            System.out.println("username: " + user.getUsername());
-            System.out.println("password: " + user.getPassword());
-
             AuthResponse authResponse = userService.authUser(user);
-            System.out.println("token: " + authResponse.getToken());
 
-            // if (authResponse == null) {
-            // return new ResponseEntity<>("Server error. response null.",
-            // HttpStatus.EXPECTATION_FAILED);
-            // }
+            if (authResponse == null) {
+                return new ResponseEntity<>("User not found. Please register.", HttpStatus.NOT_FOUND);
+            }
+
+            // System.out.println("token: " + authResponse.getToken());
 
             jwtCookieUtil.addJwtCookie(response, authResponse.getToken());
 
@@ -162,7 +161,6 @@ public class UserController {
             String token = cookie.getValue();
 
             String username = jwtUtil.extractUsername(token);
-            // System.out.println("Response username to return : " + username);
             if (username == null) {
                 return new ResponseEntity<>(username, HttpStatus.OK);
 
@@ -174,42 +172,33 @@ public class UserController {
 
     @GetMapping("/user/watchlist")
     public ResponseEntity<?> getWatchlist(HttpServletRequest request) throws JsonProcessingException {
-        // String username = (jwtUtil.extractUsernameFromRequest(request) != null)
-        // ? jwtUtil.extractUsernameFromRequest(request)
-        // : "123";
-        String username = jwtUtil.extractUsernameFromRequest(request);
 
-        User user = userService.loadByUserName(username);
+        User user = userService.getUserFromRequest(request);
+
         if (user == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        // ObjectMapper mapper = new ObjectMapper();
 
         return new ResponseEntity<>(new ArrayList<>(user.getWatchlist()), HttpStatus.OK);
     }
 
     @GetMapping("/user/watchlistIdSet")
     public ResponseEntity<Set<Long>> getWatchlistIdSet(HttpServletRequest request) throws JsonProcessingException {
-        // String username = (jwtUtil.extractUsernameFromRequest(request) != null)
-        // ? jwtUtil.extractUsernameFromRequest(request)
-        // : "123";
 
-        String username = jwtUtil.extractUsernameFromRequest(request);
+        User user = userService.getUserFromRequest(request);
 
-        User user = userService.loadByUserName(username);
         if (user == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        // ObjectMapper mapper = new ObjectMapper();
+
         return new ResponseEntity<>(user.getWatchListIdSet(), HttpStatus.OK);
     }
 
     @GetMapping("/user/watchedlistIdSet")
     public ResponseEntity<Set<Long>> getWatchedlistIdSet(HttpServletRequest request) throws JsonProcessingException {
 
-        String username = jwtUtil.extractUsernameFromRequest(request);
+        User user = userService.getUserFromRequest(request);
 
-        User user = userService.loadByUserName(username);
         if (user == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -220,9 +209,8 @@ public class UserController {
     @GetMapping("/user/watchedlist")
     public ResponseEntity<?> getWatchedlist(HttpServletRequest request) throws JsonProcessingException {
 
-        String username = jwtUtil.extractUsernameFromRequest(request);
+        User user = userService.getUserFromRequest(request);
 
-        User user = userService.loadByUserName(username);
         if (user == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -281,6 +269,103 @@ public class UserController {
         movieService.saveMovie(movie);
 
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping("/user/upload")
+    public ResponseEntity<?> uploadPhoto(@RequestParam("profilePicture") MultipartFile file,
+            HttpServletRequest request) throws IOException {
+
+        if (file == null) {
+            return new ResponseEntity<>("File is null", HttpStatus.BAD_REQUEST);
+        }
+        String contentType = file.getContentType();
+        if (contentType == null || !List.of("image/jpeg", "image/png", "image/webp").contains(contentType))
+            return ResponseEntity.badRequest().body("Unsupported file type");
+
+        String extention = switch (contentType) {
+            case "image/jpeg" -> ".jpg";
+            case "image/png" -> ".png";
+            default -> null;
+        };
+
+        if (extention == null) {
+            return new ResponseEntity<>(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+        }
+
+        User user = userService.getUserFromRequest(request);
+
+        if (user != null) {
+
+            System.out.println("Photo upload requested");
+
+            String uploadDir = "uploads/profile-pictures/";
+
+            String uuid = UUID.randomUUID().toString();
+
+            String timestamp = String.valueOf(System.currentTimeMillis());
+
+            String fileName = uuid + "_" + timestamp + extention;
+
+            Path filePath = Paths.get(uploadDir + fileName);
+
+            try {
+                Files.createDirectories(filePath.getParent());
+                Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+                user.setProfilePicturePath(fileName);
+
+                userService.updateUser(user);
+
+                System.out.println("Photo upload successfull");
+
+                return new ResponseEntity<>(HttpStatus.OK);
+
+            } catch (IOException e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("File upload failed");
+            }
+        }
+        return new ResponseEntity<>("User not found. Please login.", HttpStatus.UNAUTHORIZED);
+
+    }
+
+    @GetMapping("/user/photo")
+    public ResponseEntity<?> getProfilePhoto(HttpServletRequest request) {
+        User user = userService.getUserFromRequest(request);
+
+        if (user == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
+        String fileName = user.getProfilePicturePath();
+
+        if (fileName == null)
+            return ResponseEntity.notFound().build();
+
+        Path path = Paths.get("uploads/profile-pictures/").resolve(fileName);
+
+        if (!Files.exists(path))
+            return ResponseEntity.notFound().build();
+
+        String contentType = "";
+
+        try {
+            contentType = Files.probeContentType(path);
+
+        } catch (IOException e) {
+            System.out.println("Cannot access content type");
+            e.printStackTrace();
+        }
+
+        try {
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(contentType))
+                    .body(new UrlResource(path.toUri()));
+        } catch (MalformedURLException e) {
+            System.out.println("Url corrupted?");
+            e.printStackTrace();
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
     }
 
 }

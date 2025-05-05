@@ -1,13 +1,31 @@
 import movieLogo from "/movie.png";
 import profile from "../assets/profile.png";
 // import SingleButton from "./SingleButton";
+import { useState, useEffect } from "react";
 import { useUser } from "../context/UserContext";
 import { useNavigate } from "react-router-dom";
 
 export default function Header() {
   const navigate = useNavigate();
 
-  const { user, logOut, getWatchList } = useUser();
+  const {
+    user,
+    logOut,
+    getWatchList,
+    searchHandler,
+    profilePictureUrl,
+    storedPhoto,
+  } = useUser();
+
+  // useEffect(() => {
+  //   getProfilePhoto();
+  // }, []);
+
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const handleChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
 
   const navigateRegister = () => {
     navigate("/register");
@@ -83,18 +101,28 @@ export default function Header() {
                 </svg>
                 <span className="sr-only">Search icon</span>
               </div>
-              <input
-                type="text"
-                id="search-navbar"
-                className="block w-full p-2 ps-10 text-sm text-amber-900 border border-amber-300 rounded-lg bg-amber-50 focus:ring-orange-500 focus:border-orange-500 dark:bg-amber-800 dark:border-amber-600 dark:placeholder-amber-400 dark:text-white dark:focus:ring-orange-500 dark:focus:border-orange-500"
-                placeholder="Search..."
-              />
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  searchHandler(searchQuery);
+                }}
+              >
+                <input
+                  type="text"
+                  id="search"
+                  name="search"
+                  className="block w-full p-2 ps-10 text-sm text-amber-900 border border-amber-300 rounded-lg bg-amber-50 focus:ring-orange-500 focus:border-orange-500 dark:bg-amber-800 dark:border-amber-600 dark:placeholder-amber-400 dark:text-white dark:focus:ring-orange-500 dark:focus:border-orange-500"
+                  placeholder="Search..."
+                  value={searchQuery}
+                  onChange={handleChange}
+                />
+              </form>
             </div>
             <div className="ml-1 smallPX flex gap-3">
               {user && (
                 <img
                   className="w-10 h-10 p-1 rounded-full ring-2 ring-gray-300 dark:ring-gray-500"
-                  src={profile}
+                  src={storedPhoto}
                   alt="Bordered avatar"
                   onClick={navigateProfile}
                 />

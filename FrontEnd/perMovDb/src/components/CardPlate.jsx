@@ -1,17 +1,19 @@
+import { Navigate } from "react-router";
 import { useUser } from "../context/UserContext";
+import { useNavigate } from "react-router";
 import Card from "./Card";
 import WatchlistButton from "./WatchlistButton";
-// import WatchedlistButton from "./WatchedlistButton";
+import WatchedlistButton from "./WatchedlistButton";
 
-export default function CardPlate({ result, data, addOrRemove }) {
+export default function CardPlate({ data, addOrRemove, message }) {
   const {
     user,
     handleWatchList,
     watchlist,
-    watchlistIds,
-    watchedlist,
-    watchedlistIds,
+    // watchedlist,
   } = useUser();
+  const navigate = useNavigate();
+
   function handleWatchlistToogle(id) {
     let actionType = null;
     const updateSet = new Set(watchlist);
@@ -23,30 +25,42 @@ export default function CardPlate({ result, data, addOrRemove }) {
     }
     addOrRemove(id, actionType);
   }
+  function onCardClick(item) {
+    navigate("/details/" + item.id);
+  }
 
   if (data == null) {
     return (
       <>
         <div className="text-center">
-          <h2>Add something to your watchlist..</h2>
+          <h2>{message}</h2>
         </div>
       </>
     );
+  }
+  function userRelatedButtonCheck(item, handleWatchList, user) {
+    // console.log("user: " + user);
+    if (user) {
+      return (
+        <>
+          <WatchlistButton
+            item={item}
+            handleWatchList={handleWatchList}
+          ></WatchlistButton>
+          <WatchedlistButton
+            item={item}
+            handleWatchList={handleWatchList}
+          ></WatchedlistButton>
+        </>
+      );
+    }
   }
 
   return (
     <>
       {Array.from(data).map((item) => (
         <div key={item.id} className="relative mb-4">
-          <WatchlistButton
-            item={item}
-            handleWatchList={handleWatchList}
-          ></WatchlistButton>
-          <WatchlistButton
-            item={item}
-            handleWatchList={handleWatchList}
-          ></WatchlistButton>
-
+          {userRelatedButtonCheck(item, handleWatchList, user)}
           <div
             onClick={() => onCardClick(item)}
             className="z-1 relative text-left"

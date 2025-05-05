@@ -6,8 +6,37 @@ import WatchlistButton from "./WatchlistButton";
 import Card from "./Card";
 import CardPlate from "./CardPlate";
 
+import profilePlaceholder from "../assets/profile.png";
+
 export default function ProfilePage() {
-  const { user, logout, watchlist, handleWatchList } = useUser();
+  const {
+    user,
+    logout,
+    watchlist,
+    handleWatchList,
+    watchedlist,
+    storedPhoto,
+    getProfilePhoto,
+  } = useUser();
+
+  const [selection, setSelection] = useState("Watchlist");
+  // const [dataSet, setDataSet] = useState(watchlist);
+
+  const dataSet = selection === "Watchlist" ? watchlist : watchedlist;
+
+  function selectiveRender() {
+    return (
+      <>
+        <h2>{selection}</h2>
+        <main className=" my-10 flex flex-row flex-wrap gap-5 justify-center">
+          <CardPlate
+            data={dataSet}
+            message={"Add something to your watchlist.."}
+          />
+        </main>
+      </>
+    );
+  }
 
   const [locationInfo, setLocationInfo] = useState({
     country: "",
@@ -39,9 +68,13 @@ export default function ProfilePage() {
         });
       }
     }
-
+    // getProfilePhoto();
     fetchCountry();
   }, []);
+
+  function selectionChange(select) {
+    setSelection(select);
+  }
 
   return (
     <>
@@ -63,7 +96,10 @@ export default function ProfilePage() {
                 <div className="flex flex-row">
                   <img
                     alt="..."
-                    src="https://demos.creative-tim.com/notus-js/assets/img/team-2-800x800.jpg"
+                    src={storedPhoto}
+                    onError={(e) => {
+                      e.target.src = profilePlaceholder;
+                    }}
                     className="shadow-xl rounded-full  align-middle border-6
                      border-amber-600 -mt-16 max-w-35 max-h-35"
                   />
@@ -87,41 +123,38 @@ export default function ProfilePage() {
                     </div>
                   </div> */}
                 <div className="flex py-4 lg:pt-4 ">
-                  <a href="/watchlist">
+                  <button onClick={() => selectionChange("Watchlist")}>
                     <div className="mr-4 p-3 text-center">
                       <span className="text-xl font-bold block uppercase tracking-wide text-blueGray-600">
-                        22
+                        {watchlist.size}
                       </span>
                       <span className="text-sm text-blueGray-400">
                         Watchlist
                       </span>
                     </div>
-                  </a>
-                  <div className="mr-4 p-3 text-center">
-                    <span className="text-xl font-bold block uppercase tracking-wide text-blueGray-600">
-                      10
-                    </span>
-                    <span className="text-sm text-blueGray-400">Watched</span>
-                  </div>
-                  <div className="lg:mr-4 p-3 text-center">
-                    <span className="text-xl font-bold block uppercase tracking-wide text-blueGray-600">
-                      89
-                    </span>
-                    <span className="text-sm text-blueGray-400">Reviewed</span>
-                  </div>
+                  </button>
+                  <button onClick={() => selectionChange("Watched")}>
+                    <div className="mr-4 p-3 text-center">
+                      <span className="text-xl font-bold block uppercase tracking-wide text-blueGray-600">
+                        {watchedlist.size}
+                      </span>
+                      <span className="text-sm text-blueGray-400">Watched</span>
+                    </div>
+                  </button>
+                  <button onClick={() => selectionChange("Watched")}>
+                    <div className="lg:mr-4 p-3 text-center">
+                      <span className="text-xl font-bold block uppercase tracking-wide text-blueGray-600">
+                        89
+                      </span>
+                      <span className="text-sm text-blueGray-400">
+                        Reviewed
+                      </span>
+                    </div>
+                  </button>
                 </div>
               </div>
 
-              <div className="text-center">
-                <h2>Watchlist</h2>
-                <main className=" my-10 flex flex-row flex-wrap gap-5 justify-center">
-                  <CardPlate
-                    data={watchlist}
-                    // onCardClick={onCardClick}
-                    addOrRemove={handleWatchList}
-                  />
-                </main>
-              </div>
+              <div className="">{selectiveRender()}</div>
             </div>
           </div>
         </div>

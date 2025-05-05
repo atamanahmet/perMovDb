@@ -1,9 +1,13 @@
 package com.permovdb.permovdb.domain;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -34,12 +38,6 @@ public class User {
         this.password = user.getPassword();
     }
 
-    // public User(String username, String password, String fileName) {
-    // this.username = username;
-    // this.password = password;
-    // this.profileImagePath = fileName;
-    // }
-
     public User(String username, String password) {
         this.username = username;
         this.password = password;
@@ -60,6 +58,9 @@ public class User {
     @Column(nullable = false, unique = true)
     private String password;
 
+    @Column(nullable = true, unique = true)
+    private String profilePicturePath;
+
     @ManyToMany
     @JoinTable(name = "user_watchlist", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "movie_id"))
     private Set<Movie> watchlist = new HashSet<>();
@@ -75,7 +76,8 @@ public class User {
     @Column(nullable = true, unique = false)
     private Set<Long> watchedlistIdSet = new HashSet<>();
 
-    // @Column(nullable = true, unique = true)
-    // private String profileImagePath;
+    @ElementCollection
+    @CollectionTable(name = "user_search_entries", joinColumns = @JoinColumn(name = "user_id"))
+    private List<SearchEntry> searchDataWithDate = new ArrayList<>();
 
 }

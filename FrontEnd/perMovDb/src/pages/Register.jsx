@@ -181,16 +181,15 @@ export default function Register() {
                 htmlFor="profilePicture"
                 className="mb-2 text-sm font-medium flex justify-center w-5/4  text-amber-50 dark:text-amber-50"
               >
-                <img src={profile} alt="" className="rounded-full w-2/6" />
+                <img src={file} alt="" className="rounded-full w-2/6" />
               </label>
               <input
                 type="file"
-                name="file"
+                name="profilePicture"
                 id="profilePicture"
                 onChange={(e) => setFile(e.target.files[0])}
                 className="block bg-amber-700 w-full text-sm text-amber-800 border border-amber-300 rounded-lg cursor-pointer  dark:text-amber-100 focus:outline-none upload-area"
                 accept="image/*"
-                required
               />
             </div> */}
           </div>

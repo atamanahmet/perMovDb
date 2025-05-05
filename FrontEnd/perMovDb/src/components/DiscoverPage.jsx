@@ -18,9 +18,9 @@ export default function DiscoverPage({}) {
       .catch((err) => console.error("Backend error:", err));
   }, []);
 
-  if (loading) {
-    return <div>Loading...</div>; // wait for fetch
-  }
+  // if (loading) {
+  //   return <div>Loading...</div>; // wait for fetch
+  // }
 
   return (
     <>
@@ -29,7 +29,7 @@ export default function DiscoverPage({}) {
       </h2>
       <hr className="opacity-20 text-amber-700 horiz mb-11" />
       <main className=" my-10 flex flex-row flex-wrap gap-5 flex-8/12 justify-center discoverPage">
-        <CardPlate data={result} />
+        <CardPlate data={result} message={"Loading.."} />
       </main>
     </>
   );
