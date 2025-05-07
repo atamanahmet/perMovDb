@@ -66,15 +66,23 @@ public class User {
     private Set<Movie> watchlist = new HashSet<>();
 
     @Column(nullable = true, unique = false)
-    private Set<Long> watchListIdSet = new HashSet<>();
+    private Set<Long> watchlistIdSet = new HashSet<>();
 
     @ManyToMany
     @JoinTable(name = "user_watchedlist", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "movie_id"))
     @Column(nullable = true, unique = false)
     private Set<Movie> watchedlist = new HashSet<>();
 
+    @ManyToMany
+    @JoinTable(name = "user_lovedlist", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "movie_id"))
+    @Column(nullable = true, unique = false)
+    private Set<Movie> lovedlist = new HashSet<>();
+
     @Column(nullable = true, unique = false)
     private Set<Long> watchedlistIdSet = new HashSet<>();
+
+    @Column(nullable = true, unique = false)
+    private Set<Long> lovedlistIdSet = new HashSet<>();
 
     @ElementCollection
     @CollectionTable(name = "user_search_entries", joinColumns = @JoinColumn(name = "user_id"))

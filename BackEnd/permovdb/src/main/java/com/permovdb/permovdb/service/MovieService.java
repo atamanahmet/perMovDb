@@ -13,7 +13,12 @@ public class MovieService {
     MovieRepository movieRepository;
 
     public void saveMovie(Movie movie) {
-        movieRepository.save(movie);
+
+        if (!movieRepository.existsById(movie.getId())) {
+            // System.out.println("movie already exist.-" + movie.getId() + "-" +
+            // movie.getTitle());
+            movieRepository.save(movie);
+        }
     }
 
     public Movie findMovieById(Long id) {

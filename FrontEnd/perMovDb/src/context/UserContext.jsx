@@ -11,15 +11,21 @@ export const UserProvider = ({ children }) => {
   const navigate = useNavigate();
   const [watchlist, setWatchlist] = useState(new Set());
   const [watchlistIds, setWatchlistIds] = useState(new Set());
-  const [watchedlist, setWatchedlist] = useState(new Set());
   const [watchedlistIds, setWatchedlistIds] = useState(new Set());
+  const [watchedlist, setWatchedlist] = useState(new Set());
+  const [lovedlist, setLovedlist] = useState(new Set());
+  const [lovedlistIds, setLovedlistIds] = useState(new Set());
   const [loading, setLoading] = useState(true);
   const [profilePictureUrl, setProfilePictureUrl] = useState(null); // For creating local url for response blob
   const [user, setUser] = useState(null);
   const [userPhoto, setUserPhoto] = useState(null);
   const [logoutResult, setLogoutResult] = useState(null);
   const [searchResponse, setSearchResponse] = useState(null);
+  // const [storedPhoto, setStoredPhoto] = useState(null);
+
   const storedPhoto = sessionStorage.getItem("profilePhoto");
+
+  // setStoredPhoto(sessionStorage.getItem("profilePhoto"));
 
   const fetchUser = () => {
     setLoading(true);
@@ -31,6 +37,7 @@ export const UserProvider = ({ children }) => {
         getProfilePhoto();
         getWatchList();
         getWatchedList();
+        getLovedList();
       })
       .catch((err) => {
         console.log("Error: " + err);
@@ -48,23 +55,11 @@ export const UserProvider = ({ children }) => {
   useEffect(() => {
     if (user) {
       getWatchList();
-    }
-  }, [user]);
-
-  useEffect(() => {
-    if (user) {
       getProfilePhoto();
-    }
-  }, []);
-
-  useEffect(() => {
-    if (user) {
       getWatchedList();
+      getLovedList();
     }
   }, [user]);
-
-  // const [file, setFile] = useState(null);
-  // const [response, setResponse] = useState(null);
 
   async function handleUpload(file) {
     console.log(file);
@@ -81,6 +76,7 @@ export const UserProvider = ({ children }) => {
           withCredentials: true,
         })
         .catch((err) => console.log("Error: " + err));
+      getProfilePhoto();
     }
   }
 
@@ -92,15 +88,17 @@ export const UserProvider = ({ children }) => {
           withCredentials: true,
         })
         .then((res) => {
-          const imageObjectUrl = URL.createObjectURL(res.data);
-          setProfilePictureUrl(imageObjectUrl);
+          if (!res.data) {
+            const imageObjectUrl = URL.createObjectURL(res.data);
+            setProfilePictureUrl(imageObjectUrl);
 
-          const reader = new FileReader();
-          reader.onloadend = () => {
-            const base64data = reader.result;
-            sessionStorage.setItem("profilePhoto", base64data);
-          };
-          reader.readAsDataURL(res.data);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+              const base64data = reader.result;
+              sessionStorage.setItem("profilePhoto", base64data);
+            };
+            reader.readAsDataURL(res.data);
+          }
         })
         .catch((err) => console.log(err));
     }
@@ -124,18 +122,6 @@ export const UserProvider = ({ children }) => {
     }
   }
 
-  // const getProfilePictureUrl = async () => {
-  //   if (user) {
-  //     await axios
-  //       .get("http://localhost:8080/user/profile-picture-url", {
-  //         withCredentials: true,
-  //       })
-  //       .then((res) => {
-  //         setProfilePictureUrl("http://localhost:8080/" + res.data);
-  //       })
-  //       .catch((err) => console.log(err));
-  //   }
-  // };
   const getWatchList = async () => {
     if (user) {
       await axios
@@ -152,6 +138,27 @@ export const UserProvider = ({ children }) => {
         })
         .then((res) => {
           setWatchlistIds(new Set(res.data));
+        })
+        .catch((err) => console.log(err));
+    }
+  };
+  const getLovedList = async () => {
+    if (user) {
+      await axios
+        .get("http://localhost:8080/user/lovedlist", {
+          withCredentials: true,
+        })
+        .then((res) => {
+          // console.log("lovelist returned: " + res.data);
+          setLovedlist(new Set(res.data));
+        })
+        .catch((err) => console.log(err));
+      await axios
+        .get("http://localhost:8080/user/lovedlistIdSet", {
+          withCredentials: true,
+        })
+        .then((res) => {
+          setLovedlistIds(new Set(res.data));
         })
         .catch((err) => console.log(err));
     }
@@ -197,6 +204,7 @@ export const UserProvider = ({ children }) => {
         .then((res) => setLogoutResult(res.data));
 
       console.log("Logged out");
+      sessionStorage.clear();
       setUser(null);
     } catch (err) {
       console.log("Error during logout: ", err);
@@ -224,6 +232,33 @@ export const UserProvider = ({ children }) => {
 
           setWatchlist(updatedSet);
           getWatchList();
+        }
+      } catch (err) {
+        console.error("Backend error:", err);
+      }
+    }
+  };
+  const handleLovedList = async (movieId, actionType) => {
+    console.log("watchlist context called");
+
+    if (movieId && actionType) {
+      try {
+        const res = await axios.get(
+          `http://localhost:8080/user/lovedlist/${movieId}/${actionType}`,
+          { withCredentials: true }
+        );
+
+        if (res.status == 200) {
+          const updatedSet = new Set(lovedlist);
+
+          if (actionType == "del") {
+            updatedSet.delete(movieId);
+          } else {
+            updatedSet.add(movieId);
+          }
+
+          setLovedlist(updatedSet);
+          getLovedList();
         }
       } catch (err) {
         console.error("Backend error:", err);
@@ -269,8 +304,11 @@ export const UserProvider = ({ children }) => {
         handleWatchedList,
         watchlist,
         watchedlist,
+        lovedlist,
+        lovedlistIds,
         getWatchList,
         getWatchedList,
+        getLovedList,
         watchlistIds,
         watchedlistIds,
         searchHandler,
@@ -279,6 +317,7 @@ export const UserProvider = ({ children }) => {
         profilePictureUrl,
         getProfilePhoto,
         storedPhoto,
+        handleLovedList,
       }}
     >
       {children}

@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -45,10 +46,19 @@ class Controller {
         class MovieController {
 
                 @GetMapping("/")
-                public ResponseEntity<?> getDicoverData() throws IOException, InterruptedException {
+                public ResponseEntity<?> getDicoverData(
+                                @RequestParam(value = "adult", defaultValue = "false") String adult,
+                                @RequestParam(value = "page", defaultValue = "1") String page)
+                                throws IOException, InterruptedException {
+
+                        System.out.println("new page request. page: " + page + " adult: " + adult);
+
                         HttpRequest request = HttpRequest.newBuilder()
                                         .uri(URI.create(
-                                                        "https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=en-US&page=1&sort_by=popularity.desc"))
+                                                        "https://api.themoviedb.org/3/discover/movie?include_adult="
+                                                                        + adult
+                                                                        + "&include_video=false&language=en-US&page="
+                                                                        + page + "&sort_by=popularity.desc"))
                                         .header("accept", "application/json")
                                         .header("Authorization",
                                                         "Bearer " + apiKey)

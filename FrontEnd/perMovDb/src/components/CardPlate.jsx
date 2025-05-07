@@ -4,11 +4,14 @@ import { useNavigate } from "react-router";
 import Card from "./Card";
 import WatchlistButton from "./WatchlistButton";
 import WatchedlistButton from "./WatchedlistButton";
+import LovedButton from "./LovedButton";
 
 export default function CardPlate({ data, addOrRemove, message }) {
   const {
     user,
     handleWatchList,
+    handleWatchedList,
+    handleLovedList,
     watchlist,
     // watchedlist,
   } = useUser();
@@ -49,8 +52,12 @@ export default function CardPlate({ data, addOrRemove, message }) {
           ></WatchlistButton>
           <WatchedlistButton
             item={item}
-            handleWatchList={handleWatchList}
+            handleWatchList={handleWatchedList}
           ></WatchedlistButton>
+          <LovedButton
+            item={item}
+            handleWatchList={handleLovedList}
+          ></LovedButton>
         </>
       );
     }

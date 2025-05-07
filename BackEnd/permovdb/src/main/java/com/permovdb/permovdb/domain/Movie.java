@@ -28,7 +28,6 @@ import lombok.Setter;
 public class Movie {
 
     public Movie() {
-
     }
 
     @Id
@@ -78,9 +77,13 @@ public class Movie {
     @JsonIgnore
     @ManyToMany(mappedBy = "watchlist")
     private Set<User> watchlistUserSet = new HashSet<>();
-    @JsonIgnore
 
+    @JsonIgnore
     @ManyToMany(mappedBy = "watchedlist")
     private Set<User> watchedlistUserSet = new HashSet<>();
+
+    @JsonIgnore
+    @ManyToMany(mappedBy = "lovedlist")
+    private Set<User> lovedlistUserSet = new HashSet<>();
 
 }

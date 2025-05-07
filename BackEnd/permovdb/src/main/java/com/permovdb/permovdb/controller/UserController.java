@@ -122,7 +122,7 @@ public class UserController {
         if (actionType.equals("add")) {
             if (!user.getWatchlist().contains(movie)) {
                 user.getWatchlist().add(movie);
-                user.getWatchListIdSet().add(movie.getId());
+                user.getWatchlistIdSet().add(movie.getId());
             }
 
             if (!movie.getWatchlistUserSet().contains(user)) {
@@ -131,7 +131,7 @@ public class UserController {
         } else if (actionType.equals("del")) {
             if (user.getWatchlist().contains(movie)) {
                 user.getWatchlist().remove(movie);
-                user.getWatchListIdSet().remove(movie.getId());
+                user.getWatchlistIdSet().remove(movie.getId());
             }
 
             if (movie.getWatchlistUserSet().contains(user)) {
@@ -182,6 +182,18 @@ public class UserController {
         return new ResponseEntity<>(new ArrayList<>(user.getWatchlist()), HttpStatus.OK);
     }
 
+    @GetMapping("/user/lovedlist")
+    public ResponseEntity<?> getLovedlist(HttpServletRequest request) throws JsonProcessingException {
+
+        User user = userService.getUserFromRequest(request);
+
+        if (user == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(new ArrayList<>(user.getLovedlist()), HttpStatus.OK);
+    }
+
     @GetMapping("/user/watchlistIdSet")
     public ResponseEntity<Set<Long>> getWatchlistIdSet(HttpServletRequest request) throws JsonProcessingException {
 
@@ -191,7 +203,7 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
-        return new ResponseEntity<>(user.getWatchListIdSet(), HttpStatus.OK);
+        return new ResponseEntity<>(user.getWatchlistIdSet(), HttpStatus.OK);
     }
 
     @GetMapping("/user/watchedlistIdSet")
@@ -204,6 +216,18 @@ public class UserController {
         }
         // ObjectMapper mapper = new ObjectMapper();
         return new ResponseEntity<>(user.getWatchedlistIdSet(), HttpStatus.OK);
+    }
+
+    @GetMapping("/user/lovedlistIdSet")
+    public ResponseEntity<Set<Long>> getLovedlistIdSet(HttpServletRequest request) throws JsonProcessingException {
+
+        User user = userService.getUserFromRequest(request);
+
+        if (user == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        // ObjectMapper mapper = new ObjectMapper();
+        return new ResponseEntity<>(user.getLovedlistIdSet(), HttpStatus.OK);
     }
 
     @GetMapping("/user/watchedlist")
@@ -271,6 +295,58 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @GetMapping("/user/lovedlist/{id}/{actionType}")
+    public ResponseEntity<?> lovedlistEdit(@PathVariable(name = "id") String id,
+            @PathVariable(name = "actionType") String actionType, HttpServletRequest request) {
+
+        String username = jwtUtil.extractUsernameFromRequest(request);
+
+        Long movieId = (id == null) ? null : Long.valueOf(id);
+
+        if (username == null || movieId == null || actionType == null) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        User user = userService.loadByUserName(username);
+
+        if (user == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        Movie movie = movieService.findMovieById(movieId);
+
+        if (movie == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        if (actionType.equals("add")) {
+            if (!user.getLovedlist().contains(movie)) {
+                user.getLovedlist().add(movie);
+                user.getLovedlistIdSet().add(movie.getId());
+            }
+
+            if (!movie.getLovedlistUserSet().contains(user)) {
+                movie.getLovedlistUserSet().add(user);
+            }
+        } else if (actionType.equals("del")) {
+            if (user.getLovedlist().contains(movie)) {
+                user.getLovedlist().remove(movie);
+                user.getLovedlistIdSet().remove(movie.getId());
+            }
+
+            if (movie.getLovedlistUserSet().contains(user)) {
+                movie.getLovedlistUserSet().remove(user);
+            }
+        } else {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        userService.updateUser(user);
+        movieService.saveMovie(movie);
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     @PostMapping("/user/upload")
     public ResponseEntity<?> uploadPhoto(@RequestParam("profilePicture") MultipartFile file,
             HttpServletRequest request) throws IOException {
@@ -279,7 +355,7 @@ public class UserController {
             return new ResponseEntity<>("File is null", HttpStatus.BAD_REQUEST);
         }
         String contentType = file.getContentType();
-        if (contentType == null || !List.of("image/jpeg", "image/png", "image/webp").contains(contentType))
+        if (contentType == null || !List.of("image/jpeg", "image/png").contains(contentType))
             return ResponseEntity.badRequest().body("Unsupported file type");
 
         String extention = switch (contentType) {

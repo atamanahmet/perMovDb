@@ -5,35 +5,61 @@ import MoviePlate from "./MoviePlate";
 import WatchlistButton from "./WatchlistButton";
 import Card from "./Card";
 import CardPlate from "./CardPlate";
+import ToogleSwitch from "./ToogleSwitch";
+import profile from "../assets/profile.png";
 
 import profilePlaceholder from "../assets/profile.png";
 
 export default function ProfilePage() {
+  const [adult, setAdult] = useState(false);
+
   const {
     user,
     logout,
     watchlist,
+    lovedlist,
     handleWatchList,
+    handleWatchedList,
+    handleLovedList,
     watchedlist,
     storedPhoto,
     getProfilePhoto,
   } = useUser();
 
+  function handleToogle() {
+    setAdult(!adult);
+  }
+
   const [selection, setSelection] = useState("Watchlist");
   // const [dataSet, setDataSet] = useState(watchlist);
 
-  const dataSet = selection === "Watchlist" ? watchlist : watchedlist;
+  useEffect(() => {}, []);
+
+  const dataMap = {
+    Watchlist: watchlist,
+    Loved: lovedlist,
+    Watchedlist: watchedlist,
+  };
+
+  const dataSet = dataMap[selection] || watchlist;
 
   function selectiveRender() {
     return (
       <>
-        <h2>{selection}</h2>
-        <main className=" my-10 flex flex-row flex-wrap gap-5 justify-center">
-          <CardPlate
-            data={dataSet}
-            message={"Add something to your watchlist.."}
-          />
-        </main>
+        <div className="flex flex-col">
+          <h2 className="text-center p-7 text-amber-100 font-bold bg-amber-800 text-4xl">
+            {selection}
+          </h2>
+          <div className="px-10  text-right mt-2">
+            <ToogleSwitch label="Adult" stateChange={() => handleToogle()} />
+          </div>
+          <main className="mt-10 flex flex-row flex-wrap gap-5 justify-center">
+            <CardPlate
+              data={dataSet}
+              message={"Add something to your watchlist.."}
+            />
+          </main>
+        </div>
       </>
     );
   }
@@ -89,74 +115,80 @@ export default function ProfilePage() {
         </div>
       )}
       {user && (
-        <div className="container px-32 mx-auto">
-          <div className=" flex flex-col min-w-0 break-words bg-amber-50 w-full mb-6 mt-23 shadow-xl rounded-lg ">
-            <div className="px-15">
-              <div className="flex flex-row justify-between ">
-                <div className="flex flex-row">
-                  <img
-                    alt="..."
-                    src={storedPhoto}
-                    onError={(e) => {
-                      e.target.src = profilePlaceholder;
-                    }}
-                    className="shadow-xl rounded-full  align-middle border-6
-                     border-amber-600 -mt-16 max-w-35 max-h-35"
-                  />
-                  <h3 className="text-4xl font-semibold leading-normal text-blueGray-700 mt-6 ">
-                    {user}
-                  </h3>
+        <div className="flex flex-col mx-70">
+          <div className="profileArea flex flex-row mt-20 -mb-19 justify-between px-10">
+            <div className="usernameArea z-10 flex flex-row">
+              <img
+                alt="..."
+                src={storedPhoto ? storedPhoto : profile}
+                className="shadow-xl rounded-full  border-6
+                     border-amber-600 -mt-16 w-35 h-35 z-10"
+              />
+              <h3 className="text-4xl font-semibold leading-normal text-blueGray-700 mt-6 text-amber-50 ">
+                {user}
+              </h3>
+            </div>
+            <div className="buttonSet -mt-18">
+              <button
+                style={{
+                  cursor: "pointer",
+                  boxShadow: "2px 4px 8px 0 rgba(90, 44, 0, 0.5)",
+                  backgroundColor:
+                    selection == "Watchlist" ? "#d97706" : "#f59e0b",
+                  color: selection == "Watchlist" ? "#fffbeb" : "black",
+                }}
+                className="pb-2 mx-1.5 mt-2 rounded-2xl listButton"
+                onClick={() => selectionChange("Watchlist")}
+              >
+                <div className="p-3  text-center text-shadow-xs">
+                  <span className="text-xl font-bold block uppercase tracking-wide text-blueGray-600">
+                    {watchlist.size}
+                  </span>
+                  <span className="text-sm text-blueGray-400">Watchlist</span>
                 </div>
-
-                {/* <div className="text-sm leading-normal mt-0 mb-2 text-blueGray-400 font-bold uppercase">
-                      <i className="fas fa-map-marker-alt mr-2 text-lg text-blueGray-400"></i>
-                      {locationInfo.city}/{locationInfo.country}
-                    </div> */}
-                {/* <div className="w-full lg:w-4/12 px-4 lg:order-3 lg:text-right lg:self-center">
-                    <div className="py-6 px-3 mt-32 sm:mt-0">
-                      <button
-                        className="bg-amber-500 active:bg-amber-700 uppercase text-amber-50 font-bold hover:shadow-md shadow text-xs px-4 py-2 rounded outline-none focus:outline-none sm:mr-2 mb-1 ease-linear transition-all duration-150"
-                        type="button"
-                      >
-                        Connect
-                      </button>
-                    </div>
-                  </div> */}
-                <div className="flex py-4 lg:pt-4 ">
-                  <button onClick={() => selectionChange("Watchlist")}>
-                    <div className="mr-4 p-3 text-center">
-                      <span className="text-xl font-bold block uppercase tracking-wide text-blueGray-600">
-                        {watchlist.size}
-                      </span>
-                      <span className="text-sm text-blueGray-400">
-                        Watchlist
-                      </span>
-                    </div>
-                  </button>
-                  <button onClick={() => selectionChange("Watched")}>
-                    <div className="mr-4 p-3 text-center">
-                      <span className="text-xl font-bold block uppercase tracking-wide text-blueGray-600">
-                        {watchedlist.size}
-                      </span>
-                      <span className="text-sm text-blueGray-400">Watched</span>
-                    </div>
-                  </button>
-                  <button onClick={() => selectionChange("Watched")}>
-                    <div className="lg:mr-4 p-3 text-center">
-                      <span className="text-xl font-bold block uppercase tracking-wide text-blueGray-600">
-                        89
-                      </span>
-                      <span className="text-sm text-blueGray-400">
-                        Reviewed
-                      </span>
-                    </div>
-                  </button>
+              </button>
+              <button
+                style={{
+                  cursor: "pointer",
+                  boxShadow: "2px 4px 8px 0 rgba(90, 44, 0, 0.5)",
+                  backgroundColor:
+                    selection == "Watchedlist" ? "#d97706" : "#f59e0b",
+                  color: selection == "Watchedlist" ? "#fffbeb" : "black",
+                }}
+                className="pb-2 -z-2 mx-1.5 mt-2 rounded-2xl listButton"
+                onClick={() => {
+                  selectionChange("Watchedlist");
+                }}
+              >
+                <div className=" p-3 text-center">
+                  <span className="text-xl font-bold block uppercase tracking-wide text-blueGray-600">
+                    {watchedlist.size}
+                  </span>
+                  <span className="text-sm text-blueGray-400">Watched</span>
                 </div>
-              </div>
+              </button>
 
-              <div className="">{selectiveRender()}</div>
+              <button
+                style={{
+                  cursor: "pointer",
+                  boxShadow: "2px 4px 8px 0 rgba(90, 44, 0, 0.5)",
+                  backgroundColor: selection == "Loved" ? "#d97706" : "#f59e0b",
+                  color: selection == "Loved" ? "#fffbeb" : "black",
+                }}
+                className="pb-2 -z-2 mx-1.5 mt-2  p-1.5 rounded-2xl listButton"
+                onClick={() => selectionChange("Loved")}
+              >
+                <div className=" p-3 text-center -mt-1.5">
+                  <span className="text-xl font-bold block uppercase tracking-wide text-blueGray-600">
+                    {lovedlist.size}
+                  </span>
+                  <span className="text-sm text-blueGray-400">Loved</span>
+                </div>
+              </button>
             </div>
           </div>
+
+          <div className="bg-amber-50 ">{selectiveRender()}</div>
         </div>
       )}
     </>
