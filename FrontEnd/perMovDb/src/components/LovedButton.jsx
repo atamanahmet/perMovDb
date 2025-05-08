@@ -1,6 +1,6 @@
 import { useUser } from "../context/UserContext";
-import emptyHeart from "../assets/emptyHeart.svg";
-import solidHeart from "../assets/solidHeart.svg";
+import emptyHeart from "../assets/emptyHeart.png";
+import solidHeart from "../assets/solidHeart.png";
 
 export default function LovedButton({ item }) {
   const { lovedlistIds, handleLovedList } = useUser();
@@ -16,12 +16,20 @@ export default function LovedButton({ item }) {
         }}
       >
         {isInLovedlist ? (
-          <span className="text-amber-100 add size-5 opacity-80">
-            <img src={solidHeart} alt="" className=" closedEye max-w-10/12" />
+          <span className="text-amber-100 add size-4 ">
+            <img
+              src={solidHeart}
+              alt=""
+              className=" closedEye max-w-10/12 scale-90 "
+            />
           </span>
         ) : (
-          <span className="text-amber-100 add size-6 ">
-            <img src={emptyHeart} alt="" className="closedEye max-w-10/12" />
+          <span className="text-amber-100 add size-6">
+            <img
+              src={emptyHeart}
+              alt=""
+              className="closedEye max-w-10/12  scale-90"
+            />
           </span>
         )}
       </button>
