@@ -14,6 +14,7 @@ export const UserProvider = ({ children }) => {
   const [watchedlistIds, setWatchedlistIds] = useState(new Set());
   const [watchedlist, setWatchedlist] = useState(new Set());
   const [lovedlist, setLovedlist] = useState(new Set());
+  const [recommendation, setRecommendation] = useState();
   const [lovedlistIds, setLovedlistIds] = useState(new Set());
   const [loading, setLoading] = useState(true);
   const [profilePictureUrl, setProfilePictureUrl] = useState(null); // For creating local url for response blob
@@ -58,6 +59,7 @@ export const UserProvider = ({ children }) => {
       getProfilePhoto();
       getWatchedList();
       getLovedList();
+      getRecommendation();
     }
   }, [user]);
 
@@ -106,6 +108,7 @@ export const UserProvider = ({ children }) => {
 
   async function searchHandler(searchQuery) {
     if (searchQuery != null) {
+      searchQuery = searchQuery.replace(" ", "+");
       await axios
         .get("http://localhost:8080/search/" + searchQuery, {
           withCredentials: true,
@@ -138,6 +141,18 @@ export const UserProvider = ({ children }) => {
         })
         .then((res) => {
           setWatchlistIds(new Set(res.data));
+        })
+        .catch((err) => console.log(err));
+    }
+  };
+  const getRecommendation = async () => {
+    if (user) {
+      await axios
+        .get("http://localhost:8080/user/recommendation", {
+          withCredentials: true,
+        })
+        .then((res) => {
+          setRecommendation(new Set(res.data));
         })
         .catch((err) => console.log(err));
     }
@@ -312,12 +327,14 @@ export const UserProvider = ({ children }) => {
         watchlistIds,
         watchedlistIds,
         searchHandler,
+        getRecommendation,
         searchResponse,
         handleUpload,
         profilePictureUrl,
         getProfilePhoto,
         storedPhoto,
         handleLovedList,
+        recommendation,
       }}
     >
       {children}

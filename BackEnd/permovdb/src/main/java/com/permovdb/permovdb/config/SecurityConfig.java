@@ -44,6 +44,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/me").permitAll()
                         .requestMatchers("/movie/**").permitAll()
                         .requestMatchers("/search/**").permitAll()
+                        .requestMatchers("/api/movies").permitAll()
                         // .requestMatchers("/upload/**").permitAll()
                         .anyRequest().authenticated())
                 .logout(logout -> logout

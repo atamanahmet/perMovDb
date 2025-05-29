@@ -1,4 +1,5 @@
-from flask import Flask, request, jsonify
+from flask import Flask, jsonify, request
+import requests
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -33,46 +34,40 @@ def recommend(title, top_n=2):
     return [movies["title"][i] for i, _ in sim_scores]
 
 
-# print(recommend("The Matrix"))
-
-
-# @app.route("/movie-data", methods=["POST"])
-# def receive_movie():
-#     global df
-#     movie = request.json
-#     if movie:
-#         df = pd.concat([df, pd.DataFrame([movie])], ignore_index=True)
-#         print(f"Movie received: {movie.get('title')}")
-#         return jsonify({"status": "received"}), 200
-#     return jsonify({"error": "no data"}), 400
-
-
-# @app.route("/rec/update", methods=["POST"])
-# def update_movies():
-#     global movies_df
-#     data = request.json
-
-#     if data["event"] == "add":
-#         movies_df = pd.concat(
-#             [movies_df, pd.DataFrame([data["movie"]])], ignore_index=True
-#         )
-#     elif data["event"] == "remove":
-#         movies_df = movies_df[movies_df["id"] != data["movieId"]]
-
-#     return {"status": "ok"}, 200
-
-
 @app.route("/rec/update", methods=["POST"])
 def update_movies():
-    data = request.get_json()
-    loved_df = pd.DataFrame(data)
+    loved_json = request.get_json()
+    print("Received loved list JSON:", loved_json)  # Debug log
 
-    # Dummy recommender logic
-    all_movies = pd.read_csv("all_movies.csv")
-    recommendations = all_movies.sample(5)
+    loved_df = pd.DataFrame(loved_json)
+    print("Loved movies DataFrame:", loved_df.head())
 
-    return recommendations.to_json(orient="records")
+    all_movies_resp = requests.get("http://localhost:8080/api/movies")
+    print("Movies API status code:", all_movies_resp.status_code)
+    print(
+        "Movies API response text:", all_movies_resp.text[:500]
+    )  # print first 500 chars for safety
+
+    all_movies = pd.DataFrame(all_movies_resp.json())
+    print("All movies DataFrame:", all_movies.head())
+
+    vectorizer = TfidfVectorizer(stop_words="english")
+    tfidf_all = vectorizer.fit_transform(all_movies["overview"].fillna(""))
+    tfidf_loved = vectorizer.transform(loved_df["overview"].fillna(""))
+
+    sim_scores = cosine_similarity(tfidf_loved, tfidf_all)
+    avg_scores = sim_scores.mean(axis=0)
+
+    all_movies["score"] = avg_scores
+
+    recommended = (
+        all_movies[~all_movies["id"].isin(loved_df["id"])]
+        .sort_values(by="score", ascending=False)
+        .head(10)
+    )
+
+    return recommended.to_json(orient="records")
 
 
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=8181)
+    app.run(host="127.0.0.1", port=8181, debug=True)

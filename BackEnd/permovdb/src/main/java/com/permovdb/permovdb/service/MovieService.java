@@ -1,8 +1,6 @@
 package com.permovdb.permovdb.service;
 
-// import java.io.FileWriter;
-// import java.util.ArrayList;
-// import java.util.List;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,6 +22,10 @@ public class MovieService {
 
     public Movie findMovieById(Long id) {
         return movieRepository.findById(id).orElse(null);
+    }
+
+    public List<Movie> getAllMovies() {
+        return movieRepository.findAll();
     }
 
     // public void saveCSV(Movie movie){

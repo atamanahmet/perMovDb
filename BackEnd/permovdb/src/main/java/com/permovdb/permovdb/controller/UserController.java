@@ -453,7 +453,12 @@ public class UserController {
 
     }
 
-    public void sendLovedlistToRec(HttpServletRequest request, HttpServletResponse response) {
+    @GetMapping("/user/recommendation")
+    public ResponseEntity<String> getRecommendation(HttpServletRequest request) {
+        return new ResponseEntity<>(sendLovedlistToRec(request), HttpStatus.OK);
+    }
+
+    public String sendLovedlistToRec(HttpServletRequest request) {
         User user = userService.getUserFromRequest(request);
 
         if (user == null) {
@@ -481,17 +486,17 @@ public class UserController {
                     headers.setContentType(MediaType.APPLICATION_JSON);
                     HttpEntity<String> entity = new HttpEntity<>(json, headers);
 
-                    String pythonUrl = "http://localhost:8000/rec/update";
+                    String pythonUrl = "http://127.0.0.1:8181/rec/update";
 
                     ResponseEntity<String> res = restTemplate.postForEntity(pythonUrl, entity, String.class);
-                    System.out.println(res.getBody());
-
+                    return res.getBody();
                 } catch (Exception e) {
                     System.out.println(e.getLocalizedMessage());
                     e.printStackTrace();
                 }
             }
         }
+        return "Content cannot be found ";
 
     }
 

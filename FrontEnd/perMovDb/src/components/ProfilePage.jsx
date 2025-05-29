@@ -18,6 +18,7 @@ export default function ProfilePage() {
     logout,
     watchlist,
     lovedlist,
+    recommendation,
     handleWatchList,
     handleWatchedList,
     handleLovedList,
@@ -39,9 +40,10 @@ export default function ProfilePage() {
     Watchlist: watchlist,
     Loved: lovedlist,
     Watchedlist: watchedlist,
+    Recommendation: recommendation,
   };
 
-  const dataSet = dataMap[selection] || watchlist;
+  const dataSet = dataMap[selection] || null;
 
   function selectiveRender() {
     return (
@@ -53,10 +55,10 @@ export default function ProfilePage() {
           <div className="px-10  text-right mt-2">
             <ToogleSwitch label="Adult" stateChange={() => handleToogle()} />
           </div>
-          <main className="mt-10 flex flex-row flex-wrap gap-5 justify-center">
+          <main className="mt-10 mb-10 flex flex-row flex-wrap gap-5 justify-center">
             <CardPlate
               data={dataSet}
-              message={"Add something to your watchlist.."}
+              message={"Add something to your list.."}
             />
           </main>
         </div>
@@ -183,6 +185,26 @@ export default function ProfilePage() {
                     {lovedlist.size}
                   </span>
                   <span className="text-sm text-blueGray-400">Loved</span>
+                </div>
+              </button>
+              <button
+                style={{
+                  cursor: "pointer",
+                  boxShadow: "2px 4px 8px 0 rgba(90, 44, 0, 0.5)",
+                  backgroundColor:
+                    selection == "Recommendation" ? "#d97706" : "#f59e0b",
+                  color: selection == "Recommendation" ? "#fffbeb" : "black",
+                }}
+                className="pb-2 -z-2 mx-1.5 mt-2  p-1.5 rounded-2xl listButton"
+                onClick={() => selectionChange("Recommendation")}
+              >
+                <div className=" p-3 text-center -mt-1.5">
+                  {/* <span className="text-xl font-bold block uppercase tracking-wide text-blueGray-600">
+                    {recommendation.size}
+                  </span> */}
+                  <span className="text-sm text-blueGray-400">
+                    Recommendation
+                  </span>
                 </div>
               </button>
             </div>
