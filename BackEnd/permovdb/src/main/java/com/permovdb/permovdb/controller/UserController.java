@@ -7,12 +7,16 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -22,9 +26,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.permovdb.permovdb.domain.Movie;
 import com.permovdb.permovdb.domain.User;
 
@@ -52,6 +58,9 @@ public class UserController {
 
     @Autowired
     private JwtCookieUtil jwtCookieUtil;
+
+    @Autowired
+    private RestTemplate restTemplate;
 
     @GetMapping("/signup")
     public String getForm() {
@@ -441,6 +450,48 @@ public class UserController {
             e.printStackTrace();
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+    }
+
+    public void sendLovedlistToRec(HttpServletRequest request, HttpServletResponse response) {
+        User user = userService.getUserFromRequest(request);
+
+        if (user == null) {
+            System.out.println("User not exist");
+        } else {
+            Set<Movie> lovedSet = user.getLovedlist();
+
+            if (lovedSet != null) {
+                List<Map<String, Object>> movieList = new ArrayList<>();
+                for (Movie m : lovedSet) {
+                    Map<String, Object> movieMap = new HashMap<>();
+                    movieMap.put("id", m.getId());
+                    movieMap.put("title", m.getTitle());
+                    movieMap.put("overview", m.getOverview());
+                    movieMap.put("vote_average", m.getVote_average());
+                    movieMap.put("genre_ids", m.getGenre_ids());
+                    movieMap.put("release_date", m.getRelease_date().toString());
+                    movieList.add(movieMap);
+                }
+                try {
+                    ObjectMapper mapper = new ObjectMapper();
+                    String json = mapper.writeValueAsString(movieList);
+
+                    HttpHeaders headers = new HttpHeaders();
+                    headers.setContentType(MediaType.APPLICATION_JSON);
+                    HttpEntity<String> entity = new HttpEntity<>(json, headers);
+
+                    String pythonUrl = "http://localhost:8000/rec/update";
+
+                    ResponseEntity<String> res = restTemplate.postForEntity(pythonUrl, entity, String.class);
+                    System.out.println(res.getBody());
+
+                } catch (Exception e) {
+                    System.out.println(e.getLocalizedMessage());
+                    e.printStackTrace();
+                }
+            }
+        }
 
     }
 

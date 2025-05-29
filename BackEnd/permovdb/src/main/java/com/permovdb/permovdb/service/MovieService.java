@@ -1,5 +1,9 @@
 package com.permovdb.permovdb.service;
 
+// import java.io.FileWriter;
+// import java.util.ArrayList;
+// import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,10 +17,7 @@ public class MovieService {
     MovieRepository movieRepository;
 
     public void saveMovie(Movie movie) {
-
         if (!movieRepository.existsById(movie.getId())) {
-            // System.out.println("movie already exist.-" + movie.getId() + "-" +
-            // movie.getTitle());
             movieRepository.save(movie);
         }
     }
@@ -24,4 +25,26 @@ public class MovieService {
     public Movie findMovieById(Long id) {
         return movieRepository.findById(id).orElse(null);
     }
+
+    // public void saveCSV(Movie movie){
+    // try(FileWriter writer = new FileWriter())
+
+    // return
+
+    // }
+
+    // public void saveCurrentRecommendList(Movie movie) {
+    // movieBuffer.add(movie);
+    // if (movieBuffer.size() >= BATCH_SIZE) {
+    // saver.saveBatch(movieBuffer);
+    // movieBuffer.clear();
+    // }
+    // }
+
+    // public void flush() {
+    // if (!movieBuffer.isEmpty()) {
+    // saver.saveBatch(movieBuffer);
+    // movieBuffer.clear();
+    // }
+    // }
 }

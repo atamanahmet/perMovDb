@@ -88,4 +88,7 @@ public class User {
     @CollectionTable(name = "user_search_entries", joinColumns = @JoinColumn(name = "user_id"))
     private List<SearchEntry> searchDataWithDate = new ArrayList<>();
 
+    // @Column
+    // private String
+
 }

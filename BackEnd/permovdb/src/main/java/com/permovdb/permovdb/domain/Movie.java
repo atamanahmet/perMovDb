@@ -86,4 +86,17 @@ public class Movie {
     @ManyToMany(mappedBy = "lovedlist")
     private Set<User> lovedlistUserSet = new HashSet<>();
 
+    // public String toCSV() {
+    // String cleanOverview = overview != null ? overview.replace("\"", "\"\"") :
+    // "";
+    // String cleanTitle = title != null ? title.replace("\"", "\"\"") : "";
+    // String dateStr = release_date != null ? release_date.toString() : "";
+
+    // return String.format("\"%s\",\"%s\",\"%s\",%.1f",
+    // cleanTitle,
+    // cleanOverview,
+    // dateStr,
+    // vote_average);
+    // }
+
 }
