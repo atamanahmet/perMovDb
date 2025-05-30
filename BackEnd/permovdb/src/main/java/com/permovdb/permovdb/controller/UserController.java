@@ -30,8 +30,10 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.permovdb.permovdb.domain.Movie;
+import com.permovdb.permovdb.domain.Root;
 import com.permovdb.permovdb.domain.User;
 
 import com.permovdb.permovdb.security.AuthResponse;
@@ -491,6 +493,17 @@ public class UserController {
                     // List<Movie> recommendationList = mapper.readValue(res.getBody(), new
                     // TypeReference<List<Movie>>() {
                     // });
+                    // System.out.println(res.getBody());
+
+                    List<Movie> root = mapper.readValue(res.getBody(), new TypeReference<List<Movie>>() {
+                    });
+
+                    user.setRecommendation(root);
+                    userService.updateUser(user);
+
+                    // for (Movie movie : root) {
+                    // System.out.println(movie.getTitle());
+                    // }
 
                     return res.getBody();
                 } catch (Exception e) {

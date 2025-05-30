@@ -3,6 +3,7 @@ package com.permovdb.permovdb.domain;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.springframework.format.annotation.DateTimeFormat;
@@ -81,6 +82,9 @@ public class Movie {
     @JsonIgnore
     @ManyToMany(mappedBy = "watchedlist")
     private Set<User> watchedlistUserSet = new HashSet<>();
+    @JsonIgnore
+    @ManyToMany(mappedBy = "recommendation")
+    private List<User> recommendationUserSet = new ArrayList<>();
 
     @JsonIgnore
     @ManyToMany(mappedBy = "lovedlist")

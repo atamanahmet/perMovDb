@@ -88,7 +88,8 @@ public class User {
     @CollectionTable(name = "user_search_entries", joinColumns = @JoinColumn(name = "user_id"))
     private List<SearchEntry> searchDataWithDate = new ArrayList<>();
 
-    // @Column
-    // private String
+    @ManyToMany
+    @JoinTable(name = "user_recommendation", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "movie_id"))
+    private List<Movie> recommendation = new ArrayList<>();
 
 }

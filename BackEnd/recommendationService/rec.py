@@ -1,45 +1,59 @@
-from flask import Flask, request, jsonify
-from scipy.sparse import csr_matrix
-from implicit.als import AlternatingLeastSquares
+from flask import Flask, jsonify, request
+import requests
+from sentence_transformers import SentenceTransformer
+from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 
 app = Flask(__name__)
 
+model = SentenceTransformer("all-MiniLM-L6-v2")
 
-@app.route("/recommend", methods=["POST"])
-def recommend():
-    data = request.json
-    all_movies = data["all_movies"]  # list of all movie IDs
-    loved_movies = data["loved_movies"]  # list of movie IDs user loved
 
-    num_movies = len(all_movies)
-    movie_id_to_idx = {mid: i for i, mid in enumerate(all_movies)}
+@app.route("/rec/update", methods=["POST"])
+def rec_update():
+    movie_db_response = requests.get("http://localhost:8080/api/movies")
+    movie_db = movie_db_response.json()
 
-    # Build interaction vector for single user
-    rows = np.zeros(len(loved_movies))
-    cols = np.array([movie_id_to_idx[mid] for mid in loved_movies])
-    data_vals = np.ones(len(loved_movies))
-    user_item = csr_matrix((data_vals, (rows, cols)), shape=(1, num_movies))
+    movie_texts = [m["overview"] for m in movie_db]
+    movie_embeddings = model.encode(movie_texts, convert_to_numpy=True)
+    loved_movies = request.get_json()
+    if not loved_movies:
+        return jsonify([])
 
-    # Train ALS on item-user matrix (transpose)
-    model = AlternatingLeastSquares(factors=10, regularization=0.1, iterations=20)
-    model.fit(user_item.T)
+    # Extract titles from loved movies
+    loved_texts = [m.get("overview", "") for m in loved_movies]
 
-    # Recommend top 5 movies excluding already loved
-    recommendations = model.recommend(
-        0, user_item, N=5, filter_already_liked_items=True
-    )
+    if not loved_texts:
+        return jsonify([])
 
-    # Map back indices to movie IDs
-    recommended_movie_ids = [all_movies[i] for i, score in recommendations]
+    # Compute embedding for loved movies average
+    loved_embeddings = model.encode(loved_texts, convert_to_numpy=True)
+    user_vec = np.mean(loved_embeddings, axis=0).reshape(1, -1)
 
-    return jsonify(recommended_movie_ids)
+    # Compute cosine similarity with all movies
+    similarities = cosine_similarity(user_vec, movie_embeddings)[0]
+
+    # Rank and exclude loved movies (by title match)
+    loved_ids_set = set(m["id"] for m in loved_movies if "id" in m)
+
+    recommendations = [
+        (movie_db[i], sim)
+        for i, sim in enumerate(similarities)
+        if movie_db[i]["id"] not in loved_ids_set
+    ]
+    recommendations.sort(key=lambda x: x[1], reverse=True)
+
+    # Return top 3 recommendations
+    top_recs = [rec[0] for rec in recommendations[:50]]
+
+    return jsonify(top_recs)
 
 
 if __name__ == "__main__":
-    app.run(port=8181)
+    app.run(host="127.0.0.1", port=8181, debug=True)
 
 
+## cosine similarity
 ##############
 # from flask import Flask, jsonify, request
 # import requests
