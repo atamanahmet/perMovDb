@@ -8,14 +8,11 @@ import java.net.http.HttpResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-// import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -74,8 +71,6 @@ class Controller {
                         HttpResponse<String> response = HttpClient.newHttpClient().send(request,
                                         HttpResponse.BodyHandlers.ofString());
 
-                        // System.out.println(response.body());
-
                         ObjectMapper mapper = new ObjectMapper();
 
                         Root root = mapper.readValue(response.body(), Root.class);
@@ -126,23 +121,6 @@ class Controller {
                 @GetMapping("/api/movies")
                 public List<Movie> getMovies(HttpServletRequest request, HttpServletResponse response) {
                         return movieService.getAllMovies();
-                        // try {
-                        // ObjectMapper mapper = new ObjectMapper();
-                        // String json = mapper.writeValueAsString(movieService.getAllMovies());
-
-                        // HttpHeaders headers = new HttpHeaders();
-
-                        // headers.setContentType(MediaType.APPLICATION_JSON);
-
-                        // return new ResponseEntity<>(json, HttpStatus.OK);
-
-                        // } catch (Exception e) {
-                        // System.out.println(e.getLocalizedMessage());
-                        // e.printStackTrace();
-                        // }
-
-                        // return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-
                 }
 
                 @GetMapping("/search/{searchQuery}")

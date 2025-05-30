@@ -223,7 +223,6 @@ public class UserController {
         if (user == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        // ObjectMapper mapper = new ObjectMapper();
         return new ResponseEntity<>(user.getWatchedlistIdSet(), HttpStatus.OK);
     }
 
@@ -235,7 +234,6 @@ public class UserController {
         if (user == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        // ObjectMapper mapper = new ObjectMapper();
         return new ResponseEntity<>(user.getLovedlistIdSet(), HttpStatus.OK);
     }
 
@@ -489,6 +487,11 @@ public class UserController {
                     String pythonUrl = "http://127.0.0.1:8181/rec/update";
 
                     ResponseEntity<String> res = restTemplate.postForEntity(pythonUrl, entity, String.class);
+
+                    // List<Movie> recommendationList = mapper.readValue(res.getBody(), new
+                    // TypeReference<List<Movie>>() {
+                    // });
+
                     return res.getBody();
                 } catch (Exception e) {
                     System.out.println(e.getLocalizedMessage());
@@ -499,5 +502,6 @@ public class UserController {
         return "Content cannot be found ";
 
     }
+    // public void checkWatched()
 
 }
