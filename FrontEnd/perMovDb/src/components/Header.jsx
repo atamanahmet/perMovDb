@@ -55,8 +55,23 @@ export default function Header() {
             </span>
           </a>
 
-          <a href="/"></a>
           <div className="flex md:order-2 gap-3">
+            <a href="/top">
+              <button
+                className="bg-amber-900 text-amber-50  rounded-lg text-sm py-2 px-4 me-1 top-buttons"
+                // onClick={}
+              >
+                Top of the top
+              </button>
+            </a>
+            <a href="/new">
+              <button
+                className="bg-amber-900 text-amber-50  rounded-lg text-sm py-2 px-4 me-1 top-buttons"
+                // onClick={}
+              >
+                New Releases
+              </button>
+            </a>
             <button
               type="button"
               data-collapse-toggle="navbar-search"

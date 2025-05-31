@@ -10,7 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
@@ -33,6 +36,8 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
 class Controller {
+        LocalDate localDate = LocalDate.now().minusDays(1);
+
         @Value("${api.key}")
         private String apiKey;
 
@@ -51,6 +56,10 @@ class Controller {
                 @GetMapping("/")
                 public ResponseEntity<?> getDicoverData(
                                 @RequestParam(value = "adult", defaultValue = "false") String adult,
+                                @RequestParam(value = "releaseWindow", defaultValue = "&primary_release_date.gte=2023-01-01") String releaseWindow,
+                                @RequestParam(value = "vote_count", defaultValue = "500") String vote_count,
+                                @RequestParam(value = "sort", defaultValue = "popularity.desc") String sort,
+                                @RequestParam(value = "compare", defaultValue = "popularity.desc") String compare,
                                 @RequestParam(value = "page", defaultValue = "1") String page)
                                 throws IOException, InterruptedException {
 
@@ -60,8 +69,10 @@ class Controller {
                                         .uri(URI.create(
                                                         "https://api.themoviedb.org/3/discover/movie?include_adult="
                                                                         + adult
-                                                                        + "&include_video=false&language=en-US&page="
-                                                                        + page + "&sort_by=popularity.desc"))
+                                                                        + "&include_video=false&with_original_language=en&page="
+                                                                        + page + "&sort_by=" + sort
+                                                                        + "&primary_release_date.lte=" + localDate +
+                                                                        "&vote_count.gte=" + vote_count))
                                         .header("accept", "application/json")
                                         .header("Authorization",
                                                         "Bearer " + apiKey)
@@ -76,13 +87,33 @@ class Controller {
                         Root root = mapper.readValue(response.body(), Root.class);
 
                         for (Movie movie : root.results) { // redirecting poster paths to the image url
+                                System.out.println(movie.getPoster_path());
 
-                                movie.setPoster_path("https://image.tmdb.org/t/p/original" +
-                                                movie.getPoster_path());
-                                movie.setBackdrop_path("https://image.tmdb.org/t/p/original" +
-                                                movie.getBackdrop_path());
+                                if (movie.getPoster_path() == null) {
+                                        System.out.println("nullll" + movie.getPoster_path());
+
+                                } else {
+                                        movie.setPoster_path("https://image.tmdb.org/t/p/original" +
+                                                        movie.getPoster_path());
+                                        movie.setBackdrop_path("https://image.tmdb.org/t/p/original" +
+                                                        movie.getBackdrop_path());
+                                }
 
                                 movieService.saveMovie(movie);
+                        }
+                        switch (compare) {
+                                case "release":
+                                        root.results.sort(Comparator.comparing(Movie::getRelease_date).reversed());
+                                        break;
+                                case "popularity":
+                                        root.results.sort(Comparator.comparing(Movie::getPopularity).reversed());
+                                        break;
+                                case "vote":
+                                        root.results.sort(Comparator.comparing(Movie::getVote_average).reversed());
+                                        break;
+                                default:
+                                        root.results.sort(Comparator.comparing(Movie::getPopularity).reversed());
+                                        break;
                         }
 
                         String result = mapper.writeValueAsString(root.results);

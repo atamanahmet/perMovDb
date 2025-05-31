@@ -22,6 +22,8 @@ import Register from "./pages/Register";
 import Login from "./pages/Login";
 import ProfilePage from "./components/ProfilePage";
 import Upload from "./components/Upload";
+import NewReleases from "./components/NewReleases";
+import Top from "./components/Top";
 
 function App() {
   const { user, login, logOut, watchlist, searchResponse } = useUser();
@@ -65,24 +67,10 @@ function App() {
     <>
       <Header />
       <Routes>
-        <Route
-          path="/"
-          element={
-            <DiscoverPage
-              result={result}
-              // onCardClick={setSelectedMovie}
-            />
-          }
-        />
-        <Route
-          path="/discover"
-          element={
-            <DiscoverPage
-              result={result}
-              // onCardClick={setSelectedMovie}
-            />
-          }
-        />
+        <Route path="/" element={<DiscoverPage result={result} />} />
+        <Route path="/discover" element={<DiscoverPage result={result} />} />
+        <Route path="/top" element={<Top />} />
+        <Route path="/new" element={<NewReleases />} />
         <Route path="/register" element={<Register />} />
         <Route path="/Login" element={<Login />} />
         <Route path="/profile" element={<ProfilePage />} />

@@ -6,7 +6,7 @@ import axios from "axios";
 import CardPlate from "./CardPlate";
 import ToogleSwitch from "./ToogleSwitch";
 
-export default function DiscoverPage({}) {
+export default function NewReleases({}) {
   const { user, loading, handleWatchList } = useUser();
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -41,18 +41,22 @@ export default function DiscoverPage({}) {
     if (isFetching) return;
     setIsFetching(true);
     try {
-      const res = await axios.get(
-        "http://localhost:8080/?adult=" + adult + "&page=" + currentPage,
-        { withCredentials: true }
-      );
-      // console.log(res.data);
-      // setResult(res.data);
+      const res = await axios.get("http://localhost:8080", {
+        params: {
+          adult,
+          page: currentPage,
+          sort: "popularity.desc",
+          releaseWindow: "2025-12-31",
+        },
+        withCredentials: true,
+      });
       setResult((prev) => {
         if (!prev || currentPage == 1) return res.data;
         const existingIds = new Set(prev.map((item) => item.id));
-        const filteredNewItems = res.data.filter(
-          (item) => !existingIds.has(item.id)
-        );
+        const filteredNewItems = res.data.filter((item) => {
+          const releaseYear = new Date(item.release_date).getFullYear();
+          return !existingIds.has(item.id) && releaseYear < 2026;
+        });
         return [...prev, ...filteredNewItems];
       });
     } catch (err) {
@@ -76,8 +80,8 @@ export default function DiscoverPage({}) {
 
   return (
     <>
-      <h2 className="text-center p-7  text-amber-100 font-bold text-4xl page-title">
-        Discover popular movies
+      <h2 className="text-center p-7  text-amber-100 font-bold text-4xl bg-red-900">
+        New released movies
       </h2>
 
       <div className="flex flex-col  max-w-11/12 justify-center mx-auto ">

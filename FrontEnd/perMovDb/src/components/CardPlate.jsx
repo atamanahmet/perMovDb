@@ -66,7 +66,7 @@ export default function CardPlate({ data, addOrRemove, message }) {
   return (
     <>
       {Array.from(data).map((item) => (
-        <div key={item.id} className="relative mb-4">
+        <div key={item.id} className="relative mb-8">
           {userRelatedButtonCheck(item, handleWatchList, user)}
           <div
             onClick={() => onCardClick(item)}
