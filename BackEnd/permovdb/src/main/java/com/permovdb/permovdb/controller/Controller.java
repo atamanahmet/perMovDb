@@ -87,7 +87,6 @@ class Controller {
                         Root root = mapper.readValue(response.body(), Root.class);
 
                         for (Movie movie : root.results) { // redirecting poster paths to the image url
-                                System.out.println(movie.getPoster_path());
 
                                 if (movie.getPoster_path() == null) {
                                         System.out.println("nullll" + movie.getPoster_path());
