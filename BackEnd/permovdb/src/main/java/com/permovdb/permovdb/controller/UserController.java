@@ -79,6 +79,9 @@ public class UserController {
         try {
             AuthResponse authResponse = userService.saveUser(user.getUsername(), user.getPassword());
 
+            if (authResponse == null)
+                return new ResponseEntity<>("Register error.", HttpStatus.EXPECTATION_FAILED);
+
             jwtCookieUtil.addJwtCookie(response, authResponse.getToken());
 
         } catch (Exception e) {
@@ -112,9 +115,12 @@ public class UserController {
         }
     }
 
-    @GetMapping("/user/watchlist/{id}/{actionType}")
-    public ResponseEntity<?> addToWatchList(@PathVariable(name = "id") String id,
-            @PathVariable(name = "actionType") String actionType, HttpServletRequest request) {
+    @GetMapping("/user/list/{type}/{id}/{actionType}")
+    public ResponseEntity<?> addToWatchList(
+            @PathVariable(name = "id") String id,
+            @PathVariable(name = "type") String type,
+            @PathVariable(name = "actionType") String actionType,
+            HttpServletRequest request) {
 
         String username = jwtUtil.extractUsernameFromRequest(request);
 
@@ -165,6 +171,60 @@ public class UserController {
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+    // @GetMapping("/user/watchlist/{id}/{actionType}")
+    // public ResponseEntity<?> addToWatchList(@PathVariable(name = "id") String id,
+    // @PathVariable(name = "actionType") String actionType, HttpServletRequest
+    // request) {
+
+    // String username = jwtUtil.extractUsernameFromRequest(request);
+
+    // Long movieId = (id == null) ? null : Long.valueOf(id);
+
+    // if (username == null || movieId == null || actionType == null) {
+    // return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    // }
+
+    // User user = userService.loadByUserName(username);
+
+    // if (user == null) {
+    // return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    // }
+
+    // Movie movie = movieService.findMovieById(movieId);
+
+    // if (movie == null) {
+    // return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    // }
+
+    // if (actionType.equals("add")) {
+    // if (!user.getWatchlist().contains(movie)) {
+    // user.getWatchlist().add(movie);
+    // user.getWatchlistIdSet().add(movie.getId());
+    // }
+
+    // if (!movie.getWatchlistUserSet().contains(user)) {
+    // movie.getWatchlistUserSet().add(user);
+    // }
+    // } else if (actionType.equals("del")) {
+    // if (user.getWatchlist().contains(movie)) {
+    // user.getWatchlist().remove(movie);
+    // user.getWatchlistIdSet().remove(movie.getId());
+    // }
+
+    // if (movie.getWatchlistUserSet().contains(user)) {
+    // movie.getWatchlistUserSet().remove(user);
+    // }
+    // } else {
+    // return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    // }
+
+    // userService.updateUser(user);
+    // movieService.saveMovie(movie);
+
+    // String response = "Removed";
+
+    // return new ResponseEntity<>(response, HttpStatus.OK);
+    // }
 
     @GetMapping("/api/me")
     public ResponseEntity<String> getCurrentUser(HttpServletRequest request) {
@@ -316,9 +376,14 @@ public class UserController {
         if (user == null)
             return new ResponseEntity<>("User Not found", HttpStatus.NOT_FOUND);
 
-        UserDTO userDTO = new UserDTO(user.getWatchlist(), user.getWatchedlist(), user.getLovedlist(),
+        UserDTO userDTO = new UserDTO(
+                user.getWatchlist(),
+                user.getWatchedlist(),
+                user.getLovedlist(),
                 user.getRecommendation(),
-                user.getWatchlistIdSet(), user.getWatchedlistIdSet(), user.getLovedlistIdSet());
+                user.getWatchlistIdSet(), // todo remove
+                user.getWatchedlistIdSet(), // todo remove
+                user.getLovedlistIdSet());// todo remove
         return new ResponseEntity<UserDTO>(userDTO, HttpStatus.OK);
     }
 
