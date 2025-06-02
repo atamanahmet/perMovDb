@@ -3,9 +3,9 @@ import openedEye from "../assets/opened-50-centered.svg";
 import closedEye from "../assets/closed-50-centered.svg";
 
 export default function WatchedlistButton({ item }) {
-  const { handleWatchedList, watchedlistIds } = useUser();
+  const { handleWatchedList, watchedlistIdSet } = useUser();
 
-  const isInWatchedlist = watchedlistIds.has(item.id);
+  const isInWatchedlist = watchedlistIdSet.has(item.id);
   // console.log(watchedlistIds);
 
   return (

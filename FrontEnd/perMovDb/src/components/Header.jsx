@@ -15,6 +15,7 @@ export default function Header() {
     searchHandler,
     profilePictureUrl,
     storedPhoto,
+    getRecommendation,
   } = useUser();
 
   // useEffect(() => {
@@ -35,6 +36,7 @@ export default function Header() {
   };
   const navigateProfile = () => {
     getWatchList();
+    getRecommendation();
     navigate("/profile");
   };
   function handleLogOut() {

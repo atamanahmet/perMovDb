@@ -1,8 +1,8 @@
 import { useUser } from "../context/UserContext";
 
 export default function WatchlistButton({ item }) {
-  const { handleWatchList, watchlistIds } = useUser();
-  const isInWatchlist = watchlistIds.has(item.id);
+  const { handleWatchList, watchlistIdSet } = useUser();
+  const isInWatchlist = watchlistIdSet.has(item.id);
 
   // console.log("isInWatchlist:" + item.title + " " + isInWatchlist);
 

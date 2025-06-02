@@ -20,7 +20,6 @@ export default function CardPlate({ data, addOrRemove, message }) {
   function handleWatchlistToogle(id) {
     let actionType = null;
     const updateSet = new Set(watchlist);
-    console.log(updateSet);
     if (updateSet.has(id)) {
       actionType = "del";
     } else {
@@ -42,7 +41,6 @@ export default function CardPlate({ data, addOrRemove, message }) {
     );
   }
   function userRelatedButtonCheck(item, handleWatchList, user) {
-    // console.log("user: " + user);
     if (user) {
       return (
         <>

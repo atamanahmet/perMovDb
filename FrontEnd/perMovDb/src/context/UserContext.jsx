@@ -10,23 +10,20 @@ export const UserProvider = ({ children }) => {
   // const location = useLocation();
   const navigate = useNavigate();
   const [watchlist, setWatchlist] = useState(new Set());
-  const [watchlistIds, setWatchlistIds] = useState(new Set());
-  const [watchedlistIds, setWatchedlistIds] = useState(new Set());
+  const [watchlistIdSet, setWatchlistIdSet] = useState(new Set());
+  const [watchedlistIdSet, setWatchedlistIdSet] = useState(new Set());
   const [watchedlist, setWatchedlist] = useState(new Set());
   const [lovedlist, setLovedlist] = useState(new Set());
   const [recommendation, setRecommendation] = useState();
-  const [lovedlistIds, setLovedlistIds] = useState(new Set());
+  const [lovedlistIdSet, setLovedlistIdSet] = useState(new Set());
   const [loading, setLoading] = useState(true);
   const [profilePictureUrl, setProfilePictureUrl] = useState(null); // For creating local url for response blob
   const [user, setUser] = useState(null);
   const [userPhoto, setUserPhoto] = useState(null);
   const [logoutResult, setLogoutResult] = useState(null);
   const [searchResponse, setSearchResponse] = useState(null);
-  // const [storedPhoto, setStoredPhoto] = useState(null);
 
   const storedPhoto = sessionStorage.getItem("profilePhoto");
-
-  // setStoredPhoto(sessionStorage.getItem("profilePhoto"));
 
   const fetchUser = () => {
     setLoading(true);
@@ -37,8 +34,6 @@ export const UserProvider = ({ children }) => {
         login(res.data);
         getProfilePhoto();
         getWatchList();
-        getWatchedList();
-        getLovedList();
       })
       .catch((err) => {
         console.log("Error: " + err);
@@ -57,9 +52,8 @@ export const UserProvider = ({ children }) => {
     if (user) {
       getWatchList();
       getProfilePhoto();
-      getWatchedList();
-      getLovedList();
-      getRecommendation();
+      // getWatchedList();
+      // getLovedList();
     }
   }, [user]);
 
@@ -128,24 +122,23 @@ export const UserProvider = ({ children }) => {
   const getWatchList = async () => {
     if (user) {
       await axios
-        .get("http://localhost:8080/user/watchlist", {
+        .get("http://localhost:8080/user/lists", {
           withCredentials: true,
         })
         .then((res) => {
-          setWatchlist(new Set(res.data));
-        })
-        .catch((err) => console.log(err));
-      await axios
-        .get("http://localhost:8080/user/watchlistIdSet", {
-          withCredentials: true,
-        })
-        .then((res) => {
-          setWatchlistIds(new Set(res.data));
+          setWatchlist(new Set(res.data.watchlist));
+          setWatchedlist(new Set(res.data.watchedlist));
+          setLovedlist(new Set(res.data.lovedlist));
+          setRecommendation(new Set(res.data.lovedlist));
+          setWatchlistIdSet(new Set(res.data.watchlistIdSet));
+          setWatchedlistIdSet(new Set(res.data.watchedlistIdSet));
+          setLovedlistIdSet(new Set(res.data.lovedlistIdSet));
         })
         .catch((err) => console.log(err));
     }
   };
   const getRecommendation = async () => {
+    setRecommendation(null);
     if (user) {
       await axios
         .get("http://localhost:8080/user/recommendation", {
@@ -157,48 +150,48 @@ export const UserProvider = ({ children }) => {
         .catch((err) => console.log(err));
     }
   };
-  const getLovedList = async () => {
-    if (user) {
-      await axios
-        .get("http://localhost:8080/user/lovedlist", {
-          withCredentials: true,
-        })
-        .then((res) => {
-          // console.log("lovelist returned: " + res.data);
-          setLovedlist(new Set(res.data));
-        })
-        .catch((err) => console.log(err));
-      await axios
-        .get("http://localhost:8080/user/lovedlistIdSet", {
-          withCredentials: true,
-        })
-        .then((res) => {
-          setLovedlistIds(new Set(res.data));
-        })
-        .catch((err) => console.log(err));
-    }
-  };
+  // const getLovedList = async () => {
+  //   if (user) {
+  //     await axios
+  //       .get("http://localhost:8080/user/lovedlist", {
+  //         withCredentials: true,
+  //       })
+  //       .then((res) => {
+  //         // console.log("lovelist returned: " + res.data);
+  //         setLovedlist(new Set(res.data));
+  //       })
+  //       .catch((err) => console.log(err));
+  //     await axios
+  //       .get("http://localhost:8080/user/lovedlistIdSet", {
+  //         withCredentials: true,
+  //       })
+  //       .then((res) => {
+  //         setLovedlistIds(new Set(res.data));
+  //       })
+  //       .catch((err) => console.log(err));
+  //   }
+  // };
 
-  const getWatchedList = async () => {
-    if (user) {
-      await axios
-        .get("http://localhost:8080/user/watchedlist", {
-          withCredentials: true,
-        })
-        .then((res) => {
-          setWatchedlist(new Set(res.data));
-        })
-        .catch((err) => console.log(err));
-      await axios
-        .get("http://localhost:8080/user/watchedlistIdSet", {
-          withCredentials: true,
-        })
-        .then((res) => {
-          setWatchedlistIds(new Set(res.data));
-        })
-        .catch((err) => console.log(err));
-    }
-  };
+  // const getWatchedList = async () => {
+  //   if (user) {
+  //     await axios
+  //       .get("http://localhost:8080/user/watchedlist", {
+  //         withCredentials: true,
+  //       })
+  //       .then((res) => {
+  //         setWatchedlist(new Set(res.data));
+  //       })
+  //       .catch((err) => console.log(err));
+  //     await axios
+  //       .get("http://localhost:8080/user/watchedlistIdSet", {
+  //         withCredentials: true,
+  //       })
+  //       .then((res) => {
+  //         setWatchedlistIds(new Set(res.data));
+  //       })
+  //       .catch((err) => console.log(err));
+  //   }
+  // };
 
   const login = (username) => {
     setUser(username);
@@ -273,7 +266,7 @@ export const UserProvider = ({ children }) => {
           }
 
           setLovedlist(updatedSet);
-          getLovedList();
+          getWatchList();
         }
       } catch (err) {
         console.error("Backend error:", err);
@@ -300,7 +293,7 @@ export const UserProvider = ({ children }) => {
           }
 
           setWatchedlist(updatedSet);
-          getWatchedList();
+          getWatchList();
         }
       } catch (err) {
         console.error("Backend error:", err);
@@ -320,12 +313,10 @@ export const UserProvider = ({ children }) => {
         watchlist,
         watchedlist,
         lovedlist,
-        lovedlistIds,
+        lovedlistIdSet,
         getWatchList,
-        getWatchedList,
-        getLovedList,
-        watchlistIds,
-        watchedlistIds,
+        watchlistIdSet,
+        watchedlistIdSet,
         searchHandler,
         getRecommendation,
         searchResponse,

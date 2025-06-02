@@ -3,9 +3,9 @@ import emptyHeart from "../assets/emptyHeart.png";
 import solidHeart from "../assets/solidHeart.png";
 
 export default function LovedButton({ item }) {
-  const { lovedlistIds, handleLovedList } = useUser();
+  const { lovedlistIdSet, handleLovedList } = useUser();
 
-  const isInLovedlist = lovedlistIds.has(item.id);
+  const isInLovedlist = lovedlistIdSet.has(item.id);
 
   return (
     <>

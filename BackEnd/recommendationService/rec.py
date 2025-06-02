@@ -20,20 +20,16 @@ def rec_update():
     if not loved_movies:
         return jsonify([])
 
-    # Extract titles from loved movies
     loved_texts = [m.get("overview", "") for m in loved_movies]
 
     if not loved_texts:
         return jsonify([])
 
-    # Compute embedding for loved movies average
     loved_embeddings = model.encode(loved_texts, convert_to_numpy=True)
     user_vec = np.mean(loved_embeddings, axis=0).reshape(1, -1)
 
-    # Compute cosine similarity with all movies
     similarities = cosine_similarity(user_vec, movie_embeddings)[0]
 
-    # Rank and exclude loved movies (by title match)
     loved_ids_set = set(m["id"] for m in loved_movies if "id" in m)
 
     recommendations = [
@@ -43,8 +39,11 @@ def rec_update():
     ]
     recommendations.sort(key=lambda x: x[1], reverse=True)
 
-    # Return top 3 recommendations
-    top_recs = [rec[0] for rec in recommendations[:50]]
+    top_similar = recommendations[:300]
+
+    top_similar.sort(key=lambda x: x[0].get("popularity", 0), reverse=True)
+
+    top_recs = [rec[0] for rec in top_similar[:50]]
 
     return jsonify(top_recs)
 

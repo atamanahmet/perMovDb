@@ -1,5 +1,6 @@
 import { useUser } from "../context/UserContext";
 import { useEffect, useState } from "react";
+import Tooltip from "@mui/material/Tooltip";
 import axios from "axios";
 import MoviePlate from "./MoviePlate";
 import WatchlistButton from "./WatchlistButton";
@@ -9,6 +10,7 @@ import ToogleSwitch from "./ToogleSwitch";
 import profile from "../assets/profile.png";
 
 import profilePlaceholder from "../assets/profile.png";
+import refresh from "../assets/refresh.png";
 
 export default function ProfilePage() {
   const [adult, setAdult] = useState(false);
@@ -25,14 +27,17 @@ export default function ProfilePage() {
     watchedlist,
     storedPhoto,
     getProfilePhoto,
+    getRecommendation,
   } = useUser();
 
   function handleToogle() {
     setAdult(!adult);
   }
+  function handleRefresh() {
+    getRecommendation();
+  }
 
   const [selection, setSelection] = useState("Watchlist");
-  // const [dataSet, setDataSet] = useState(watchlist);
 
   useEffect(() => {}, []);
 
@@ -49,9 +54,20 @@ export default function ProfilePage() {
     return (
       <>
         <div className="flex flex-col">
-          <h2 className="text-center p-7 text-amber-100 font-bold bg-amber-800 text-4xl">
-            {selection}
-          </h2>
+          <div className="flex bg-amber-800 flex-row max-h-25 ">
+            <h2 className="text-center p-7 text-amber-100 font-bold justify-self-center text-4xl w-12/12">
+              {selection}
+            </h2>
+            {selection == "Recommendation" && (
+              <span className="scale-10 self-center -mr-40 -ml-90">
+                <Tooltip title="This action will delete current recommendations">
+                  <button className="refresh" onClick={handleRefresh}>
+                    <img src={refresh} alt="" className="" />
+                  </button>
+                </Tooltip>
+              </span>
+            )}
+          </div>
           <div className="px-10  text-right mt-2">
             <ToogleSwitch label="Adult" stateChange={() => handleToogle()} />
           </div>

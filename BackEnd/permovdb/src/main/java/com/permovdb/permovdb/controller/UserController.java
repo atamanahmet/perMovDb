@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,8 +19,10 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,7 +38,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.permovdb.permovdb.domain.Movie;
 import com.permovdb.permovdb.domain.Root;
 import com.permovdb.permovdb.domain.User;
-
+import com.permovdb.permovdb.domain.UserDTO;
 import com.permovdb.permovdb.security.AuthResponse;
 import com.permovdb.permovdb.security.JwtCookieUtil;
 import com.permovdb.permovdb.security.JwtUtil;
@@ -45,6 +48,7 @@ import com.permovdb.permovdb.service.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 
 @RestController
 public class UserController {
@@ -85,16 +89,18 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> loginUser(@RequestBody User user, HttpServletResponse response) {
+    public ResponseEntity<String> loginUser(@Valid @RequestBody User user, BindingResult bindingResult,
+            HttpServletResponse response) {
 
+        if (bindingResult.hasErrors()) {
+            return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
+        }
         try {
             AuthResponse authResponse = userService.authUser(user);
 
             if (authResponse == null) {
                 return new ResponseEntity<>("User not found. Please register.", HttpStatus.NOT_FOUND);
             }
-
-            // System.out.println("token: " + authResponse.getToken());
 
             jwtCookieUtil.addJwtCookie(response, authResponse.getToken());
 
@@ -304,6 +310,18 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @GetMapping("/user/lists")
+    public ResponseEntity<?> getUserArchive(HttpServletRequest request) {
+        User user = userService.getUserFromRequest(request);
+        if (user == null)
+            return new ResponseEntity<>("User Not found", HttpStatus.NOT_FOUND);
+
+        UserDTO userDTO = new UserDTO(user.getWatchlist(), user.getWatchedlist(), user.getLovedlist(),
+                user.getRecommendation(),
+                user.getWatchlistIdSet(), user.getWatchedlistIdSet(), user.getLovedlistIdSet());
+        return new ResponseEntity<UserDTO>(userDTO, HttpStatus.OK);
+    }
+
     @GetMapping("/user/lovedlist/{id}/{actionType}")
     public ResponseEntity<?> lovedlistEdit(@PathVariable(name = "id") String id,
             @PathVariable(name = "actionType") String actionType, HttpServletRequest request) {
@@ -410,7 +428,6 @@ public class UserController {
             }
         }
         return new ResponseEntity<>("User not found. Please login.", HttpStatus.UNAUTHORIZED);
-
     }
 
     @GetMapping("/user/photo")
@@ -440,7 +457,6 @@ public class UserController {
             System.out.println("Cannot access content type");
             e.printStackTrace();
         }
-
         try {
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType(contentType))
@@ -464,6 +480,10 @@ public class UserController {
         if (user == null) {
             System.out.println("User not exist");
         } else {
+            user.setRecommendation(null);
+
+            userService.updateUser(user);
+
             Set<Movie> lovedSet = user.getLovedlist();
 
             if (lovedSet != null) {
@@ -486,19 +506,21 @@ public class UserController {
                     headers.setContentType(MediaType.APPLICATION_JSON);
                     HttpEntity<String> entity = new HttpEntity<>(json, headers);
 
-                    String pythonUrl = "http://127.0.0.1:8181/rec/update";
+                    String recEngineUrl = "http://127.0.0.1:8181/rec/update";
 
-                    ResponseEntity<String> res = restTemplate.postForEntity(pythonUrl, entity, String.class);
+                    ResponseEntity<String> res = restTemplate.postForEntity(recEngineUrl, entity, String.class);
 
                     // List<Movie> recommendationList = mapper.readValue(res.getBody(), new
                     // TypeReference<List<Movie>>() {
                     // });
                     // System.out.println(res.getBody());
 
-                    List<Movie> root = mapper.readValue(res.getBody(), new TypeReference<List<Movie>>() {
+                    List<Movie> recList = mapper.readValue(res.getBody(), new TypeReference<List<Movie>>() {
                     });
 
-                    user.setRecommendation(root);
+                    recList.sort(Comparator.comparing(Movie::getVote_average).reversed());
+
+                    user.setRecommendation(recList);
                     userService.updateUser(user);
 
                     // for (Movie movie : root) {
@@ -515,6 +537,5 @@ public class UserController {
         return "Content cannot be found ";
 
     }
-    // public void checkWatched()
 
 }

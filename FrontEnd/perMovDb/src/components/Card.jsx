@@ -9,7 +9,6 @@ function Card({
   original_language,
   release_date,
 }) {
-  console.log(poster_path);
   const imageUrl = poster_path.endsWith("null") ? missing : poster_path;
   const release_year = new Date(release_date).toISOString().split("-");
   return (

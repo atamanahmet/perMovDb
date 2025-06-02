@@ -18,7 +18,7 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 
 import jakarta.validation.constraints.NotBlank;
-
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -55,6 +55,7 @@ public class User {
     private String JWToken;
 
     @NotBlank(message = "Password can not be empty")
+    @Size(min = 3)
     @Column(nullable = false, unique = true)
     private String password;
 
