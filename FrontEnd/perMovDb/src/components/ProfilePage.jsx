@@ -74,7 +74,7 @@ export default function ProfilePage() {
           <main className="mt-10 mb-10 flex flex-row flex-wrap gap-5 justify-center">
             <CardPlate
               data={dataSet}
-              message={"Add something to your list.."}
+              message={"Add something to your lists.."}
             />
           </main>
         </div>

@@ -3,7 +3,6 @@ import { useUser } from "../context/UserContext";
 
 export default function Search() {
   const { searchResponse } = useUser();
-  console.log(searchResponse.data);
   if (searchResponse == null) {
     return (
       <>

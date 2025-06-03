@@ -3,17 +3,17 @@ import openedEye from "../assets/opened-50-centered.svg";
 import closedEye from "../assets/closed-50-centered.svg";
 
 export default function WatchedlistButton({ item }) {
-  const { handleWatchedList, watchedlistIdSet } = useUser();
+  const { handleList, watchedlistIdSet } = useUser();
 
   const isInWatchedlist = watchedlistIdSet.has(item.id);
   // console.log(watchedlistIds);
-
+  const buttonType = "watchedlist";
   return (
     <>
       <button
         className=" h-7 w-7 text-amber-100 bg-amber-200 rounded z-0 addButton absolute ml-10"
         onClick={() => {
-          handleWatchedList(item.id, isInWatchedlist ? "del" : "add");
+          handleList(item.id, isInWatchedlist ? "del" : "add", buttonType);
         }}
       >
         {isInWatchedlist ? (

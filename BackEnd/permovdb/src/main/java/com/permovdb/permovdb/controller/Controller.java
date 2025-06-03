@@ -67,8 +67,8 @@ class Controller {
 
                         HttpRequest request = HttpRequest.newBuilder()
                                         .uri(URI.create(
-                                                        "https://api.themoviedb.org/3/discover/movie?include_adult="
-                                                                        + adult
+                                                        "https://api.themoviedb.org/3/discover/movie?include_adult=true"
+
                                                                         + "&include_video=false&with_original_language=en&page="
                                                                         + page + "&sort_by=" + sort
                                                                         + "&primary_release_date.lte=" + localDate +

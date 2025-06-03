@@ -7,7 +7,6 @@ const UserContext = createContext();
 export const useUser = () => useContext(UserContext);
 
 export const UserProvider = ({ children }) => {
-  // const location = useLocation();
   const navigate = useNavigate();
   const [watchlist, setWatchlist] = useState(new Set());
   const [watchlistIdSet, setWatchlistIdSet] = useState(new Set());
@@ -17,7 +16,7 @@ export const UserProvider = ({ children }) => {
   const [recommendation, setRecommendation] = useState();
   const [lovedlistIdSet, setLovedlistIdSet] = useState(new Set());
   const [loading, setLoading] = useState(true);
-  const [profilePictureUrl, setProfilePictureUrl] = useState(null); // For creating local url for response blob
+  const [profilePictureUrl, setProfilePictureUrl] = useState(null); //local url for response blob
   const [user, setUser] = useState(null);
   const [userPhoto, setUserPhoto] = useState(null);
   const [logoutResult, setLogoutResult] = useState(null);
@@ -30,7 +29,7 @@ export const UserProvider = ({ children }) => {
     axios
       .get("http://localhost:8080/api/me", { withCredentials: true })
       .then((res) => {
-        console.log("Token verification, username: " + res.data);
+        // console.log("Token verification, username: " + res.data);
         login(res.data);
         getProfilePhoto();
         getWatchList();
@@ -52,13 +51,11 @@ export const UserProvider = ({ children }) => {
     if (user) {
       getWatchList();
       getProfilePhoto();
-      // getWatchedList();
-      // getLovedList();
     }
   }, [user]);
 
   async function handleUpload(file) {
-    console.log(file);
+    // console.log(file);
     if (file != null) {
       console.log("file not null");
       const formData = new FormData();
@@ -119,24 +116,6 @@ export const UserProvider = ({ children }) => {
     }
   }
 
-  const getWatchList = async () => {
-    if (user) {
-      await axios
-        .get("http://localhost:8080/user/lists", {
-          withCredentials: true,
-        })
-        .then((res) => {
-          setWatchlist(new Set(res.data.watchlist));
-          setWatchedlist(new Set(res.data.watchedlist));
-          setLovedlist(new Set(res.data.lovedlist));
-          setRecommendation(new Set(res.data.lovedlist));
-          setWatchlistIdSet(new Set(res.data.watchlistIdSet));
-          setWatchedlistIdSet(new Set(res.data.watchedlistIdSet));
-          setLovedlistIdSet(new Set(res.data.lovedlistIdSet));
-        })
-        .catch((err) => console.log(err));
-    }
-  };
   const getRecommendation = async () => {
     setRecommendation(null);
     if (user) {
@@ -150,48 +129,6 @@ export const UserProvider = ({ children }) => {
         .catch((err) => console.log(err));
     }
   };
-  // const getLovedList = async () => {
-  //   if (user) {
-  //     await axios
-  //       .get("http://localhost:8080/user/lovedlist", {
-  //         withCredentials: true,
-  //       })
-  //       .then((res) => {
-  //         // console.log("lovelist returned: " + res.data);
-  //         setLovedlist(new Set(res.data));
-  //       })
-  //       .catch((err) => console.log(err));
-  //     await axios
-  //       .get("http://localhost:8080/user/lovedlistIdSet", {
-  //         withCredentials: true,
-  //       })
-  //       .then((res) => {
-  //         setLovedlistIds(new Set(res.data));
-  //       })
-  //       .catch((err) => console.log(err));
-  //   }
-  // };
-
-  // const getWatchedList = async () => {
-  //   if (user) {
-  //     await axios
-  //       .get("http://localhost:8080/user/watchedlist", {
-  //         withCredentials: true,
-  //       })
-  //       .then((res) => {
-  //         setWatchedlist(new Set(res.data));
-  //       })
-  //       .catch((err) => console.log(err));
-  //     await axios
-  //       .get("http://localhost:8080/user/watchedlistIdSet", {
-  //         withCredentials: true,
-  //       })
-  //       .then((res) => {
-  //         setWatchedlistIds(new Set(res.data));
-  //       })
-  //       .catch((err) => console.log(err));
-  //   }
-  // };
 
   const login = (username) => {
     setUser(username);
@@ -219,85 +156,54 @@ export const UserProvider = ({ children }) => {
     }
   };
 
-  const handleWatchList = async (movieId, actionType) => {
-    console.log("watchlist context called");
+  const handleList = async (movieId, actionType, buttonType) => {
+    // console.log("watchlist context called");
 
     if (movieId && actionType) {
       try {
         const res = await axios.get(
-          `http://localhost:8080/user/watchlist/${movieId}/${actionType}`,
+          `http://localhost:8080/user/list/${buttonType}/${movieId}/${actionType}`,
           { withCredentials: true }
         );
-
-        if (res.status == 200) {
-          const updatedSet = new Set(watchlist);
-
-          if (actionType == "del") {
-            updatedSet.delete(movieId);
-          } else {
-            updatedSet.add(movieId);
-          }
-
-          setWatchlist(updatedSet);
-          getWatchList();
+        if (res.status === 200) {
+          await getWatchList(); //backend fetch update
         }
       } catch (err) {
         console.error("Backend error:", err);
       }
     }
   };
-  const handleLovedList = async (movieId, actionType) => {
-    console.log("watchlist context called");
 
-    if (movieId && actionType) {
-      try {
-        const res = await axios.get(
-          `http://localhost:8080/user/lovedlist/${movieId}/${actionType}`,
-          { withCredentials: true }
-        );
-
-        if (res.status == 200) {
-          const updatedSet = new Set(lovedlist);
-
-          if (actionType == "del") {
-            updatedSet.delete(movieId);
-          } else {
-            updatedSet.add(movieId);
-          }
-
-          setLovedlist(updatedSet);
-          getWatchList();
-        }
-      } catch (err) {
-        console.error("Backend error:", err);
-      }
+  // helper for list updaTE
+  function updateList(setter, setIdSetter, currentSet, idSet, id, action) {
+    const newSet = new Set([...currentSet]);
+    const newIdSet = new Set([...idSet]);
+    if (action === "del") {
+      newSet.delete(id);
+      newIdSet.delete(id);
+    } else {
+      newSet.add(id);
+      newIdSet.add(id);
     }
-  };
-  const handleWatchedList = async (movieId, actionType) => {
-    console.log("watchedlist context called");
-
-    if (movieId && actionType) {
-      try {
-        const res = await axios.get(
-          `http://localhost:8080/user/watchedlist/${movieId}/${actionType}`,
-          { withCredentials: true }
-        );
-
-        if (res.status == 200) {
-          const updatedSet = new Set(watchedlist);
-
-          if (actionType == "del") {
-            updatedSet.delete(movieId);
-          } else {
-            updatedSet.add(movieId);
-          }
-
-          setWatchedlist(updatedSet);
-          getWatchList();
-        }
-      } catch (err) {
-        console.error("Backend error:", err);
-      }
+    setter(newSet);
+    setIdSetter(newIdSet);
+  }
+  const getWatchList = async () => {
+    if (user) {
+      await axios
+        .get("http://localhost:8080/user/lists", {
+          withCredentials: true,
+        })
+        .then((res) => {
+          setWatchlist(new Set([...res.data.watchlist]));
+          setWatchedlist(new Set(res.data.watchedlist));
+          setLovedlist(new Set(res.data.lovedlist));
+          setRecommendation(new Set(res.data.lovedlist));
+          setWatchlistIdSet(new Set(...[res.data.watchlistIdSet]));
+          setWatchedlistIdSet(new Set(res.data.watchedlistIdSet));
+          setLovedlistIdSet(new Set(res.data.lovedlistIdSet));
+        })
+        .catch((err) => console.log(err));
     }
   };
 
@@ -308,8 +214,6 @@ export const UserProvider = ({ children }) => {
         login,
         loading,
         logOut,
-        handleWatchList,
-        handleWatchedList,
         watchlist,
         watchedlist,
         lovedlist,
@@ -324,8 +228,8 @@ export const UserProvider = ({ children }) => {
         profilePictureUrl,
         getProfilePhoto,
         storedPhoto,
-        handleLovedList,
         recommendation,
+        handleList,
       }}
     >
       {children}

@@ -2,31 +2,16 @@ import { Navigate } from "react-router";
 import { useUser } from "../context/UserContext";
 import { useNavigate } from "react-router";
 import Card from "./Card";
-import WatchlistButton from "./WatchlistButton";
-import WatchedlistButton from "./WatchedlistButton";
-import LovedButton from "./LovedButton";
+import ListButton from "./ListButton";
+// import WatchlistButton from "./WatchlistButton";
+// import WatchedlistButton from "./WatchedlistButton";
+// import LovedButton from "./LovedButton";
 
 export default function CardPlate({ data, addOrRemove, message }) {
-  const {
-    user,
-    handleWatchList,
-    handleWatchedList,
-    handleLovedList,
-    watchlist,
-    // watchedlist,
-  } = useUser();
+  const { user } = useUser();
+
   const navigate = useNavigate();
 
-  function handleWatchlistToogle(id) {
-    let actionType = null;
-    const updateSet = new Set(watchlist);
-    if (updateSet.has(id)) {
-      actionType = "del";
-    } else {
-      actionType = "add";
-    }
-    addOrRemove(id, actionType);
-  }
   function onCardClick(item) {
     navigate("/details/" + item.id);
   }
@@ -40,32 +25,12 @@ export default function CardPlate({ data, addOrRemove, message }) {
       </>
     );
   }
-  function userRelatedButtonCheck(item, handleWatchList, user) {
-    if (user) {
-      return (
-        <>
-          <WatchlistButton
-            item={item}
-            handleWatchList={handleWatchList}
-          ></WatchlistButton>
-          <WatchedlistButton
-            item={item}
-            handleWatchList={handleWatchedList}
-          ></WatchedlistButton>
-          <LovedButton
-            item={item}
-            handleWatchList={handleLovedList}
-          ></LovedButton>
-        </>
-      );
-    }
-  }
 
   return (
     <>
       {Array.from(data).map((item) => (
         <div key={item.id} className="relative mb-8">
-          {userRelatedButtonCheck(item, handleWatchList, user)}
+          {user && <ListButton item={item} />}
           <div
             onClick={() => onCardClick(item)}
             className="z-1 relative text-left"

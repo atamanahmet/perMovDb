@@ -84,7 +84,7 @@ public class Movie {
     private Set<User> watchedlistUserSet = new HashSet<>();
     @JsonIgnore
     @ManyToMany(mappedBy = "recommendation")
-    private List<User> recommendationUserSet = new ArrayList<>();
+    private Set<User> recommendationUserSet = new HashSet<>();
 
     @JsonIgnore
     @ManyToMany(mappedBy = "lovedlist")

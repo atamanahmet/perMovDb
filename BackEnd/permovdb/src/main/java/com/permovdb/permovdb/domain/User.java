@@ -91,6 +91,6 @@ public class User {
 
     @ManyToMany
     @JoinTable(name = "user_recommendation", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "movie_id"))
-    private List<Movie> recommendation = new ArrayList<>();
+    private Set<Movie> recommendation = new HashSet<>();
 
 }
