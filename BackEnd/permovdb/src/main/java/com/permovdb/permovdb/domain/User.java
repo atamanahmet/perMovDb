@@ -8,6 +8,7 @@ import java.util.Set;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -62,28 +63,35 @@ public class User {
     @Column(nullable = true, unique = true)
     private String profilePicturePath;
 
-    @ManyToMany
-    @JoinTable(name = "user_watchlist", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "movie_id"))
-    private Set<Movie> watchlist = new HashSet<>();
+    @Embedded
+    @Column(nullable = true)
+    private UserList userList;
 
-    @Column(nullable = true, unique = false)
-    private Set<Long> watchlistIdSet = new HashSet<>();
+    // @ManyToMany
+    // @JoinTable(name = "user_watchlist", joinColumns = @JoinColumn(name =
+    // "user_id"), inverseJoinColumns = @JoinColumn(name = "movie_id"))
+    // private Set<Movie> watchlist = new HashSet<>();
 
-    @ManyToMany
-    @JoinTable(name = "user_watchedlist", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "movie_id"))
-    @Column(nullable = true, unique = false)
-    private Set<Movie> watchedlist = new HashSet<>();
+    // @Column(nullable = true, unique = false)
+    // private Set<Long> watchlistIdSet = new HashSet<>();
 
-    @ManyToMany
-    @JoinTable(name = "user_lovedlist", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "movie_id"))
-    @Column(nullable = true, unique = false)
-    private Set<Movie> lovedlist = new HashSet<>();
+    // @ManyToMany
+    // @JoinTable(name = "user_watchedlist", joinColumns = @JoinColumn(name =
+    // "user_id"), inverseJoinColumns = @JoinColumn(name = "movie_id"))
+    // @Column(nullable = true, unique = false)
+    // private Set<Movie> watchedlist = new HashSet<>();
 
-    @Column(nullable = true, unique = false)
-    private Set<Long> watchedlistIdSet = new HashSet<>();
+    // @ManyToMany
+    // @JoinTable(name = "user_lovedlist", joinColumns = @JoinColumn(name =
+    // "user_id"), inverseJoinColumns = @JoinColumn(name = "movie_id"))
+    // @Column(nullable = true, unique = false)
+    // private Set<Movie> lovedlist = new HashSet<>();
 
-    @Column(nullable = true, unique = false)
-    private Set<Long> lovedlistIdSet = new HashSet<>();
+    // @Column(nullable = true, unique = false)
+    // private Set<Long> watchedlistIdSet = new HashSet<>();
+
+    // @Column(nullable = true, unique = false)
+    // private Set<Long> lovedlistIdSet = new HashSet<>();
 
     @ElementCollection
     @CollectionTable(name = "user_search_entries", joinColumns = @JoinColumn(name = "user_id"))

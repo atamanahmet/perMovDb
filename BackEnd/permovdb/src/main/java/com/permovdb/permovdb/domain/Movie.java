@@ -75,20 +75,20 @@ public class Movie {
     @Column
     private int vote_count;
 
-    @JsonIgnore
-    @ManyToMany(mappedBy = "watchlist")
-    private Set<User> watchlistUserSet = new HashSet<>();
+    // @JsonIgnore
+    // @ManyToMany(mappedBy = "watchlist")
+    // private Set<User> watchlistUserSet = new HashSet<>();
 
-    @JsonIgnore
-    @ManyToMany(mappedBy = "watchedlist")
-    private Set<User> watchedlistUserSet = new HashSet<>();
-    @JsonIgnore
-    @ManyToMany(mappedBy = "recommendation")
-    private Set<User> recommendationUserSet = new HashSet<>();
+    // @JsonIgnore
+    // @ManyToMany(mappedBy = "watchedlist")
+    // private Set<User> watchedlistUserSet = new HashSet<>();
+    // @JsonIgnore
+    // @ManyToMany(mappedBy = "recommendation")
+    // private Set<User> recommendationUserSet = new HashSet<>();
 
-    @JsonIgnore
-    @ManyToMany(mappedBy = "lovedlist")
-    private Set<User> lovedlistUserSet = new HashSet<>();
+    // @JsonIgnore
+    // @ManyToMany(mappedBy = "lovedlist")
+    // private Set<User> lovedlistUserSet = new HashSet<>();
 
     // public String toCSV() {
     // String cleanOverview = overview != null ? overview.replace("\"", "\"\"") :
