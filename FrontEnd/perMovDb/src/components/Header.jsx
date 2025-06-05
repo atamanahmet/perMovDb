@@ -63,7 +63,7 @@ export default function Header() {
                 className="bg-amber-900 text-amber-50  rounded-lg text-sm py-2 px-4 me-1 top-buttons"
                 // onClick={}
               >
-                Top of the top
+                Top
               </button>
             </a>
             <a href="/new">
@@ -71,7 +71,7 @@ export default function Header() {
                 className="bg-amber-900 text-amber-50  rounded-lg text-sm py-2 px-4 me-1 top-buttons"
                 // onClick={}
               >
-                New Releases
+                New+
               </button>
             </a>
             <button
