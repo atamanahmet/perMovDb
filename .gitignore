@@ -8,7 +8,7 @@ BackEnd/permovdb/src/main/resources/application-secret.properties
 BackEnd/permovdb/src/main/resources/application.properties
 BackEnd/permovdb/src/main/java/com/permovdb/permovdb/security/JwtUtil.java
 BackEnd/permovdb/src/main/java/com/permovdb/permovdb/security/SecurityConstants.java
-Backend/recommendationService/rec-env/**
+BackEnd/permovdb/src/main/resources/scripts/recommendationService/rec-env/**
 uploads
 
 ### STS ###

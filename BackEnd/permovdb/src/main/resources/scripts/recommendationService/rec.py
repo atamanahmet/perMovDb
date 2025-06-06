@@ -1,9 +1,9 @@
-from flask import Flask, jsonify, request
-import requests
-from sentence_transformers import SentenceTransformer
-from sklearn.metrics.pairwise import cosine_similarity
-import numpy as np
-from sklearn.preprocessing import MultiLabelBinarizer
+from flask import Flask, jsonify, request  # type: ignore
+import requests  # type: ignore
+from sentence_transformers import SentenceTransformer  # type: ignore
+from sklearn.metrics.pairwise import cosine_similarity  # type: ignore
+import numpy as np  # type: ignore
+from sklearn.preprocessing import MultiLabelBinarizer  # type: ignore
 
 app = Flask(__name__)
 
