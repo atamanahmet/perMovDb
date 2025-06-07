@@ -127,7 +127,7 @@ class MovieController {
         public ResponseEntity<String> getVideo(@PathVariable(name = "movieId", required = true) String movieId) {
                 HttpRequest videoRequest = HttpRequest.newBuilder()
                                 .uri(URI.create(
-                                                "https://api.themoviedb.org/3/movie/" + movieId + "/credits"))
+                                                "https://api.themoviedb.org/3/movie/" + movieId + "/videos"))
                                 .header("accept", "application/json")
                                 .header("Authorization",
                                                 "Bearer " + apiKey)
@@ -144,12 +144,18 @@ class MovieController {
 
                         String trailer = "https://www.youtube.com/watch?v=";
 
+                        boolean videoExist = false;
+
                         for (VideoMetadata video : movieVideoDTO.getResults()) {
                                 if (video.getType().toLowerCase().equals("trailer") &&
                                                 video.getSite().toLowerCase().equals("youtube")) {
                                         trailer = trailer + video.getKey();
+                                        videoExist = true;
                                         break;
                                 }
+                        }
+                        if (!videoExist) {
+                                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
                         }
 
                         Movie movie = movieService.findMovieById(movieVideoDTO.getId());
@@ -182,12 +188,27 @@ class MovieController {
                 try {
                         HttpResponse<String> castResponse = HttpClient.newHttpClient().send(castRequest,
                                         HttpResponse.BodyHandlers.ofString());
+                        System.out.println(castResponse.body());
 
                         ObjectMapper mapper = new ObjectMapper();
 
                         Cast cast = mapper.readValue(castResponse.body(), Cast.class);
 
-                        return new ResponseEntity<>(castResponse.body(), HttpStatus.OK);
+                        // for (CastMember member : cast.getCastMembers()) {
+                        // // System.out.println(member.getProfilePath());
+
+                        // if (member.getProfilePath() != null) {
+                        // member.setProfilePath("https://api.themoviedb.org/3/movie/"
+                        // + member.getProfilePath());
+                        // castMemberService.saveMember(member, Integer.valueOf(movieId));
+
+                        // // System.out.println(member.getProfilePath());
+
+                        // }
+
+                        // }
+
+                        return new ResponseEntity<>(mapper.writeValueAsString(cast.getCastMembers()), HttpStatus.OK);
 
                 } catch (IOException e) {
                         e.printStackTrace();

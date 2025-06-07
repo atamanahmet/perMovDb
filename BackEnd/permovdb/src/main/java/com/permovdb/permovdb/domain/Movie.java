@@ -38,7 +38,7 @@ public class Movie {
 
     @Id
     @Column(nullable = false, unique = true)
-    private int id;
+    private Integer id;
 
     @Column
     private boolean adult;

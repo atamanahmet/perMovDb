@@ -2,6 +2,7 @@ package com.permovdb.permovdb.domain;
 
 import java.util.ArrayList;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.ElementCollection;
@@ -22,11 +23,12 @@ import lombok.Setter;
 @NoArgsConstructor
 @Entity
 @Table(name = "movie_cast")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Cast {
 
     @Id
     @JsonProperty("id")
-    private long movieId;
+    private Integer movieId;
 
     @ElementCollection
     @JsonProperty("cast")

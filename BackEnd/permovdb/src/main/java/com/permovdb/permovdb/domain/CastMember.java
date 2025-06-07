@@ -32,7 +32,7 @@ public class CastMember {
 
     @Id
     @Column
-    private int id;
+    private Integer id;
     @Column
     private String name;
     @Column

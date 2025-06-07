@@ -57,26 +57,4 @@ public class MovieService {
     public List<Movie> getMoviesFromIdSet(Set<Integer> idSet) {
         return movieRepository.findAllById(idSet);
     }
-
-    // public void saveCSV(Movie movie){
-    // try(FileWriter writer = new FileWriter())
-
-    // return
-
-    // }
-
-    // public void saveCurrentRecommendList(Movie movie) {
-    // movieBuffer.add(movie);
-    // if (movieBuffer.size() >= BATCH_SIZE) {
-    // saver.saveBatch(movieBuffer);
-    // movieBuffer.clear();
-    // }
-    // }
-
-    // public void flush() {
-    // if (!movieBuffer.isEmpty()) {
-    // saver.saveBatch(movieBuffer);
-    // movieBuffer.clear();
-    // }
-    // }
 }

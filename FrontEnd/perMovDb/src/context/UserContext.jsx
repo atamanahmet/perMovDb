@@ -22,7 +22,7 @@ export const UserProvider = ({ children }) => {
   const [logoutResult, setLogoutResult] = useState(null);
   const [searchResponse, setSearchResponse] = useState(null);
   const [detail, setDetail] = useState(null);
-  const [cast, setCast] = useState(null);
+  const [cast, setCast] = useState([]);
 
   const storedPhoto = sessionStorage.getItem("profilePhoto");
 
@@ -32,6 +32,7 @@ export const UserProvider = ({ children }) => {
         withCredentials: true,
       })
       .then((res) => {
+        console.log(res.data);
         setCast(res.data);
       })
       .catch((err) => {

@@ -1,33 +1,45 @@
 import { Star, Calendar, Users, Globe, Play } from "lucide-react";
 import { useUser } from "../context/UserContext";
 import { useNavigate } from "react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
+import VideoModal from "../components/VideoModal";
+import ListButton from "../components/ListButton";
+import profile from "../assets/profile.png";
 
 function DetailsPage() {
-  const { user, cast, detail } = useUser();
-
-  const [trailer, setTrailer] = useState();
-
+  const { user, detail, cast } = useUser();
   const navigate = useNavigate();
 
-  if (detail == null) {
-    navigate("/discover");
-  }
-  if (detail.trailer_path == null) {
-    axios
-      .get("http://localhost:8080/movie/" + detail.id + "/video", {
-        withCredentials: true,
-      })
-      .then((res) => {
-        setTrailer(res.data);
-      })
-      .catch((err) => {
-        console.log("Error: " + err);
-      });
-  }
+  useEffect(() => {
+    if (!detail) {
+      navigate("/discover");
+    }
+  }, [detail, navigate]);
 
-  console.log(detail);
+  const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
+  const [trailer, setTrailer] = useState(null);
+
+  useEffect(() => {
+    if (detail && !detail.trailer_path) {
+      axios
+        .get(`http://localhost:8080/movie/${detail.id}/video`, {
+          withCredentials: true,
+        })
+        .then((res) => {
+          setTrailer(res.data);
+        })
+        .catch((err) => console.log("Error: " + err));
+    }
+  }, [detail]);
+
+  const openVideoModal = () => {
+    setIsVideoModalOpen(true);
+  };
+
+  const closeVideoModal = () => {
+    setIsVideoModalOpen(false);
+  };
 
   const genreMap = {
     18: "Drama",
@@ -168,15 +180,20 @@ function DetailsPage() {
 
                 {/* Action Buttons */}
                 <div className="flex flex-wrap gap-4">
-                  <a href={trailer}>
-                    <button className="bg-red-600 hover:bg-red-700 transition-colors px-6 py-3 rounded-lg flex details-center gap-2 font-semibold">
-                      <Play className="w-5 h-5" />
-                      Watch Trailer
-                    </button>
-                  </a>
-                  <button className="bg-gray-700 hover:bg-gray-600 transition-colors px-6 py-3 rounded-lg font-semibold">
-                    Add to Watchlist
+                  {/* <a href={trailer}> */}
+                  <button
+                    className="bg-amber-600 hover:bg-amber-700 transition-colors px-6 py-3 rounded-lg flex details-center gap-2 font-semibold"
+                    onClick={openVideoModal}
+                    disabled={!trailer}
+                  >
+                    <Play className="w-5 h-5" />
+                    {trailer != null ? "Watch Trailer" : "No Trailer Available"}
                   </button>
+                  {/* </a> */}
+                  {user && <ListButton item={detail} />}
+                  {/* <button className="bg-gray-700 hover:bg-gray-600 transition-colors px-6 py-3 rounded-lg font-semibold">
+                    Add to Watchlist
+                  </button> */}
                 </div>
 
                 {/* Additional Stats */}
@@ -206,9 +223,50 @@ function DetailsPage() {
                     <div className="text-sm text-gray-400">Has Video</div>
                   </div>
                 </div>
+
+                {/* Cast Section */}
+                {cast.length > 0 && (
+                  <div className="mt-12">
+                    <h2 className="text-2xl font-semibold mb-6 flex items-center gap-2">
+                      <Users className="w-6 h-6 text-amber-400" />
+                      Cast
+                    </h2>
+                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
+                      {cast.map((actor) => (
+                        <div key={actor.id} className="text-center">
+                          <div className="relative mb-3">
+                            <img
+                              src={
+                                actor.profilePath ||
+                                "https://www.gravatar.com/avatar/2c7d99fe281ecd3bcd65ab915bac6dd5?s=250"
+                              }
+                              alt={actor.name}
+                              className="w-full aspect-square object-cover rounded-lg shadow-lg bg-gray-700"
+                              onError={(e) => {
+                                e.target.src = { profile };
+                              }}
+                            />
+                          </div>
+                          <h3 className="text-sm font-semibold text-white mb-1 truncate">
+                            {actor.name}
+                          </h3>
+                          <p className="text-xs text-gray-400 truncate">
+                            {actor.character || actor.job}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
+          <VideoModal
+            isOpen={isVideoModalOpen}
+            onClose={closeVideoModal}
+            videoUrl={trailer}
+            title={detail.title}
+          />
         </div>
       )}
     </>
