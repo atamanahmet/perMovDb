@@ -48,7 +48,7 @@ export default function Top({}) {
           sort: "vote_average.desc",
           releaseWindow: "2025-12-31",
           compare: "popularity",
-          vote_count: 5000,
+          vote_count: 1000,
         },
         withCredentials: true,
       });

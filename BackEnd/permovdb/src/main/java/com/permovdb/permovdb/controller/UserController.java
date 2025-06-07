@@ -35,7 +35,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.permovdb.permovdb.domain.Movie;
 import com.permovdb.permovdb.domain.User;
-import com.permovdb.permovdb.domain.UserDTO;
+import com.permovdb.permovdb.domain.DTO.UserDTO;
 import com.permovdb.permovdb.security.AuthResponse;
 import com.permovdb.permovdb.security.JwtCookieUtil;
 import com.permovdb.permovdb.security.JwtUtil;
@@ -121,7 +121,7 @@ public class UserController {
 
         String username = jwtUtil.extractUsernameFromRequest(request);
 
-        Long movieId = (id == null) ? null : Long.valueOf(id);
+        Integer movieId = (id == null) ? null : Integer.valueOf(id);
 
         if (username == null || movieId == null || action == null) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -134,7 +134,7 @@ public class UserController {
         if (user == null || movie == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        Set<Long> idListToEdit = new HashSet<>();
+        Set<Integer> idListToEdit = new HashSet<>();
         Set<User> movieUserSet = new HashSet<>();
 
         switch (type) {
@@ -345,7 +345,7 @@ public class UserController {
                 List<Map<String, Object>> movieList = new ArrayList<>();
 
                 for (Movie m : lovedSet) {
-                    System.out.println(m.getTitle());
+                    // System.out.println(m.getTitle());
                     Map<String, Object> movieMap = new HashMap<>();
                     movieMap.put("id", m.getId());
                     movieMap.put("title", m.getTitle());
@@ -370,9 +370,9 @@ public class UserController {
 
                     List<Movie> recList = mapper.readValue(res.getBody(), new TypeReference<List<Movie>>() {
                     });
-                    for (Movie movie : recList) {
-                        System.out.println("rec: " + movie.getTitle());
-                    }
+                    // for (Movie movie : recList) {
+                    // System.out.println("rec: " + movie.getTitle());
+                    // }
 
                     // recList.sort(Comparator.comparing(Movie::getVote_average).reversed());
 
@@ -390,7 +390,7 @@ public class UserController {
 
     }
 
-    public Set<Movie> getMoviesFromIdSet(Set<Long> idSet) {
+    public Set<Movie> getMoviesFromIdSet(Set<Integer> idSet) {
         return new HashSet<Movie>(movieService.getMoviesFromIdSet(idSet));
     }
 

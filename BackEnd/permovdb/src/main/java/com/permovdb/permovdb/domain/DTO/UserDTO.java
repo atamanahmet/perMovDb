@@ -1,6 +1,8 @@
-package com.permovdb.permovdb.domain;
+package com.permovdb.permovdb.domain.DTO;
 
 import java.util.Set;
+
+import com.permovdb.permovdb.domain.Movie;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,9 +14,9 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserDTO {
-    private Set<Long> watchlistIdSet;
-    private Set<Long> watchedlistIdSet;
-    private Set<Long> lovedlistIdSet;
+    private Set<Integer> watchlistIdSet;
+    private Set<Integer> watchedlistIdSet;
+    private Set<Integer> lovedlistIdSet;
     private Set<Movie> watchlist;
     private Set<Movie> watchedlist;
     private Set<Movie> lovedlist;

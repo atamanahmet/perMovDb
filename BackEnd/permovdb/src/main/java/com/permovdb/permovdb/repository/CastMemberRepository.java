@@ -1,11 +1,11 @@
 package com.permovdb.permovdb.repository;
 
-import com.permovdb.permovdb.domain.Movie;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import com.permovdb.permovdb.domain.CastMember;
+
 @Repository
-public interface MovieRepository extends JpaRepository<Movie, Integer> {
+public interface CastMemberRepository extends JpaRepository<CastMember, Integer> {
 
 }

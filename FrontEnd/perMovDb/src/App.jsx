@@ -15,15 +15,17 @@ import axios from "axios";
 import "./App.css";
 import { useUser } from "./context/UserContext";
 
-import DiscoverPage from "./components/DiscoverPage";
+import DiscoverPage from "./pages/DiscoverPage";
+
 import Header from "./components/Header";
 // import DetailsPage from "./components/DetailsPage";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
-import ProfilePage from "./components/ProfilePage";
-import Upload from "./components/Upload";
-import NewReleases from "./components/NewReleases";
+import ProfilePage from "./pages/ProfilePage";
+import Upload from "./pages/Upload";
+import NewReleases from "./pages/NewReleases";
 import Top from "./components/Top";
+import DetailsPage from "./pages/DetailsPage";
 
 function App() {
   const { user, login, logOut, watchlist, searchResponse } = useUser();
@@ -80,7 +82,7 @@ function App() {
             element={<Search data={searchResponse.data} />}
           />
         ) : null}
-        <Route path="/details/:movieId" element={<RedirectToExternal />} />
+        <Route path="/details" element={<DetailsPage />} />
         <Route path="/upload" element={<Upload />} />
       </Routes>
     </>

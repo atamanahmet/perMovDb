@@ -11,13 +11,20 @@ import org.springframework.format.annotation.DateTimeFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.MapsId;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
@@ -25,15 +32,13 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Movie {
 
-    public Movie() {
-    }
-
     @Id
     @Column(nullable = false, unique = true)
-    private long id;
+    private int id;
 
     @Column
     private boolean adult;
@@ -41,8 +46,10 @@ public class Movie {
     @Column
     private String backdrop_path;
 
-    @Column
-    private ArrayList<Integer> genre_ids;
+    @ElementCollection
+    @CollectionTable(name = "movie_genres", joinColumns = @JoinColumn(name = "movie_id"))
+    @Column(name = "genre_id")
+    private List<Integer> genre_ids = new ArrayList<>();
 
     @Column
     private String original_language;
@@ -75,32 +82,10 @@ public class Movie {
     @Column
     private int vote_count;
 
-    // @JsonIgnore
-    // @ManyToMany(mappedBy = "watchlist")
-    // private Set<User> watchlistUserSet = new HashSet<>();
+    @Column
+    private String trailer_path;
 
-    // @JsonIgnore
-    // @ManyToMany(mappedBy = "watchedlist")
-    // private Set<User> watchedlistUserSet = new HashSet<>();
-    // @JsonIgnore
-    // @ManyToMany(mappedBy = "recommendation")
-    // private Set<User> recommendationUserSet = new HashSet<>();
-
-    // @JsonIgnore
-    // @ManyToMany(mappedBy = "lovedlist")
-    // private Set<User> lovedlistUserSet = new HashSet<>();
-
-    // public String toCSV() {
-    // String cleanOverview = overview != null ? overview.replace("\"", "\"\"") :
-    // "";
-    // String cleanTitle = title != null ? title.replace("\"", "\"\"") : "";
-    // String dateStr = release_date != null ? release_date.toString() : "";
-
-    // return String.format("\"%s\",\"%s\",\"%s\",%.1f",
-    // cleanTitle,
-    // cleanOverview,
-    // dateStr,
-    // vote_average);
-    // }
+    @OneToOne(mappedBy = "movie", cascade = CascadeType.ALL)
+    private Cast cast;
 
 }

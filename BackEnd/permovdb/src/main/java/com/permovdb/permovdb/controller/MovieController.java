@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
@@ -22,11 +23,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.permovdb.permovdb.domain.Cast;
+import com.permovdb.permovdb.domain.CastMember;
 import com.permovdb.permovdb.domain.Movie;
 import com.permovdb.permovdb.domain.Root;
 import com.permovdb.permovdb.domain.SearchEntry;
 import com.permovdb.permovdb.domain.User;
+import com.permovdb.permovdb.domain.DTO.MovieVideoDTO;
+import com.permovdb.permovdb.domain.POJO.VideoMetadata;
 import com.permovdb.permovdb.security.JwtUtil;
+import com.permovdb.permovdb.service.CastMemberService;
 import com.permovdb.permovdb.service.MovieService;
 import com.permovdb.permovdb.service.UserService;
 
@@ -49,13 +55,17 @@ class MovieController {
         @Autowired
         private JwtUtil jwtUtil;
 
+        @Autowired
+        private CastMemberService castMemberService;
+
         @GetMapping("/")
-        public ResponseEntity<?> getDicoverData(
-                        @RequestParam(value = "adult", defaultValue = "false") String adult,
-                        @RequestParam(value = "releaseWindow", defaultValue = "&primary_release_date.gte=2023-01-01") String releaseWindow,
-                        @RequestParam(value = "vote_count", defaultValue = "500") String vote_count,
-                        @RequestParam(value = "sort", defaultValue = "popularity.desc") String sort,
-                        @RequestParam(value = "compare", defaultValue = "popularity.desc") String compare,
+        public ResponseEntity<?> getDiscoverData(
+                        @RequestParam(value = "adult", defaultValue = "true") String adult,
+                        @RequestParam(value = "releaseWindow", defaultValue = "") String releaseWindow,
+                        @RequestParam(value = "vote_count", defaultValue = "0") String vote_count,
+                        @RequestParam(value = "sort", defaultValue = "") String sort,
+                        // @RequestParam(value = "compare", defaultValue = "popularity.desc") String
+                        // compare,
                         @RequestParam(value = "page", defaultValue = "1") String page)
                         throws IOException, InterruptedException {
 
@@ -66,8 +76,7 @@ class MovieController {
                                                 "https://api.themoviedb.org/3/discover/movie?include_adult=true"
                                                                 + "&include_video=false&with_original_language=en&page="
                                                                 + page + "&sort_by=" + sort
-                                                                + "&primary_release_date.lte=" + localDate +
-                                                                "&vote_count.gte=" + vote_count))
+                                                                + "&vote_count.gte=" + vote_count))
                                 .header("accept", "application/json")
                                 .header("Authorization",
                                                 "Bearer " + apiKey)
@@ -95,23 +104,98 @@ class MovieController {
 
                         movieService.saveMovie(movie);
                 }
-                switch (compare) {
-                        case "release":
-                                root.results.sort(Comparator.comparing(Movie::getRelease_date).reversed());
-                                break;
-                        case "popularity":
-                                root.results.sort(Comparator.comparing(Movie::getPopularity).reversed());
-                                break;
-                        case "vote":
-                                root.results.sort(Comparator.comparing(Movie::getVote_average).reversed());
-                                break;
-                        default:
-                                root.results.sort(Comparator.comparing(Movie::getPopularity).reversed());
-                                break;
-                }
+                // switch (compare) {
+                // case "release":
+                // root.results.sort(Comparator.comparing(Movie::getRelease_date).reversed());
+                // break;
+                // case "popularity":
+                // root.results.sort(Comparator.comparing(Movie::getPopularity).reversed());
+                // break;
+                // case "vote":
+                // root.results.sort(Comparator.comparing(Movie::getVote_average).reversed());
+                // break;
+                // default:
+                // root.results.sort(Comparator.comparing(Movie::getPopularity).reversed());
+                // break;
+                // }
 
                 String result = mapper.writeValueAsString(root.results);
                 return new ResponseEntity<>(result, HttpStatus.OK);
+        }
+
+        @GetMapping("/movie/{movieId}/video")
+        public ResponseEntity<String> getVideo(@PathVariable(name = "movieId", required = true) String movieId) {
+                HttpRequest videoRequest = HttpRequest.newBuilder()
+                                .uri(URI.create(
+                                                "https://api.themoviedb.org/3/movie/" + movieId + "/credits"))
+                                .header("accept", "application/json")
+                                .header("Authorization",
+                                                "Bearer " + apiKey)
+                                .method("GET", HttpRequest.BodyPublishers.noBody())
+                                .build();
+
+                try {
+                        HttpResponse<String> videoResponse = HttpClient.newHttpClient().send(videoRequest,
+                                        HttpResponse.BodyHandlers.ofString());
+
+                        ObjectMapper mapper = new ObjectMapper();
+
+                        MovieVideoDTO movieVideoDTO = mapper.readValue(videoResponse.body(), MovieVideoDTO.class);
+
+                        String trailer = "https://www.youtube.com/watch?v=";
+
+                        for (VideoMetadata video : movieVideoDTO.getResults()) {
+                                if (video.getType().toLowerCase().equals("trailer") &&
+                                                video.getSite().toLowerCase().equals("youtube")) {
+                                        trailer = trailer + video.getKey();
+                                        break;
+                                }
+                        }
+
+                        Movie movie = movieService.findMovieById(movieVideoDTO.getId());
+                        if (movie != null && movie.getTrailer_path() == null) {
+                                movie.setTrailer_path(trailer);
+                                movieService.saveMovie(movie);
+                        }
+
+                        return new ResponseEntity<>(trailer, HttpStatus.OK);
+
+                } catch (IOException e) {
+                        e.printStackTrace();
+                } catch (InterruptedException e) {
+                        e.printStackTrace();
+                }
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        @GetMapping("/movie/{movieId}/credits")
+        public ResponseEntity<String> getCredits(@PathVariable(name = "movieId") String movieId) {
+                HttpRequest castRequest = HttpRequest.newBuilder()
+                                .uri(URI.create(
+                                                "https://api.themoviedb.org/3/movie/" + movieId + "/credits"))
+                                .header("accept", "application/json")
+                                .header("Authorization",
+                                                "Bearer " + apiKey)
+                                .method("GET", HttpRequest.BodyPublishers.noBody())
+                                .build();
+
+                try {
+                        HttpResponse<String> castResponse = HttpClient.newHttpClient().send(castRequest,
+                                        HttpResponse.BodyHandlers.ofString());
+
+                        ObjectMapper mapper = new ObjectMapper();
+
+                        Cast cast = mapper.readValue(castResponse.body(), Cast.class);
+
+                        return new ResponseEntity<>(castResponse.body(), HttpStatus.OK);
+
+                } catch (IOException e) {
+                        e.printStackTrace();
+                } catch (InterruptedException e) {
+                        e.printStackTrace();
+                }
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+
         }
 
         @GetMapping("/movie/{movieId}")

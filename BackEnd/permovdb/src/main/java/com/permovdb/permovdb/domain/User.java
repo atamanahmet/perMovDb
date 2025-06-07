@@ -22,6 +22,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
@@ -29,11 +30,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 public class User {
-    public User() {
-
-    }
-
     public User(User user) {
         this.username = user.getUsername();
         this.password = user.getPassword();
@@ -46,7 +44,7 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @NotBlank(message = "Username can not be empty")
     @Column(nullable = false, unique = true)
@@ -66,32 +64,6 @@ public class User {
     @Embedded
     @Column(nullable = true)
     private UserList userList;
-
-    // @ManyToMany
-    // @JoinTable(name = "user_watchlist", joinColumns = @JoinColumn(name =
-    // "user_id"), inverseJoinColumns = @JoinColumn(name = "movie_id"))
-    // private Set<Movie> watchlist = new HashSet<>();
-
-    // @Column(nullable = true, unique = false)
-    // private Set<Long> watchlistIdSet = new HashSet<>();
-
-    // @ManyToMany
-    // @JoinTable(name = "user_watchedlist", joinColumns = @JoinColumn(name =
-    // "user_id"), inverseJoinColumns = @JoinColumn(name = "movie_id"))
-    // @Column(nullable = true, unique = false)
-    // private Set<Movie> watchedlist = new HashSet<>();
-
-    // @ManyToMany
-    // @JoinTable(name = "user_lovedlist", joinColumns = @JoinColumn(name =
-    // "user_id"), inverseJoinColumns = @JoinColumn(name = "movie_id"))
-    // @Column(nullable = true, unique = false)
-    // private Set<Movie> lovedlist = new HashSet<>();
-
-    // @Column(nullable = true, unique = false)
-    // private Set<Long> watchedlistIdSet = new HashSet<>();
-
-    // @Column(nullable = true, unique = false)
-    // private Set<Long> lovedlistIdSet = new HashSet<>();
 
     @ElementCollection
     @CollectionTable(name = "user_search_entries", joinColumns = @JoinColumn(name = "user_id"))

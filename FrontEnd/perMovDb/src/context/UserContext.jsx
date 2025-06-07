@@ -21,8 +21,25 @@ export const UserProvider = ({ children }) => {
   const [userPhoto, setUserPhoto] = useState(null);
   const [logoutResult, setLogoutResult] = useState(null);
   const [searchResponse, setSearchResponse] = useState(null);
+  const [detail, setDetail] = useState(null);
+  const [cast, setCast] = useState(null);
 
   const storedPhoto = sessionStorage.getItem("profilePhoto");
+
+  const navigateToDetails = (movie) => {
+    axios
+      .get("http://localhost:8080/movie/" + movie.id + "/credits", {
+        withCredentials: true,
+      })
+      .then((res) => {
+        setCast(res.data);
+      })
+      .catch((err) => {
+        console.log("Error: " + err);
+      });
+    setDetail(movie);
+    navigate("/details");
+  };
 
   const fetchUser = () => {
     setLoading(true);
@@ -230,6 +247,9 @@ export const UserProvider = ({ children }) => {
         storedPhoto,
         recommendation,
         handleList,
+        navigateToDetails,
+        cast,
+        detail,
       }}
     >
       {children}

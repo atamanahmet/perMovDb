@@ -2,11 +2,11 @@ import { useUser } from "../context/UserContext";
 import { useEffect, useState } from "react";
 import Tooltip from "@mui/material/Tooltip";
 import axios from "axios";
-import MoviePlate from "./MoviePlate";
-import WatchlistButton from "./WatchlistButton";
-import Card from "./Card";
-import CardPlate from "./CardPlate";
-import ToogleSwitch from "./ToogleSwitch";
+import MoviePlate from "../components/MoviePlate";
+import WatchlistButton from "../components/WatchlistButton";
+import Card from "../components/Card";
+import CardPlate from "../components/CardPlate";
+import ToogleSwitch from "../components/ToogleSwitch";
 import profile from "../assets/profile.png";
 
 import profilePlaceholder from "../assets/profile.png";

@@ -22,30 +22,30 @@ public class UserList {
     @ElementCollection
     @CollectionTable(name = "user_movie_watchlist", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "movie_id")
-    private Set<Long> movieWatchlist = new HashSet<>();
+    private Set<Integer> movieWatchlist = new HashSet<>();
 
     @ElementCollection
     @CollectionTable(name = "user_movie_watchedlist", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "movie_id")
-    private Set<Long> movieWatchedlist = new HashSet<>();
+    private Set<Integer> movieWatchedlist = new HashSet<>();
 
     @ElementCollection
     @CollectionTable(name = "user_movie_lovedlist", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "movie_id")
-    private Set<Long> movieLovedlist = new HashSet<>();
+    private Set<Integer> movieLovedlist = new HashSet<>();
 
     @ElementCollection
     @CollectionTable(name = "user_tv_watchlist", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "tv_id")
-    private Set<Long> tvWatchlist = new HashSet<>();
+    private Set<Integer> tvWatchlist = new HashSet<>();
 
     @ElementCollection
     @CollectionTable(name = "user_tv_watchedlist", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "tv_id")
-    private Set<Long> tvWatchedlist = new HashSet<>();
+    private Set<Integer> tvWatchedlist = new HashSet<>();
 
     @ElementCollection
     @CollectionTable(name = "user_tv_lovedlist", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "tv_id")
-    private Set<Long> tvLovedlist = new HashSet<>();
+    private Set<Integer> tvLovedlist = new HashSet<>();
 }
