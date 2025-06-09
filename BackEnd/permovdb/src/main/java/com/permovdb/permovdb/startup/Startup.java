@@ -54,7 +54,7 @@ public class Startup {
         try {
             new ProcessBuilder(
                     "cmd.exe", "/c", "start", "cmd.exe", "/k",
-                    "cd /d E:\\desktop25.04.2025\\page\\BackEnd\\PerMovDb\\src\\main\\resources\\scripts\\recommendationService && python rec.py")
+                    "cd /d E:\\desktop25.04.2025\\page\\RecommendationEngine\\recommendationService && python rec.py")
                     .start();
             System.out.println("RecEngine started");
 

@@ -13,8 +13,8 @@ import org.springframework.http.HttpStatus;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,7 +32,7 @@ import com.permovdb.permovdb.domain.User;
 import com.permovdb.permovdb.domain.DTO.MovieVideoDTO;
 import com.permovdb.permovdb.domain.POJO.VideoMetadata;
 import com.permovdb.permovdb.security.JwtUtil;
-import com.permovdb.permovdb.service.CastMemberService;
+// import com.permovdb.permovdb.service.CastMemberService;
 import com.permovdb.permovdb.service.MovieService;
 import com.permovdb.permovdb.service.UserService;
 
@@ -55,8 +55,8 @@ class MovieController {
         @Autowired
         private JwtUtil jwtUtil;
 
-        @Autowired
-        private CastMemberService castMemberService;
+        // @Autowired
+        // private CastMemberService castMemberService;
 
         @GetMapping("/")
         public ResponseEntity<?> getDiscoverData(
@@ -188,11 +188,22 @@ class MovieController {
                 try {
                         HttpResponse<String> castResponse = HttpClient.newHttpClient().send(castRequest,
                                         HttpResponse.BodyHandlers.ofString());
-                        System.out.println(castResponse.body());
 
                         ObjectMapper mapper = new ObjectMapper();
 
                         Cast cast = mapper.readValue(castResponse.body(), Cast.class);
+
+                        for (CastMember member : cast.getCast()) {
+                                member.setProfilePath("https://image.tmdb.org/t/p/original" +
+                                                member.getProfilePath());
+                        }
+
+                        Movie existingMovie = movieService.findMovieById(Integer.valueOf(movieId));
+
+                        if (existingMovie != null && cast != null) {
+                                existingMovie.setCast(cast);
+                                movieService.saveMovie(existingMovie);
+                        }
 
                         // for (CastMember member : cast.getCastMembers()) {
                         // // System.out.println(member.getProfilePath());
@@ -207,8 +218,12 @@ class MovieController {
                         // }
 
                         // }
+                        List<CastMember> top16Cast = cast.getCast().stream()
+                                        .sorted(Comparator.comparingDouble(CastMember::getPopularity).reversed())
+                                        .limit(16)
+                                        .collect(Collectors.toList());
 
-                        return new ResponseEntity<>(mapper.writeValueAsString(cast.getCastMembers()), HttpStatus.OK);
+                        return new ResponseEntity<>(mapper.writeValueAsString(top16Cast), HttpStatus.OK);
 
                 } catch (IOException e) {
                         e.printStackTrace();

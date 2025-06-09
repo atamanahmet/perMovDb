@@ -2,25 +2,22 @@ package com.permovdb.permovdb.domain;
 
 import java.sql.Date;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.permovdb.permovdb.converter.CastJsonConverter;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.MapsId;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -85,7 +82,8 @@ public class Movie {
     @Column
     private String trailer_path;
 
-    @OneToOne(mappedBy = "movie", cascade = CascadeType.ALL)
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "cast_data", columnDefinition = "jsonb")
+    @Convert(converter = CastJsonConverter.class)
     private Cast cast;
-
 }

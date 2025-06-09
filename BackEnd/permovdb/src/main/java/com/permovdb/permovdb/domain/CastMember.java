@@ -1,17 +1,15 @@
 package com.permovdb.permovdb.domain;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
@@ -25,41 +23,47 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
+// @Entity
 @JsonIgnoreProperties(ignoreUnknown = true)
-@Table(name = "CastMember")
+// @Table(name = "CastMember")
 public class CastMember {
 
-    @Id
-    @Column
+    // @Id
+    // @Column
     private Integer id;
-    @Column
+
+    // @Column
     private String name;
-    @Column
+    // @Column
+    @JsonProperty("original_name")
     private String originalName;
-    @Column
+    // @Column
     private boolean adult;
-    @Column
+    // @Column
     private int gender;
-    @Column
+    // @Column
+    @JsonProperty("known_for_department")
     private String knownForDepartment; // Acting, Directing etc.
 
-    @ElementCollection
-    @CollectionTable(name = "member_castMap", joinColumns = @JoinColumn(name = "movie_id"))
-    private Map<Integer, String> castMap;
+    // @ElementCollection
+    // @CollectionTable(name = "member_castMap", joinColumns = @JoinColumn(name =
+    // "movie_id"))
+    // private Map<Integer, String> castMap;
 
-    @Transient
+    // @Transient
     private String job;
 
-    @Transient
+    // @Transient
     private String character;
 
-    @Column
+    // @Column
+    @JsonProperty("credit_id")
     private String creditId;
-    @Column(name = "cast_order")
+    // @Column(name = "cast_order")
     private int order;
-    @Column
+    // @Column
     private double popularity;
-    @Column
+    // @Column
+    @JsonProperty("profile_path")
     private String profilePath;
 }

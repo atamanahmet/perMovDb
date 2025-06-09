@@ -6,6 +6,8 @@ import axios from "axios";
 import VideoModal from "../components/VideoModal";
 import ListButton from "../components/ListButton";
 import profile from "../assets/profile.png";
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/css";
 
 function DetailsPage() {
   const { user, detail, cast } = useUser();
@@ -236,10 +238,7 @@ function DetailsPage() {
                         <div key={actor.id} className="text-center">
                           <div className="relative mb-3">
                             <img
-                              src={
-                                actor.profilePath ||
-                                "https://www.gravatar.com/avatar/2c7d99fe281ecd3bcd65ab915bac6dd5?s=250"
-                              }
+                              src={actor.profile_path}
                               alt={actor.name}
                               className="w-full aspect-square object-cover rounded-lg shadow-lg bg-gray-700"
                               onError={(e) => {
