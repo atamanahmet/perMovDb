@@ -4,10 +4,23 @@ import { useUser } from "../context/UserContext";
 import WatchlistButton from "../components/WatchlistButton";
 import axios from "axios";
 import CardPlate from "../components/CardPlate";
-import ToogleSwitch from "../components/ToogleSwitch";
+import ToggleSwitch from "../components/ToggleSwitch";
+import MovieFilterSidebar from "../components/MovieFilterSidebar";
 
 export default function DiscoverPage({}) {
-  const { user, loading, handleWatchList } = useUser();
+  const {
+    user,
+    loading,
+    handleWatchList,
+    mediaType,
+    handleToggle,
+    setMediaType,
+    filters,
+  } = useUser();
+  const [toggleLabel, setToggleLabel] = useState("TV");
+
+  const [sort, setSort] = useState("");
+  // const [sort, setSort] = useState("vote_count.desc");
   const [currentPage, setCurrentPage] = useState(1);
 
   const [result, setResult] = useState(null);
@@ -41,10 +54,9 @@ export default function DiscoverPage({}) {
     if (isFetching) return;
     setIsFetching(true);
     try {
-      const res = await axios.get(
-        "http://localhost:8080/tv?adult=true" + "&page=" + currentPage,
-        { withCredentials: true }
-      );
+      const url = `http://localhost:8080/${mediaType}?adult=${adult}&page=${currentPage}&sort=${sort}&genreIdList=${filters.genres}`;
+      console.log(url);
+      const res = await axios.get(url, { withCredentials: true });
       // console.log(res.data);
       // setResult(res.data);
       setResult((prev) => {
@@ -64,26 +76,40 @@ export default function DiscoverPage({}) {
 
   useEffect(() => {
     fetchData();
-  }, [currentPage, adult]);
+  }, [currentPage, adult, mediaType, toggleLabel, filters]);
 
   if (!result) {
     return <div>Loading...</div>;
   }
 
-  // function handleToogle() {
-  //   setAdult((prev) => !prev);
-  // }
+  function handleMediaToogle() {
+    setToggleLabel(mediaType == "movie" ? "TV Series" : "Cinema");
+    setMediaType(mediaType == "movie" ? "tv" : "movie");
+    // handleToggle;
+  }
 
   return (
     <>
+      <div className="absolute z-2">
+        <div className="relative mt-24">
+          <MovieFilterSidebar></MovieFilterSidebar>
+        </div>
+      </div>
+
       <h2 className="text-center p-7  text-amber-100 font-bold text-4xl page-title">
         Discover popular movies
       </h2>
-
       <div className="flex flex-col  max-w-11/12 justify-center mx-auto ">
-        {/* <div className="w-10/12 -ml-2 text-right mt-5">
-          <ToogleSwitch label="Adult" stateChange={() => handleToogle()} />
-        </div> */}
+        <div className="w-10/12 text-right mt-5">
+          {/* <ToggleSwitch
+            label={toggleLabel}
+            stateChange={() => handleMediaToogle()}
+          /> */}
+          <ToggleSwitch
+            label={toggleLabel}
+            stateChange={() => handleMediaToogle()}
+          />
+        </div>
         <main className=" my-10 flex flex-row flex-wrap gap-5 justify-center discoverPage">
           <CardPlate data={result} message={"Loading.."} />
         </main>

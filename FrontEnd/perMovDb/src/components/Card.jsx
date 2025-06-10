@@ -7,7 +7,9 @@ function Card({ item }) {
   const imageUrl = item.poster_path.endsWith("null")
     ? missing
     : item.poster_path;
-  const release_year = new Date(release_date).toISOString().split("-");
+  const release_year = new Date(item.release_date || item.first_air_date)
+    .toISOString()
+    .split("-");
   return (
     <div className="card flex flex-col justify-between">
       <Tooltip
@@ -45,7 +47,7 @@ function Card({ item }) {
           </div>
 
           <div className="text-shadow-emerald-50">
-            <RatingCircle percentage={vote_average} />
+            <RatingCircle percentage={item.vote_average.toFixed(1)} />
           </div>
         </div>
       </div>

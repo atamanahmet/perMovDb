@@ -5,9 +5,12 @@ import java.io.IOException;
 import org.springframework.stereotype.Component;
 
 import jakarta.annotation.PostConstruct;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 
 @Component
 public class Startup {
+    private static final String PROJECT_FOLDER = "E:\\desktop25.04.2025\\page\\FrontEnd\\perMovDb";
 
     @PostConstruct
     public void startupProcesses() {
@@ -15,6 +18,7 @@ public class Startup {
         killRecEngine();
         startFrontend();
         startPythonRecommendationEngine();
+        openVSCodeFolderByTitle(PROJECT_FOLDER);
     }
 
     private void killRecEngine() {
@@ -62,4 +66,124 @@ public class Startup {
             e.printStackTrace();
         }
     }
+
+    /**
+     * Check if VSCode is already running with the specified folder
+     */
+    private boolean isVSCodeFolderOpen(String folderPath) {
+        try {
+            ProcessBuilder pb = new ProcessBuilder("powershell.exe", "/c",
+                    "Get-CimInstance Win32_Process | " +
+                            "Where-Object { $_.Name -eq 'Code.exe' -and $_.CommandLine -like '*" + folderPath
+                            + "*' } | " +
+                            "Select-Object -First 1");
+
+            Process process = pb.start();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+
+            String line;
+            boolean hasOutput = false;
+            while ((line = reader.readLine()) != null) {
+                if (line.trim().length() > 0 && !line.contains("ProcessId")) {
+                    hasOutput = true;
+                    break;
+                }
+            }
+
+            process.waitFor();
+            reader.close();
+
+            return hasOutput;
+
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * Open folder in VSCode if not already open
+     */
+    private void openVSCodeFolder(String folderPath) {
+        if (isVSCodeFolderOpen(folderPath)) {
+            System.out.println("VSCode already has this folder open: " + folderPath);
+            return;
+        }
+
+        try {
+            new ProcessBuilder("cmd.exe", "/c", "code", folderPath)
+                    .start();
+            System.out.println("Opening folder in VSCode: " + folderPath);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Open the project folder in VSCode
+     */
+    public void openProjectInVSCode() {
+        openVSCodeFolder(PROJECT_FOLDER);
+    }
+
+    /**
+     * Open any folder in VSCode with check
+     */
+    public void openFolderInVSCode(String folderPath) {
+        openVSCodeFolder(folderPath);
+    }
+
+    /**
+     * Alternative method - check by window title
+     */
+    private boolean isVSCodeFolderOpenByTitle(String folderPath) {
+        try {
+            String folderName = new java.io.File(folderPath).getName();
+
+            ProcessBuilder pb = new ProcessBuilder("powershell.exe", "/c",
+                    "Get-Process | Where-Object { $_.ProcessName -eq 'Code' -and $_.MainWindowTitle -like '*"
+                            + folderName + "*' } | " +
+                            "Select-Object -First 1");
+
+            Process process = pb.start();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+
+            String line;
+            boolean hasOutput = false;
+            while ((line = reader.readLine()) != null) {
+                if (line.trim().length() > 0 && !line.contains("ProcessName")) {
+                    hasOutput = true;
+                    break;
+                }
+            }
+
+            process.waitFor();
+            reader.close();
+
+            return hasOutput;
+
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * Open folder using window title check method
+     */
+    private void openVSCodeFolderByTitle(String folderPath) {
+        if (isVSCodeFolderOpenByTitle(folderPath)) {
+            System.out.println("VSCode already has this folder open: " + folderPath);
+            return;
+        }
+
+        try {
+            new ProcessBuilder("cmd.exe", "/c", "code", folderPath)
+                    .start();
+            System.out.println("Opening folder in VSCode: " + folderPath);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

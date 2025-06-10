@@ -25,6 +25,15 @@ export const UserProvider = ({ children }) => {
   const [detail, setDetail] = useState(null);
   const [cast, setCast] = useState([]);
 
+  const [filters, setFilters] = useState({
+    genres: [],
+    yearRange: [1990, 2024],
+    rating: [0, 10],
+    duration: [60, 180],
+    languages: [],
+    awards: [],
+  });
+
   const storedPhoto = sessionStorage.getItem("profilePhoto");
 
   const navigateToDetails = (movie) => {
@@ -113,6 +122,16 @@ export const UserProvider = ({ children }) => {
           }
         })
         .catch((err) => console.log(err));
+    }
+  }
+
+  function handleToggle() {
+    if (mediaType == "movie") {
+      setMediaType("tv");
+    } else if (mediaType == "tv") {
+      setMediaType("movie");
+    } else {
+      setMediaType("movie");
     }
   }
 
@@ -254,6 +273,9 @@ export const UserProvider = ({ children }) => {
         detail,
         mediaType,
         setMediaType,
+        handleToggle,
+        filters,
+        setFilters,
       }}
     >
       {children}

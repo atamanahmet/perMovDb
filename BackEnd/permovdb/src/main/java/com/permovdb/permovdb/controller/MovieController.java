@@ -72,7 +72,59 @@ class MovieController {
                         @RequestParam(value = "releaseWindow", defaultValue = "") String releaseWindow,
                         @RequestParam(value = "vote_count", defaultValue = "500") String vote_count,
                         @RequestParam(value = "sort", defaultValue = "popularity.desc") String sort,
-                        @RequestParam(value = "page", defaultValue = "1") String page)
+                        @RequestParam(value = "page", defaultValue = "1") String page,
+                        @RequestParam(value = "genreIdList", defaultValue = "") String genreIdList)
+                        throws IOException, InterruptedException {
+
+                System.out.println("new page request. page: " + page + " adult: " + adult);
+
+                System.out.println(genreIdList);
+
+                HttpRequest request = HttpRequest.newBuilder()
+                                .uri(URI.create(movieUrl + "include_adult=true"
+                                                + "&include_video=false&with_original_language=en&page="
+                                                + page + "&sort_by=" + sort
+                                                + "&vote_count.gte=" + vote_count + "&with_genres=" + genreIdList))
+                                .header("accept", "application/json")
+                                .header("Authorization",
+                                                "Bearer " + apiKey)
+                                .method("GET", HttpRequest.BodyPublishers.noBody())
+                                .build();
+
+                HttpResponse<String> response = HttpClient.newHttpClient().send(request,
+                                HttpResponse.BodyHandlers.ofString());
+
+                ObjectMapper mapper = new ObjectMapper();
+
+                Root root = mapper.readValue(response.body(), Root.class);
+
+                for (Movie movie : root.results) { // redirecting poster paths to the image url
+
+                        if (movie.getPoster_path() == null) {
+                                System.out.println("nullll" + movie.getPoster_path());
+
+                        } else {
+                                movie.setPoster_path("https://image.tmdb.org/t/p/original" +
+                                                movie.getPoster_path());
+                                movie.setBackdrop_path("https://image.tmdb.org/t/p/original" +
+                                                movie.getBackdrop_path());
+                        }
+
+                        movieService.saveMovie(movie);
+                }
+
+                String result = mapper.writeValueAsString(root.results);
+                return new ResponseEntity<>(result, HttpStatus.OK);
+        }
+
+        @GetMapping("/movie")
+        public ResponseEntity<?> getMovieData(
+                        @RequestParam(value = "adult", defaultValue = "true") String adult,
+                        @RequestParam(value = "releaseWindow", defaultValue = "") String releaseWindow,
+                        @RequestParam(value = "vote_count", defaultValue = "500") String vote_count,
+                        @RequestParam(value = "sort", defaultValue = "popularity.desc") String sort,
+                        @RequestParam(value = "page", defaultValue = "1") String page,
+                        @RequestParam(value = "genreIdList", defaultValue = "") String genreIdList)
                         throws IOException, InterruptedException {
 
                 System.out.println("new page request. page: " + page + " adult: " + adult);
@@ -81,7 +133,7 @@ class MovieController {
                                 .uri(URI.create(movieUrl + "include_adult=true"
                                                 + "&include_video=false&with_original_language=en&page="
                                                 + page + "&sort_by=" + sort
-                                                + "&vote_count.gte=" + vote_count))
+                                                + "&vote_count.gte=" + vote_count + "&with_genres=" + genreIdList))
                                 .header("accept", "application/json")
                                 .header("Authorization",
                                                 "Bearer " + apiKey)
@@ -118,8 +170,9 @@ class MovieController {
         public ResponseEntity<String> getTv(@RequestParam(value = "adult", defaultValue = "true") String adult,
                         @RequestParam(value = "releaseWindow", defaultValue = "") String releaseWindow,
                         @RequestParam(value = "vote_count", defaultValue = "500") String vote_count,
-                        @RequestParam(value = "sort", defaultValue = "popularity.desc") String sort,
-                        @RequestParam(value = "page", defaultValue = "1") String page)
+                        @RequestParam(value = "sort", defaultValue = "vote_count.desc") String sort,
+                        @RequestParam(value = "page", defaultValue = "1") String page,
+                        @RequestParam(value = "genreIdList", defaultValue = "") String genreIdList)
                         throws IOException, InterruptedException {
 
                 System.out.println("new TV page request. page: " + page + " adult: " + adult);
@@ -127,8 +180,8 @@ class MovieController {
                 HttpRequest request = HttpRequest.newBuilder()
                                 .uri(URI.create(tvUrl + "include_adult=true"
                                                 + "&include_video=false&with_original_language=en&page="
-                                                + page + "&sort_by=" + sort
-                                                + "&vote_count.gte=" + vote_count))
+                                                + page + "&sort_by=" + sort +
+                                                "&vote_count.gte=" + vote_count))
                                 .header("accept", "application/json")
                                 .header("Authorization",
                                                 "Bearer " + apiKey)
@@ -186,6 +239,9 @@ class MovieController {
 
                         boolean videoExist = false;
 
+                        if (movieVideoDTO == null || movieVideoDTO.getResults() == null) {
+                                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                        }
                         for (VideoMetadata video : movieVideoDTO.getResults()) {
                                 if (video.getType().toLowerCase().equals("trailer") &&
                                                 video.getSite().toLowerCase().equals("youtube")) {

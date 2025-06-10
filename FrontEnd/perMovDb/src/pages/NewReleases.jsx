@@ -4,7 +4,7 @@ import { useUser } from "../context/UserContext";
 import WatchlistButton from "../components/WatchlistButton";
 import axios from "axios";
 import CardPlate from "../components/CardPlate";
-import ToogleSwitch from "../components/ToogleSwitch";
+import ToggleSwitch from "../components/ToggleSwitch";
 
 export default function NewReleases({}) {
   const { user, loading, handleWatchList } = useUser();
@@ -86,7 +86,7 @@ export default function NewReleases({}) {
 
       <div className="flex flex-col  max-w-11/12 justify-center mx-auto ">
         <div className="w-10/12 -ml-2 text-right mt-5">
-          <ToogleSwitch label="Adult" stateChange={() => handleToogle()} />
+          <ToggleSwitch label="Adult" stateChange={() => handleToogle()} />
         </div>
         <main className=" my-10 flex flex-row flex-wrap gap-5 justify-center discoverPage">
           <CardPlate data={result} message={"Loading.."} />

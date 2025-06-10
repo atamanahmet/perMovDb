@@ -6,7 +6,7 @@ import MoviePlate from "../components/MoviePlate";
 import WatchlistButton from "../components/WatchlistButton";
 import Card from "../components/Card";
 import CardPlate from "../components/CardPlate";
-import ToogleSwitch from "../components/ToogleSwitch";
+import ToggleSwitch from "../components/ToggleSwitch";
 import profile from "../assets/profile.png";
 
 import profilePlaceholder from "../assets/profile.png";
@@ -69,7 +69,7 @@ export default function ProfilePage() {
             )}
           </div>
           <div className="px-10  text-right mt-2">
-            <ToogleSwitch label="Adult" stateChange={() => handleToogle()} />
+            <ToggleSwitch label="Adult" stateChange={() => handleToogle()} />
           </div>
           <main className="mt-10 mb-10 flex flex-row flex-wrap gap-5 justify-center">
             <CardPlate

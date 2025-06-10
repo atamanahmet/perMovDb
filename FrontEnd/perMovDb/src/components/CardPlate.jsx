@@ -4,9 +4,8 @@ import { useNavigate } from "react-router";
 import Card from "./Card";
 import ListButton from "./ListButton";
 import { Tooltip } from "@mui/material";
-// import WatchlistButton from "./WatchlistButton";
-// import WatchedlistButton from "./WatchedlistButton";
-// import LovedButton from "./LovedButton";
+import { useState } from "react";
+import ToogleSwitch from "./ToggleSwitch";
 
 export default function CardPlate({ data, addOrRemove, message }) {
   const { user, navigateToDetails } = useUser();
