@@ -4,7 +4,7 @@ import solidHeart from "../assets/solidHeart.png";
 import openedEye from "../assets/opened-50-centered.svg";
 import closedEye from "../assets/closed-50-centered.svg";
 
-export default function ListButton({ item }) {
+export default function ListButton({ item, style }) {
   const { handleList, lovedlistIdSet, watchedlistIdSet, watchlistIdSet } =
     useUser();
 
@@ -18,7 +18,7 @@ export default function ListButton({ item }) {
       <div>
         {/* Watchlist Button */}
         <button
-          className="absolute h-7 w-7 text-amber-100 bg-amber-200 rounded left-1 z-0 addButton"
+          className={style.watchlist}
           onClick={() => {
             handleList(item.id, isInWatchlist ? "del" : "add", "watchlist");
           }}
@@ -32,7 +32,7 @@ export default function ListButton({ item }) {
 
         {/* Watched Button */}
         <button
-          className=" h-7 w-7 text-amber-100 bg-amber-200 rounded z-0 addButton absolute ml-10"
+          className={style.watchedlist}
           onClick={() => {
             handleList(item.id, isInWatchedlist ? "del" : "add", "watchedlist");
           }}
@@ -50,7 +50,7 @@ export default function ListButton({ item }) {
 
         {/* Loved Button */}
         <button
-          className=" h-7 w-7 text-amber-100 bg-amber-200 rounded z-0 addButton absolute ml-19"
+          className={style.lovedlist}
           onClick={() => {
             handleList(item.id, isInLovedlist ? "del" : "add", "lovedlist");
           }}

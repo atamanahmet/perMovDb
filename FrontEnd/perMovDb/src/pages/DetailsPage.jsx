@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import VideoModal from "../components/VideoModal";
 import ListButton from "../components/ListButton";
-import profile from "../assets/profile.png";
+import missing from "../assets/missing.png";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 
@@ -18,6 +18,15 @@ function DetailsPage() {
       navigate("/discover");
     }
   }, [detail, navigate]);
+
+  const style = {
+    watchlist:
+      " h-7 w-7 text-amber-100 bg-amber-200 rounded left-1 z-0 addButton scale-170 mx-5 mt-2",
+    watchedlist:
+      "h-7 w-7 text-amber-100 bg-amber-200 rounded z-0 addButton scale-170 mx-5",
+    lovedlist:
+      "h-7 w-7 text-amber-100 bg-amber-200 rounded z-0 addButton scale-170 mx-5",
+  };
 
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
   const [trailer, setTrailer] = useState(null);
@@ -192,7 +201,7 @@ function DetailsPage() {
                     {trailer != null ? "Watch Trailer" : "No Trailer Available"}
                   </button>
                   {/* </a> */}
-                  {user && <ListButton item={detail} />}
+                  {user && <ListButton item={detail} style={style} />}
                   {/* <button className="bg-gray-700 hover:bg-gray-600 transition-colors px-6 py-3 rounded-lg font-semibold">
                     Add to Watchlist
                   </button> */}
@@ -238,9 +247,13 @@ function DetailsPage() {
                         <div key={actor.id} className="text-center">
                           <div className="relative mb-3">
                             <img
-                              src={actor.profile_path}
+                              src={
+                                actor.profile_path.endsWith("null")
+                                  ? missing
+                                  : actor.profile_path
+                              }
                               alt={actor.name}
-                              className="w-full aspect-square object-cover rounded-lg shadow-lg bg-gray-700"
+                              className="w-full aspect-square object-cover shadow-lg rounded-full bg-amber-700"
                               onError={(e) => {
                                 e.target.src = { profile };
                               }}

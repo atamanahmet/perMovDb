@@ -1,16 +1,12 @@
 import RatingCircle from "./RatingCircle";
 import missing from "../assets/missing.png";
 import { Tooltip } from "@mui/material";
-function Card({
-  itemTitle,
-  original_title,
-  // overview,
-  poster_path,
-  vote_average,
-  original_language,
-  release_date,
-}) {
-  const imageUrl = poster_path.endsWith("null") ? missing : poster_path;
+import { useUser } from "../context/UserContext";
+function Card({ item }) {
+  const { mediaType } = useUser();
+  const imageUrl = item.poster_path.endsWith("null")
+    ? missing
+    : item.poster_path;
   const release_year = new Date(release_date).toISOString().split("-");
   return (
     <div className="card flex flex-col justify-between">
@@ -18,13 +14,13 @@ function Card({
         title={
           <>
             <span className="font-bold">Title: </span>
-            {original_title}
+            {item.original_title}
             <br />
             <span className="font-bold"> Release Date: </span>
-            {release_date}
+            {item.release_date}
             <br />
             <span className="font-bold"> Original Language: </span>
-            {original_language}
+            {item.original_language}
           </>
         }
         placement="right-start"
@@ -35,7 +31,9 @@ function Card({
         <div className="info flex flex-row justify-between items-center  mx-3 my-3">
           <div className="">
             <p className="title text-sm">
-              {original_language == "en" ? original_title : itemTitle}
+              {item.original_language == "en"
+                ? item.original_title
+                : item.title}
             </p>
             <p className="text-xs text-amber-500">
               {release_year[0] +

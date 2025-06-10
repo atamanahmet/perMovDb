@@ -8,6 +8,7 @@ export const useUser = () => useContext(UserContext);
 
 export const UserProvider = ({ children }) => {
   const navigate = useNavigate();
+  const [mediaType, setMediaType] = useState("movie");
   const [watchlist, setWatchlist] = useState(new Set());
   const [watchlistIdSet, setWatchlistIdSet] = useState(new Set());
   const [watchedlistIdSet, setWatchedlistIdSet] = useState(new Set());
@@ -251,6 +252,8 @@ export const UserProvider = ({ children }) => {
         navigateToDetails,
         cast,
         detail,
+        mediaType,
+        setMediaType,
       }}
     >
       {children}

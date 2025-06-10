@@ -4,6 +4,7 @@ import profile from "../assets/profile.png";
 import { useState, useEffect } from "react";
 import { useUser } from "../context/UserContext";
 import { useNavigate } from "react-router-dom";
+import ToogleSwitch from "./ToogleSwitch";
 
 export default function Header() {
   const navigate = useNavigate();
@@ -16,6 +17,8 @@ export default function Header() {
     profilePictureUrl,
     storedPhoto,
     getRecommendation,
+    setMediaType,
+    mediaType,
   } = useUser();
 
   // useEffect(() => {
@@ -41,6 +44,15 @@ export default function Header() {
   };
   function handleLogOut() {
     logOut();
+  }
+  function handleToogle() {
+    if (mediaType == "movie") {
+      setMediaType("tv");
+    } else if (mediaType == "tv") {
+      setMediaType("movie");
+    } else {
+      setMediaType("movie");
+    }
   }
 
   return (
@@ -177,6 +189,10 @@ export default function Header() {
               aria-expanded="false"
             ></button> */}
           </div>
+          <ToogleSwitch
+            label="Adult"
+            stateChange={() => handleToogle()}
+          ></ToogleSwitch>
         </div>
       </nav>
     </>

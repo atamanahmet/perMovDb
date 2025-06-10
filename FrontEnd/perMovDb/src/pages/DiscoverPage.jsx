@@ -42,7 +42,7 @@ export default function DiscoverPage({}) {
     setIsFetching(true);
     try {
       const res = await axios.get(
-        "http://localhost:8080/?adult=true" + "&page=" + currentPage,
+        "http://localhost:8080/tv?adult=true" + "&page=" + currentPage,
         { withCredentials: true }
       );
       // console.log(res.data);

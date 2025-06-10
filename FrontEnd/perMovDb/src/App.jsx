@@ -28,7 +28,8 @@ import Top from "./components/Top";
 import DetailsPage from "./pages/DetailsPage";
 
 function App() {
-  const { user, login, logOut, watchlist, searchResponse } = useUser();
+  const { user, login, logOut, watchlist, searchResponse, mediaType } =
+    useUser();
   const [result, setResult] = useState();
   const [isLoading, setIsLoading] = useState(true);
   const [username, setUsername] = useState(null);
@@ -41,14 +42,19 @@ function App() {
   //For external redirect
   const RedirectToExternal = () => {
     const { movieId } = useParams();
-    window.location.href = `https://www.themoviedb.org/movie/${movieId}`;
+    window.location.href = `https://www.themoviedb.org/${mediaType}/${movieId}`;
     return null;
   };
 
   //first api call for discovery page
   useEffect(() => {
+    let url = "tv";
+    // if (mediaType == "tv") {
+    //   url = "tv";
+    // }
+
     axios
-      .get("http://localhost:8080/", { withCredentials: true })
+      .get(`http://localhost:8080/tv`, { withCredentials: true })
       .then((res) => setResult(res.data))
       .catch((err) => console.error("Backend error:", err));
   }, []);
@@ -58,7 +64,7 @@ function App() {
     if (movieId && actionType) {
       axios
         .get(
-          "http://localhost:8080/user/watchlist/" + +movieId + "/" + actionType,
+          "http://localhost:8080/user/watchlist/" + movieId + "/" + actionType,
           { withCredentials: true }
         )
         .catch((err) => console.error("Backend error:", err));

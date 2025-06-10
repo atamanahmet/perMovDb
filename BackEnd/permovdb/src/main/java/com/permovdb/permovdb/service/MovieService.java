@@ -1,7 +1,6 @@
 package com.permovdb.permovdb.service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +17,6 @@ public class MovieService {
 
     public void saveMovie(Movie movie) {
         movieRepository.save(movie);
-
     }
 
     public Movie findMovieById(Integer id) {
