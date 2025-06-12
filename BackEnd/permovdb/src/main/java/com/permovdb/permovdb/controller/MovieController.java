@@ -34,7 +34,6 @@ import com.permovdb.permovdb.domain.User;
 import com.permovdb.permovdb.domain.DTO.MovieVideoDTO;
 import com.permovdb.permovdb.domain.POJO.VideoMetadata;
 import com.permovdb.permovdb.security.JwtUtil;
-// import com.permovdb.permovdb.service.CastMemberService;
 import com.permovdb.permovdb.service.MovieService;
 import com.permovdb.permovdb.service.TvShowService;
 import com.permovdb.permovdb.service.UserService;
@@ -63,77 +62,33 @@ class MovieController {
         @Autowired
         private JwtUtil jwtUtil;
 
-        // @Autowired
-        // private CastMemberService castMemberService;
-
-        @GetMapping("/")
-        public ResponseEntity<?> getDiscoverData(
-                        @RequestParam(value = "adult", defaultValue = "true") String adult,
-                        @RequestParam(value = "releaseWindow", defaultValue = "") String releaseWindow,
-                        @RequestParam(value = "vote_count", defaultValue = "500") String vote_count,
-                        @RequestParam(value = "sort", defaultValue = "popularity.desc") String sort,
-                        @RequestParam(value = "page", defaultValue = "1") String page,
-                        @RequestParam(value = "genreIdList", defaultValue = "") String genreIdList)
-                        throws IOException, InterruptedException {
-
-                System.out.println("new page request. page: " + page + " adult: " + adult);
-
-                System.out.println(genreIdList);
-
-                HttpRequest request = HttpRequest.newBuilder()
-                                .uri(URI.create(movieUrl + "include_adult=true"
-                                                + "&include_video=false&with_original_language=en&page="
-                                                + page + "&sort_by=" + sort
-                                                + "&vote_count.gte=" + vote_count + "&with_genres=" + genreIdList))
-                                .header("accept", "application/json")
-                                .header("Authorization",
-                                                "Bearer " + apiKey)
-                                .method("GET", HttpRequest.BodyPublishers.noBody())
-                                .build();
-
-                HttpResponse<String> response = HttpClient.newHttpClient().send(request,
-                                HttpResponse.BodyHandlers.ofString());
-
-                ObjectMapper mapper = new ObjectMapper();
-
-                Root root = mapper.readValue(response.body(), Root.class);
-
-                for (Movie movie : root.results) { // redirecting poster paths to the image url
-
-                        if (movie.getPoster_path() == null) {
-                                System.out.println("nullll" + movie.getPoster_path());
-
-                        } else {
-                                movie.setPoster_path("https://image.tmdb.org/t/p/original" +
-                                                movie.getPoster_path());
-                                movie.setBackdrop_path("https://image.tmdb.org/t/p/original" +
-                                                movie.getBackdrop_path());
-                        }
-
-                        movieService.saveMovie(movie);
-                }
-
-                String result = mapper.writeValueAsString(root.results);
-                return new ResponseEntity<>(result, HttpStatus.OK);
-        }
-
-        @GetMapping("/movie")
+        @GetMapping({ "/movie", "/" })
         public ResponseEntity<?> getMovieData(
                         @RequestParam(value = "adult", defaultValue = "true") String adult,
                         @RequestParam(value = "releaseWindow", defaultValue = "") String releaseWindow,
                         @RequestParam(value = "vote_count", defaultValue = "500") String vote_count,
                         @RequestParam(value = "sort", defaultValue = "popularity.desc") String sort,
                         @RequestParam(value = "page", defaultValue = "1") String page,
-                        @RequestParam(value = "genreIdList", defaultValue = "") String genreIdList)
+                        @RequestParam(value = "genreIdList", defaultValue = "") String genreIdList,
+                        @RequestParam(value = "yearRange", defaultValue = "1900,2040") int[] yearRange,
+                        @RequestParam(value = "ratingRange", defaultValue = "0,10") int[] ratingRange,
+                        @RequestParam(value = "languages", defaultValue = "en") String languages)
                         throws IOException, InterruptedException {
 
-                System.out.println("new page request. page: " + page + " adult: " + adult);
+                System.out.println("new page:" + page);
 
                 HttpRequest request = HttpRequest.newBuilder()
                                 .uri(URI.create(movieUrl + "include_adult=true"
-                                                + "&include_video=false&with_original_language=en&page="
-                                                + page + "&sort_by=" + sort
-                                                + "&vote_count.gte=" + vote_count + "&with_genres=" + genreIdList))
+                                                + "&include_video=false"
+                                                + "&page=" + page
+                                                + "&sort_by=" + sort
+                                                + "&vote_count.gte=" + vote_count
+                                                + "&with_genres=" + genreIdList
+                                                + "&primary_release_date.gte=" + yearRange[0] + "-01-01"
+                                                + "&primary_release_date.lte=" + yearRange[1] + "-01-01"
+                                                + "&vote_average.gte=" + ratingRange[0]
+                                                + "&vote_average.lte=" + ratingRange[1]
+                                                + "&with_original_language=" + languages))
                                 .header("accept", "application/json")
                                 .header("Authorization",
                                                 "Bearer " + apiKey)

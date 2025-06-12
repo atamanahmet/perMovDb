@@ -1,30 +1,27 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   ChevronLeft,
   ChevronRight,
   Filter,
   Star,
   Calendar,
-  Users,
-  Clock,
   Tag,
   Globe,
-  Award,
+  ArrowDownWideNarrow,
 } from "lucide-react";
 import { useUser } from "../context/UserContext";
 
 const MovieFilterSidebar = () => {
+  const { mediaType, filters, setFilters } = useUser();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [expandedSections, setExpandedSections] = useState({
-    genre: true,
+    sort: true,
+    genre: false,
     year: true,
     rating: true,
     duration: false,
     language: false,
-    awards: false,
   });
-
-  const { user, filters, setFilters } = useUser();
 
   const toggleSection = (section) => {
     setExpandedSections((prev) => ({
@@ -37,128 +34,83 @@ const MovieFilterSidebar = () => {
     setFilters((prev) => ({
       ...prev,
       genres: prev.genres.includes(genre.id)
-        ? prev.genres.filter((g) => g != genre.id)
+        ? prev.genres.filter((g) => g !== genre.id)
         : [...prev.genres, genre.id],
+    }));
+  };
+
+  const handleSortChange = (sortValue) => {
+    setFilters((prev) => ({
+      ...prev,
+      sort: sortValue,
     }));
   };
 
   const handleLanguageToggle = (language) => {
     setFilters((prev) => ({
       ...prev,
-      languages: prev.languages.includes(language)
-        ? prev.languages.filter((l) => l !== language)
-        : [...prev.languages, language],
+      languages: prev.languages.includes(language.language)
+        ? prev.languages.filter((l) => l !== language.language)
+        : [...prev.languages, language.language],
     }));
   };
 
-  const handleAwardToggle = (award) => {
+  const applyFilters = (e) => {
+    e.preventDefault();
+    const form = e.target;
+    const yearMin = Number(form.yearMin.value);
+    const yearMax = Number(form.yearMax.value);
+    const ratingMin = Number(form.ratingMin.value);
+    const ratingMax = Number(form.ratingMax.value);
+
     setFilters((prev) => ({
       ...prev,
-      awards: prev.awards.includes(award)
-        ? prev.awards.filter((a) => a !== award)
-        : [...prev.awards, award],
+      yearRange: [yearMin, yearMax],
+      rating: [ratingMin, ratingMax],
     }));
   };
-  useEffect(() => {
-    console.log(filters);
-  }, [filters]);
+
+  const sortSelection = [
+    { sort: "popularity.desc", name: "Popularity" },
+    { sort: "vote_average.desc", name: "Rating" },
+    {
+      sort: mediaType === "movie" ? "release_date.desc" : "first_air_date.desc",
+      name: "Release Date",
+    },
+  ];
 
   const genres = [
-    {
-      id: 28,
-      name: "Action",
-    },
-    {
-      id: 12,
-      name: "Adventure",
-    },
-    {
-      id: 16,
-      name: "Animation",
-    },
-    {
-      id: 35,
-      name: "Comedy",
-    },
-    {
-      id: 80,
-      name: "Crime",
-    },
-    {
-      id: 99,
-      name: "Documentary",
-    },
-    {
-      id: 18,
-      name: "Drama",
-    },
-    {
-      id: 10751,
-      name: "Family",
-    },
-    {
-      id: 14,
-      name: "Fantasy",
-    },
-    {
-      id: 36,
-      name: "History",
-    },
-    {
-      id: 27,
-      name: "Horror",
-    },
-    {
-      id: 10402,
-      name: "Music",
-    },
-    {
-      id: 9648,
-      name: "Mystery",
-    },
-    {
-      id: 10749,
-      name: "Romance",
-    },
-    {
-      id: 878,
-      name: "Science Fiction",
-    },
-    {
-      id: 10770,
-      name: "TV Movie",
-    },
-    {
-      id: 53,
-      name: "Thriller",
-    },
-    {
-      id: 10752,
-      name: "War",
-    },
-    {
-      id: 37,
-      name: "Western",
-    },
+    { id: 28, name: "Action" },
+    { id: 12, name: "Adventure" },
+    { id: 16, name: "Animation" },
+    { id: 35, name: "Comedy" },
+    { id: 80, name: "Crime" },
+    { id: 99, name: "Documentary" },
+    { id: 18, name: "Drama" },
+    { id: 10751, name: "Family" },
+    { id: 14, name: "Fantasy" },
+    { id: 36, name: "History" },
+    { id: 27, name: "Horror" },
+    { id: 10402, name: "Music" },
+    { id: 9648, name: "Mystery" },
+    { id: 10749, name: "Romance" },
+    { id: 878, name: "Science Fiction" },
+    { id: 10770, name: "TV Movie" },
+    { id: 53, name: "Thriller" },
+    { id: 10752, name: "War" },
+    { id: 37, name: "Western" },
   ];
 
   const languages = [
-    "English",
-    "Spanish",
-    "French",
-    "German",
-    "Italian",
-    "Japanese",
-    "Korean",
-    "Mandarin",
-  ];
-  const awards = [
-    "Oscar Winner",
-    "Golden Globe",
-    "BAFTA",
-    "Cannes",
-    "Sundance",
-    "Critics Choice",
+    { language: "en", name: "English" },
+    { language: "tr", name: "Turkish" },
+    { language: "es", name: "Spanish" },
+    { language: "fr", name: "French" },
+    { language: "de", name: "German" },
+    { language: "it", name: "Italian" },
+    { language: "ja", name: "Japanese" },
+    { language: "ko", name: "Korean" },
+    { language: "zh", name: "Mandarin" },
   ];
 
   const FilterSection = ({
@@ -172,6 +124,7 @@ const MovieFilterSidebar = () => {
       <button
         onClick={onToggle}
         className="w-full flex items-center justify-between p-2.5 hover:bg-amber-900 transition-colors"
+        type="button"
       >
         <div className="flex items-center gap-3">
           <Icon size={18} className="text-amber-500" />
@@ -200,54 +153,21 @@ const MovieFilterSidebar = () => {
     </div>
   );
 
-  const RangeSlider = ({ label, min, max, value, onChange, step = 1 }) => (
-    <div className="space-y-3">
-      <div className="flex justify-between text-sm text-amber-500">
-        <span>{label}</span>
-        <span>
-          {value[0]} - {value[1]}
-        </span>
-      </div>
-      <div className="relative">
-        <input
-          type="range"
-          min={min}
-          max={max}
-          value={value[0]}
-          step={step}
-          onChange={(e) => onChange([parseInt(e.target.value), value[1]])}
-          className="absolute w-full h-2 bg-amber-600 rounded-lg appearance-none cursor-pointer slider"
-        />
-        <input
-          type="range"
-          min={min}
-          max={max}
-          value={value[1]}
-          step={step}
-          onChange={(e) => onChange([value[0], parseInt(e.target.value)])}
-          className="absolute w-full h-2 bg-transparent rounded-lg appearance-none cursor-pointer slider"
-        />
-      </div>
-    </div>
-  );
-
   const CheckboxGroup = ({
     items,
     selectedItems,
     onToggle,
     maxHeight = "max-h-48",
     itemKey = "name",
+    valueKey = "id",
   }) => (
     <div className={`space-y-2 overflow-y-auto ${maxHeight} custom-scrollbar`}>
       {items.map((item) => {
-        const isObject = typeof item === "object" && item !== null;
-        const displayValue = isObject ? item[itemKey] : item;
-        const checkValue = isObject ? item.id : item;
-        const keyValue = isObject ? item.id || item[itemKey] : item;
-
+        const displayValue = item[itemKey];
+        const checkValue = item[valueKey];
         return (
           <label
-            key={keyValue}
+            key={checkValue}
             className="flex items-center gap-3 cursor-pointer group"
           >
             <input
@@ -267,7 +187,7 @@ const MovieFilterSidebar = () => {
 
   return (
     <div
-      className={`bg-amber-800 h-screen transition-all duration-300 ease-in-out ${
+      className={`bg-amber-800 transition-all duration-300 ease-in-out ${
         isCollapsed ? "w-10" : "w-60"
       } border-r border-amber-700 flex flex-col`}
     >
@@ -282,9 +202,15 @@ const MovieFilterSidebar = () => {
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
           className="hover:bg-amber-700 rounded-lg transition-colors w-15 p-2 text-center"
+          type="button"
         >
           {isCollapsed ? (
-            <ChevronRight className="text-amber-500 ml-1" size={15} />
+            <>
+              <div className="flex justify-center items-center">
+                <Filter className="text-amber-500" size={15} />
+                <ChevronRight className="text-amber-500 ml-1" size={10} />
+              </div>
+            </>
           ) : (
             <>
               <ChevronLeft className="text-amber-500" size={15} />
@@ -295,7 +221,38 @@ const MovieFilterSidebar = () => {
       </div>
 
       {/* Filters */}
-      <div className="flex-1 overflow-y-auto custom-scrollbar">
+      <form
+        onSubmit={applyFilters}
+        className="flex-1 overflow-y-auto custom-scrollbar flex flex-col"
+      >
+        <FilterSection
+          title="Sort"
+          icon={ArrowDownWideNarrow}
+          isExpanded={expandedSections.sort}
+          onToggle={() => toggleSection("sort")}
+        >
+          <div className="space-y-2 max-h-48 overflow-y-auto custom-scrollbar px-2">
+            {sortSelection.map((sortOption) => (
+              <label
+                key={sortOption.name}
+                className="flex items-center gap-3 cursor-pointer group"
+              >
+                <input
+                  type="radio"
+                  name="sort"
+                  value={sortOption.sort}
+                  checked={filters.sort === sortOption.sort}
+                  onChange={() => handleSortChange(sortOption.sort)}
+                  className="w-4 h-4 text-amber-500 bg-amber-700 border-amber-600 rounded focus:ring-amber-500 focus:ring-2"
+                />
+                <span className="text-sm text-amber-400 group-hover:text-amber-100 transition-colors">
+                  {sortOption.name}
+                </span>
+              </label>
+            ))}
+          </div>
+        </FilterSection>
+
         <FilterSection
           title="Genres"
           icon={Tag}
@@ -306,6 +263,8 @@ const MovieFilterSidebar = () => {
             items={genres}
             selectedItems={filters.genres}
             onToggle={handleGenreToggle}
+            itemKey="name"
+            valueKey="id"
           />
         </FilterSection>
 
@@ -315,15 +274,26 @@ const MovieFilterSidebar = () => {
           isExpanded={expandedSections.year}
           onToggle={() => toggleSection("year")}
         >
-          <RangeSlider
-            label="Year Range"
-            min={1920}
-            max={2024}
-            value={filters.yearRange}
-            onChange={(value) =>
-              setFilters((prev) => ({ ...prev, yearRange: value }))
-            }
-          />
+          <div className="flex gap-2 px-4 py-2">
+            <input
+              type="number"
+              name="yearMin"
+              defaultValue={filters.yearRange[0]}
+              min={1900}
+              max={2050}
+              className="w-1/2 rounded bg-amber-700 text-amber-100 p-1"
+              placeholder="Min Year"
+            />
+            <input
+              type="number"
+              name="yearMax"
+              defaultValue={filters.yearRange[1]}
+              min={1900}
+              max={2050}
+              className="w-1/2 rounded bg-amber-700 text-amber-100 p-1"
+              placeholder="Max Year"
+            />
+          </div>
         </FilterSection>
 
         <FilterSection
@@ -332,34 +302,28 @@ const MovieFilterSidebar = () => {
           isExpanded={expandedSections.rating}
           onToggle={() => toggleSection("rating")}
         >
-          <RangeSlider
-            label="Rating"
-            min={0}
-            max={10}
-            value={filters.rating}
-            onChange={(value) =>
-              setFilters((prev) => ({ ...prev, rating: value }))
-            }
-            step={0.1}
-          />
-        </FilterSection>
-
-        <FilterSection
-          title="Duration"
-          icon={Clock}
-          isExpanded={expandedSections.duration}
-          onToggle={() => toggleSection("duration")}
-        >
-          <RangeSlider
-            label="Minutes"
-            min={30}
-            max={300}
-            value={filters.duration}
-            onChange={(value) =>
-              setFilters((prev) => ({ ...prev, duration: value }))
-            }
-            step={5}
-          />
+          <div className="flex gap-2 px-4 py-2">
+            <input
+              type="number"
+              name="ratingMin"
+              min={0}
+              max={10}
+              step={0.1}
+              defaultValue={filters.rating[0]}
+              className="w-1/2 rounded bg-amber-700 text-amber-100 p-1"
+              placeholder="Min Rating"
+            />
+            <input
+              type="number"
+              name="ratingMax"
+              min={0}
+              max={10}
+              step={0.1}
+              defaultValue={filters.rating[1]}
+              className="w-1/2 rounded bg-amber-700 text-amber-100 p-1"
+              placeholder="Max Rating"
+            />
+          </div>
         </FilterSection>
 
         <FilterSection
@@ -372,48 +336,23 @@ const MovieFilterSidebar = () => {
             items={languages}
             selectedItems={filters.languages}
             onToggle={handleLanguageToggle}
+            itemKey="name"
+            valueKey="language"
             maxHeight="max-h-32"
           />
         </FilterSection>
 
-        <FilterSection
-          title="Awards"
-          icon={Award}
-          isExpanded={expandedSections.awards}
-          onToggle={() => toggleSection("awards")}
-        >
-          <CheckboxGroup
-            items={awards}
-            selectedItems={filters.awards}
-            onToggle={handleAwardToggle}
-            maxHeight="max-h-32"
-          />
-        </FilterSection>
-      </div>
-
-      {/* Footer */}
-      {!isCollapsed && (
-        <div className="p-4 border-t border-amber-800 space-y-3">
-          <button className="w-full bg-amber-600 hover:bg-amber-700 text-amber-100 font-medium py-2 px-4 rounded-lg transition-colors">
-            Apply Filters
-          </button>
-          <button
-            onClick={() => {
-              setFilters({
-                genres: [],
-                yearRange: [1990, 2024],
-                rating: [0, 10],
-                duration: [60, 180],
-                languages: [],
-                awards: [],
-              });
-            }}
-            className="w-full bg-amber-700 hover:bg-amber-600 text-amber-300 font-medium py-2 px-4 rounded-lg transition-colors"
-          >
-            Clear All
-          </button>
-        </div>
-      )}
+        {!isCollapsed && (
+          <div className="p-4 border-t border-amber-800 space-y-3">
+            <button
+              type="submit"
+              className="w-full bg-amber-600 hover:bg-amber-700 text-amber-100 py-2 rounded font-semibold transition-colors"
+            >
+              Apply Filters
+            </button>
+          </div>
+        )}
+      </form>
     </div>
   );
 };

@@ -96,7 +96,7 @@ function DetailsPage() {
   return (
     <>
       {detail && (
-        <div className="min-h-screen bg-amber-950 text-white ">
+        <div className="min-h-screen bg-amber-950 text-white pb-20">
           {/* Backdrop */}
           <div className="relative h-96 md:h-[500px] overflow-hidden ">
             <img

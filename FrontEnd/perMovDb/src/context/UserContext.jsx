@@ -27,11 +27,11 @@ export const UserProvider = ({ children }) => {
 
   const [filters, setFilters] = useState({
     genres: [],
-    yearRange: [1990, 2024],
+    yearRange: [1900, 2040],
     rating: [0, 10],
     duration: [60, 180],
     languages: [],
-    awards: [],
+    sort: "",
   });
 
   const storedPhoto = sessionStorage.getItem("profilePhoto");
@@ -42,7 +42,7 @@ export const UserProvider = ({ children }) => {
         withCredentials: true,
       })
       .then((res) => {
-        console.log(res.data);
+        // console.log(res.data);
         setCast(res.data);
       })
       .catch((err) => {

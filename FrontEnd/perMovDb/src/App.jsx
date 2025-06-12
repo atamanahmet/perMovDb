@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Routes,
   Route,
@@ -45,6 +45,23 @@ function App() {
     window.location.href = `https://www.themoviedb.org/${mediaType}/${movieId}`;
     return null;
   };
+  const [showHeader, setShowHeader] = useState(true);
+  const lastScrollY = useRef(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentY = window.scrollY;
+      if (currentY > lastScrollY.current && currentY > 100) {
+        setShowHeader(false); // scrolling down
+      } else {
+        setShowHeader(true); // scrolling up
+      }
+      lastScrollY.current = currentY;
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   //first api call for discovery page
   useEffect(() => {
@@ -73,7 +90,7 @@ function App() {
 
   return (
     <>
-      <Header />
+      <Header showHeader={showHeader} />
       <Routes>
         <Route path="/" element={<DiscoverPage result={result} />} />
         <Route path="/discover" element={<DiscoverPage result={result} />} />

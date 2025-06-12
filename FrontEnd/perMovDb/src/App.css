@@ -138,7 +138,13 @@ html {
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #f59e0b;
 }
-.slider::-webkit-slider-thumb {
+
+.sticky-sidebar {
+  position: sticky;
+  top: 100px; /* distance from top before sticking */
+  z-index: 10;
+}
+/* .slider::-webkit-slider-thumb {
   appearance: none;
   width: 20px;
   height: 20px;
@@ -155,7 +161,7 @@ html {
   background: #f59e0b;
   cursor: pointer;
   border: 2px solid #92400e;
-}
+} */
 
 /* SideBar color */
 @layer base {
@@ -180,4 +186,35 @@ html {
     --sidebar-border: oklch(1 0 0 / 10%);
     --sidebar-ring: oklch(0.439 0 0);
   }
+}
+
+.thumb {
+  pointer-events: auto;
+}
+
+.thumb::-webkit-slider-thumb {
+  appearance: none;
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: #f59e0b;
+  border: 3px solid #92400e;
+  cursor: pointer;
+}
+
+.thumb::-moz-range-thumb {
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: #f59e0b;
+  border: 3px solid #92400e;
+  cursor: pointer;
+}
+
+.thumb--left {
+  z-index: 3;
+}
+
+.thumb--right {
+  z-index: 4;
 }
