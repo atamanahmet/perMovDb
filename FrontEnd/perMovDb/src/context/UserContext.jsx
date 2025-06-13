@@ -24,8 +24,12 @@ export const UserProvider = ({ children }) => {
   const [searchResponse, setSearchResponse] = useState(null);
   const [detail, setDetail] = useState(null);
   const [cast, setCast] = useState([]);
+  const [movieData, setMovieData] = useState(null);
+  const [isFetching, setIsFetching] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const [filters, setFilters] = useState({
+    // adult: false,
     genres: [],
     yearRange: [1900, 2040],
     rating: [0, 10],
@@ -35,6 +39,42 @@ export const UserProvider = ({ children }) => {
   });
 
   const storedPhoto = sessionStorage.getItem("profilePhoto");
+
+  const fetchData = async () => {
+    if (isFetching) return;
+    setIsFetching(true);
+    try {
+      const url = `http://localhost:8080/${mediaType}?adult=true&page=${currentPage}&sort=${
+        filters.sort
+      }&genreIdList=${filters.genres}&yearRange=${
+        filters.yearRange
+      }&ratingRange=${
+        filters.rating
+      }&languages=${filters.languages.toString()}`;
+
+      // console.log(url);
+      const res = await axios.get(url, { withCredentials: true });
+
+      // console.log(res.data);
+      // setResult(res.data);
+      setMovieData((prev) => {
+        if (!prev || currentPage == 1) return res.data;
+        const existingIds = new Set(prev.map((item) => item.id));
+        const filteredNewItems = res.data.filter(
+          (item) => !existingIds.has(item.id)
+        );
+        return [...prev, ...filteredNewItems];
+      });
+    } catch (err) {
+      console.error("Backend error:", err);
+    } finally {
+      setIsFetching(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [currentPage, mediaType, filters]);
 
   const navigateToDetails = (movie) => {
     axios
@@ -276,6 +316,11 @@ export const UserProvider = ({ children }) => {
         handleToggle,
         filters,
         setFilters,
+        fetchData,
+        movieData,
+        isFetching,
+        currentPage,
+        setCurrentPage,
       }}
     >
       {children}

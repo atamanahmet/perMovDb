@@ -13,7 +13,7 @@ import { useUser } from "../context/UserContext";
 
 const MovieFilterSidebar = () => {
   const { mediaType, filters, setFilters } = useUser();
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(true);
   const [expandedSections, setExpandedSections] = useState({
     sort: true,
     genre: false,
@@ -55,18 +55,21 @@ const MovieFilterSidebar = () => {
     }));
   };
 
-  const applyFilters = (e) => {
-    e.preventDefault();
-    const form = e.target;
-    const yearMin = Number(form.yearMin.value);
-    const yearMax = Number(form.yearMax.value);
-    const ratingMin = Number(form.ratingMin.value);
-    const ratingMax = Number(form.ratingMax.value);
-
+  const handleYearChange = (index, value) => {
+    const newYearRange = [...filters.yearRange];
+    newYearRange[index] = Number(value);
     setFilters((prev) => ({
       ...prev,
-      yearRange: [yearMin, yearMax],
-      rating: [ratingMin, ratingMax],
+      yearRange: newYearRange,
+    }));
+  };
+
+  const handleRatingChange = (index, value) => {
+    const newRating = [...filters.rating];
+    newRating[index] = Number(value);
+    setFilters((prev) => ({
+      ...prev,
+      rating: newRating,
     }));
   };
 
@@ -205,12 +208,10 @@ const MovieFilterSidebar = () => {
           type="button"
         >
           {isCollapsed ? (
-            <>
-              <div className="flex justify-center items-center">
-                <Filter className="text-amber-500" size={15} />
-                <ChevronRight className="text-amber-500 ml-1" size={10} />
-              </div>
-            </>
+            <div className="flex justify-center items-center">
+              <Filter className="text-amber-500" size={15} />
+              <ChevronRight className="text-amber-500 ml-1" size={10} />
+            </div>
           ) : (
             <>
               <ChevronLeft className="text-amber-500" size={15} />
@@ -221,10 +222,7 @@ const MovieFilterSidebar = () => {
       </div>
 
       {/* Filters */}
-      <form
-        onSubmit={applyFilters}
-        className="flex-1 overflow-y-auto custom-scrollbar flex flex-col"
-      >
+      <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col">
         <FilterSection
           title="Sort"
           icon={ArrowDownWideNarrow}
@@ -277,8 +275,8 @@ const MovieFilterSidebar = () => {
           <div className="flex gap-2 px-4 py-2">
             <input
               type="number"
-              name="yearMin"
-              defaultValue={filters.yearRange[0]}
+              value={filters.yearRange[0]}
+              onChange={(e) => handleYearChange(0, e.target.value)}
               min={1900}
               max={2050}
               className="w-1/2 rounded bg-amber-700 text-amber-100 p-1"
@@ -286,8 +284,8 @@ const MovieFilterSidebar = () => {
             />
             <input
               type="number"
-              name="yearMax"
-              defaultValue={filters.yearRange[1]}
+              value={filters.yearRange[1]}
+              onChange={(e) => handleYearChange(1, e.target.value)}
               min={1900}
               max={2050}
               className="w-1/2 rounded bg-amber-700 text-amber-100 p-1"
@@ -305,21 +303,21 @@ const MovieFilterSidebar = () => {
           <div className="flex gap-2 px-4 py-2">
             <input
               type="number"
-              name="ratingMin"
               min={0}
               max={10}
               step={0.1}
-              defaultValue={filters.rating[0]}
+              value={filters.rating[0]}
+              onChange={(e) => handleRatingChange(0, e.target.value)}
               className="w-1/2 rounded bg-amber-700 text-amber-100 p-1"
               placeholder="Min Rating"
             />
             <input
               type="number"
-              name="ratingMax"
               min={0}
               max={10}
               step={0.1}
-              defaultValue={filters.rating[1]}
+              value={filters.rating[1]}
+              onChange={(e) => handleRatingChange(1, e.target.value)}
               className="w-1/2 rounded bg-amber-700 text-amber-100 p-1"
               placeholder="Max Rating"
             />
@@ -341,18 +339,7 @@ const MovieFilterSidebar = () => {
             maxHeight="max-h-32"
           />
         </FilterSection>
-
-        {!isCollapsed && (
-          <div className="p-4 border-t border-amber-800 space-y-3">
-            <button
-              type="submit"
-              className="w-full bg-amber-600 hover:bg-amber-700 text-amber-100 py-2 rounded font-semibold transition-colors"
-            >
-              Apply Filters
-            </button>
-          </div>
-        )}
-      </form>
+      </div>
     </div>
   );
 };

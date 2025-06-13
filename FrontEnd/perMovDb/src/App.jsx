@@ -7,8 +7,6 @@ import {
   useParams,
 } from "react-router-dom";
 import Search from "./components/Search";
-// import { useUser } from "./context/UserContext";
-// import { useLocation } from "react-router";
 
 import axios from "axios";
 
@@ -18,7 +16,6 @@ import { useUser } from "./context/UserContext";
 import DiscoverPage from "./pages/DiscoverPage";
 
 import Header from "./components/Header";
-// import DetailsPage from "./components/DetailsPage";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import ProfilePage from "./pages/ProfilePage";
@@ -39,16 +36,11 @@ function App() {
   const [movieId, setMovieId] = useState(null);
   const [actionType, setActionType] = useState(null);
 
-  //For external redirect
-  const RedirectToExternal = () => {
-    const { movieId } = useParams();
-    window.location.href = `https://www.themoviedb.org/${mediaType}/${movieId}`;
-    return null;
-  };
   const [showHeader, setShowHeader] = useState(true);
   const lastScrollY = useRef(0);
 
   useEffect(() => {
+    //scroll up header
     const handleScroll = () => {
       const currentY = window.scrollY;
       if (currentY > lastScrollY.current && currentY > 100) {
@@ -63,18 +55,37 @@ function App() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  //first api call for discovery page
-  useEffect(() => {
-    let url = "tv";
-    // if (mediaType == "tv") {
-    //   url = "tv";
-    // }
+  // const fetchData = async () => {
+  //   if (isFetching) return;
+  //   setIsFetching(true);
+  //   try {
+  //     const url = `http://localhost:8080/${mediaType}?adult=${adult}&page=${currentPage}&sort=${
+  //       filters.sort
+  //     }&genreIdList=${filters.genres}&yearRange=${
+  //       filters.yearRange
+  //     }&ratingRange=${
+  //       filters.rating
+  //     }&languages=${filters.languages.toString()}`;
 
-    axios
-      .get(`http://localhost:8080/tv`, { withCredentials: true })
-      .then((res) => setResult(res.data))
-      .catch((err) => console.error("Backend error:", err));
-  }, []);
+  //     // console.log(url);
+  //     const res = await axios.get(url, { withCredentials: true });
+
+  //     // console.log(res.data);
+  //     // setResult(res.data);
+  //     setResult((prev) => {
+  //       if (!prev || currentPage == 1) return res.data;
+  //       const existingIds = new Set(prev.map((item) => item.id));
+  //       const filteredNewItems = res.data.filter(
+  //         (item) => !existingIds.has(item.id)
+  //       );
+  //       return [...prev, ...filteredNewItems];
+  //     });
+  //   } catch (err) {
+  //     console.error("Backend error:", err);
+  //   } finally {
+  //     setIsFetching(false);
+  //   }
+  // };
 
   //watchlist add and remove calls for api
   useEffect(() => {

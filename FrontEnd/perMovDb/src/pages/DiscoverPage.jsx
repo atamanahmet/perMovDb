@@ -17,16 +17,16 @@ export default function DiscoverPage({}) {
     setMediaType,
     filters,
     setFilters,
+    fetchData,
+    movieData,
+    currentPage,
+    isFetching,
+    setCurrentPage,
   } = useUser();
+
   const [toggleLabel, setToggleLabel] = useState("TV");
 
-  // const [sort, setSort] = useState("");
-  // const [sort, setSort] = useState("vote_count.desc");
-  const [currentPage, setCurrentPage] = useState(1);
-
-  const [result, setResult] = useState(null);
   const [adult, setAdult] = useState(true);
-  const [isFetching, setIsFetching] = useState(false);
 
   const timeoutRef = useRef(null);
   const [pendingFilters, setPendingFilters] = useState(filters);
@@ -49,10 +49,6 @@ export default function DiscoverPage({}) {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  useEffect(() => {
-    setResult(null);
-    setCurrentPage(1);
-  }, [filters, mediaType]);
   useEffect(() => {
     const handler = setTimeout(() => {
       setFilters(pendingFilters);
@@ -82,50 +78,45 @@ export default function DiscoverPage({}) {
     };
   }, [isFetching]);
 
-  const fetchData = async () => {
-    if (isFetching) return;
-    setIsFetching(true);
-    try {
-      const url = `http://localhost:8080/${mediaType}?adult=${adult}&page=${currentPage}&sort=${
-        filters.sort
-      }&genreIdList=${filters.genres}&yearRange=${
-        filters.yearRange
-      }&ratingRange=${
-        filters.rating
-      }&languages=${filters.languages.toString()}`;
+  // const fetchData = async () => {
+  //   if (isFetching) return;
+  //   setIsFetching(true);
+  //   try {
+  //     const url = `http://localhost:8080/${mediaType}?adult=${adult}&page=${currentPage}&sort=${
+  //       filters.sort
+  //     }&genreIdList=${filters.genres}&yearRange=${
+  //       filters.yearRange
+  //     }&ratingRange=${
+  //       filters.rating
+  //     }&languages=${filters.languages.toString()}`;
 
-      // console.log(url);
-      const res = await axios.get(url, { withCredentials: true });
+  //     // console.log(url);
+  //     const res = await axios.get(url, { withCredentials: true });
 
-      // console.log(res.data);
-      // setResult(res.data);
-      setResult((prev) => {
-        if (!prev || currentPage == 1) return res.data;
-        const existingIds = new Set(prev.map((item) => item.id));
-        const filteredNewItems = res.data.filter(
-          (item) => !existingIds.has(item.id)
-        );
-        return [...prev, ...filteredNewItems];
-      });
-    } catch (err) {
-      console.error("Backend error:", err);
-    } finally {
-      setIsFetching(false);
-    }
-  };
+  //     // console.log(res.data);
+  //     // setResult(res.data);
+  //     setResult((prev) => {
+  //       if (!prev || currentPage == 1) return res.data;
+  //       const existingIds = new Set(prev.map((item) => item.id));
+  //       const filteredNewItems = res.data.filter(
+  //         (item) => !existingIds.has(item.id)
+  //       );
+  //       return [...prev, ...filteredNewItems];
+  //     });
+  //   } catch (err) {
+  //     console.error("Backend error:", err);
+  //   } finally {
+  //     setIsFetching(false);
+  //   }
+  // };
 
-  useEffect(() => {
-    fetchData();
-  }, [currentPage, adult, mediaType, filters]);
-
-  if (!result) {
+  if (!movieData) {
     return <div>Loading...</div>;
   }
 
   function handleMediaToogle() {
     setToggleLabel(mediaType == "movie" ? "TV Series" : "Cinema");
     setMediaType(mediaType == "movie" ? "tv" : "movie");
-    // handleToggle;
   }
 
   return (
@@ -139,17 +130,25 @@ export default function DiscoverPage({}) {
         <h2 className="text-center p-7 text-amber-100 font-bold text-4xl page-title">
           Discover popular movies
         </h2>
-        <div className="flex flex-col max-w-11/12 justify-center mx-auto">
-          <div className="w-10/12 text-right mt-5">
-            <ToggleSwitch
-              label={toggleLabel}
-              stateChange={() => handleMediaToogle()}
-            />
+        {movieData && (
+          <div className="flex flex-col max-w-11/12 justify-center mx-auto">
+            <div className="w-10/12 text-right mt-5">
+              <ToggleSwitch
+                label={toggleLabel}
+                stateChange={() => handleMediaToogle()}
+              />
+            </div>
+            <main className="my-10 flex flex-row flex-wrap gap-5 justify-center discoverPage">
+              <CardPlate data={movieData} message={"Loading.."} />
+            </main>
           </div>
-          <main className="my-10 flex flex-row flex-wrap gap-5 justify-center discoverPage">
-            <CardPlate data={result} message={"Loading.."} />
-          </main>
-        </div>
+        )}
+
+        {movieData.length == 0 && (
+          <>
+            <h2>No data available</h2>
+          </>
+        )}
       </div>
     </>
   );
