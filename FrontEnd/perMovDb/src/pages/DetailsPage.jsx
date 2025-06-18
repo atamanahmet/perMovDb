@@ -96,7 +96,7 @@ function DetailsPage() {
   return (
     <>
       {detail && (
-        <div className="min-h-screen bg-amber-950 text-white pb-20">
+        <div className="min-h-screen bg-amber-950 text-white pb-20 mt-16">
           {/* Backdrop */}
           <div className="relative h-96 md:h-[500px] overflow-hidden ">
             <img
@@ -206,35 +206,6 @@ function DetailsPage() {
                     Add to Watchlist
                   </button> */}
                 </div>
-
-                {/* Additional Stats */}
-                <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="bg-gray-800 p-4 rounded-lg text-center">
-                    <div className="text-2xl font-bold text-blue-400">
-                      {detail.popularity.toFixed(0)}
-                    </div>
-                    <div className="text-sm text-gray-400">Popularity</div>
-                  </div>
-                  <div className="bg-gray-800 p-4 rounded-lg text-center">
-                    <div className="text-2xl font-bold text-green-400">
-                      {detail.vote_count.toLocaleString()}
-                    </div>
-                    <div className="text-sm text-gray-400">Reviews</div>
-                  </div>
-                  <div className="bg-gray-800 p-4 rounded-lg text-center">
-                    <div className="text-2xl font-bold text-purple-400">
-                      #{detail.id}
-                    </div>
-                    <div className="text-sm text-gray-400">detail ID</div>
-                  </div>
-                  <div className="bg-gray-800 p-4 rounded-lg text-center">
-                    <div className="text-2xl font-bold text-yellow-400">
-                      {detail.video ? "Yes" : "No"}
-                    </div>
-                    <div className="text-sm text-gray-400">Has Video</div>
-                  </div>
-                </div>
-
                 {/* Cast Section */}
                 {cast.length > 0 && (
                   <div className="mt-12">
@@ -270,6 +241,33 @@ function DetailsPage() {
                     </div>
                   </div>
                 )}
+                {/* Additional Stats */}
+                <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="bg-gray-800 p-4 rounded-lg text-center">
+                    <div className="text-2xl font-bold text-blue-400">
+                      {detail.popularity.toFixed(0)}
+                    </div>
+                    <div className="text-sm text-gray-400">Popularity</div>
+                  </div>
+                  <div className="bg-gray-800 p-4 rounded-lg text-center">
+                    <div className="text-2xl font-bold text-green-400">
+                      {detail.vote_count.toLocaleString()}
+                    </div>
+                    <div className="text-sm text-gray-400">Reviews</div>
+                  </div>
+                  <div className="bg-gray-800 p-4 rounded-lg text-center">
+                    <div className="text-2xl font-bold text-purple-400">
+                      #{detail.id}
+                    </div>
+                    <div className="text-sm text-gray-400">detail ID</div>
+                  </div>
+                  <div className="bg-gray-800 p-4 rounded-lg text-center">
+                    <div className="text-2xl font-bold text-yellow-400">
+                      {detail.video ? "Yes" : "No"}
+                    </div>
+                    <div className="text-sm text-gray-400">Has Video</div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

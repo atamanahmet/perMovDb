@@ -52,11 +52,8 @@ export const UserProvider = ({ children }) => {
         filters.rating
       }&languages=${filters.languages.toString()}`;
 
-      // console.log(url);
       const res = await axios.get(url, { withCredentials: true });
 
-      // console.log(res.data);
-      // setResult(res.data);
       setMovieData((prev) => {
         if (!prev || currentPage == 1) return res.data;
         const existingIds = new Set(prev.map((item) => item.id));
@@ -76,13 +73,17 @@ export const UserProvider = ({ children }) => {
     fetchData();
   }, [currentPage, mediaType, filters]);
 
-  const navigateToDetails = (movie) => {
+  const navigateToDetails = (movie, isTv) => {
     axios
-      .get("http://localhost:8080/movie/" + movie.id + "/credits", {
-        withCredentials: true,
-      })
+      .get(
+        "http://localhost:8080/" + isTv
+          ? +"tv"
+          : "movie" + "/" + movie.id + "/credits",
+        {
+          withCredentials: true,
+        }
+      )
       .then((res) => {
-        // console.log(res.data);
         setCast(res.data);
       })
       .catch((err) => {

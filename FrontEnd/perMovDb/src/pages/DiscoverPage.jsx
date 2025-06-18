@@ -9,25 +9,18 @@ import MovieFilterSidebar from "../components/MovieFilterSidebar";
 
 export default function DiscoverPage({}) {
   const {
-    user,
-    loading,
-    handleWatchList,
     mediaType,
-    handleToggle,
     setMediaType,
     filters,
     setFilters,
-    fetchData,
     movieData,
-    currentPage,
     isFetching,
     setCurrentPage,
   } = useUser();
 
-  const [toggleLabel, setToggleLabel] = useState("TV");
-
-  const [adult, setAdult] = useState(true);
-
+  const [toggleLabel, setToggleLabel] = useState(
+    mediaType == "movie" ? "Cinema" : "TV"
+  );
   const timeoutRef = useRef(null);
   const [pendingFilters, setPendingFilters] = useState(filters);
 
@@ -38,9 +31,9 @@ export default function DiscoverPage({}) {
     const handleScroll = () => {
       const currentY = window.scrollY;
       if (currentY > lastScrollY.current && currentY > 100) {
-        setShowHeader(false); // scrolling down
+        setShowHeader(false); //down
       } else {
-        setShowHeader(true); // scrolling up
+        setShowHeader(true); //up
       }
       lastScrollY.current = currentY;
     };
@@ -52,7 +45,7 @@ export default function DiscoverPage({}) {
   useEffect(() => {
     const handler = setTimeout(() => {
       setFilters(pendingFilters);
-    }, 300); // debounce delay
+    }, 300); //debounce delay
 
     return () => clearTimeout(handler);
   }, [pendingFilters]);
@@ -78,78 +71,44 @@ export default function DiscoverPage({}) {
     };
   }, [isFetching]);
 
-  // const fetchData = async () => {
-  //   if (isFetching) return;
-  //   setIsFetching(true);
-  //   try {
-  //     const url = `http://localhost:8080/${mediaType}?adult=${adult}&page=${currentPage}&sort=${
-  //       filters.sort
-  //     }&genreIdList=${filters.genres}&yearRange=${
-  //       filters.yearRange
-  //     }&ratingRange=${
-  //       filters.rating
-  //     }&languages=${filters.languages.toString()}`;
-
-  //     // console.log(url);
-  //     const res = await axios.get(url, { withCredentials: true });
-
-  //     // console.log(res.data);
-  //     // setResult(res.data);
-  //     setResult((prev) => {
-  //       if (!prev || currentPage == 1) return res.data;
-  //       const existingIds = new Set(prev.map((item) => item.id));
-  //       const filteredNewItems = res.data.filter(
-  //         (item) => !existingIds.has(item.id)
-  //       );
-  //       return [...prev, ...filteredNewItems];
-  //     });
-  //   } catch (err) {
-  //     console.error("Backend error:", err);
-  //   } finally {
-  //     setIsFetching(false);
-  //   }
-  // };
-
   if (!movieData) {
     return <div>Loading...</div>;
   }
 
   function handleMediaToogle() {
-    setToggleLabel(mediaType == "movie" ? "TV Series" : "Cinema");
+    setToggleLabel(mediaType == "movie" ? "Cinema" : "TV");
     setMediaType(mediaType == "movie" ? "tv" : "movie");
   }
 
   return (
     <>
-      <div className="pt-15.5">
-        <div className="absolute z-2">
-          <div className="relative mt-24 sticky-sidebar">
-            <MovieFilterSidebar />
-          </div>
+      <div className="absolute z-2">
+        <div className="relative mt-24 sticky-sidebar">
+          <MovieFilterSidebar />
         </div>
-        <h2 className="text-center p-7 text-amber-100 font-bold text-4xl page-title">
-          Discover popular movies
-        </h2>
-        {movieData && (
-          <div className="flex flex-col max-w-11/12 justify-center mx-auto">
-            <div className="w-10/12 text-right mt-5">
-              <ToggleSwitch
-                label={toggleLabel}
-                stateChange={() => handleMediaToogle()}
-              />
-            </div>
-            <main className="my-10 flex flex-row flex-wrap gap-5 justify-center discoverPage">
-              <CardPlate data={movieData} message={"Loading.."} />
-            </main>
-          </div>
-        )}
-
-        {movieData.length == 0 && (
-          <>
-            <h2>No data available</h2>
-          </>
-        )}
       </div>
+      <h2 className="text-center p-7 text-amber-100 font-bold text-4xl page-title">
+        Discover popular movies
+      </h2>
+      {movieData && (
+        <div className="flex flex-col max-w-11/12 justify-center mx-auto">
+          <div className="w-10/12 text-right mt-5">
+            <ToggleSwitch
+              label={toggleLabel}
+              stateChange={() => handleMediaToogle()}
+            />
+          </div>
+          <main className="my-10 flex flex-row flex-wrap gap-5 justify-center discoverPage">
+            <CardPlate data={movieData} message={"Loading.."} />
+          </main>
+        </div>
+      )}
+
+      {movieData.length == 0 && (
+        <>
+          <h2>No data available</h2>
+        </>
+      )}
     </>
   );
 }

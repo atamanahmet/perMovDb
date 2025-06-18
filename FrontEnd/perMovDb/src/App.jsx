@@ -101,24 +101,26 @@ function App() {
 
   return (
     <>
-      <Header showHeader={showHeader} />
-      <Routes>
-        <Route path="/" element={<DiscoverPage result={result} />} />
-        <Route path="/discover" element={<DiscoverPage result={result} />} />
-        <Route path="/top" element={<Top />} />
-        <Route path="/new" element={<NewReleases />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/Login" element={<Login />} />
-        <Route path="/profile" element={<ProfilePage />} />
-        {searchResponse != null ? (
-          <Route
-            path="/search"
-            element={<Search data={searchResponse.data} />}
-          />
-        ) : null}
-        <Route path="/details" element={<DetailsPage />} />
-        <Route path="/upload" element={<Upload />} />
-      </Routes>
+      <div className="pt-15.5">
+        <Header showHeader={showHeader} />
+        <Routes>
+          <Route path="/" element={<DiscoverPage result={result} />} />
+          <Route path="/discover" element={<DiscoverPage result={result} />} />
+          <Route path="/top" element={<Top />} />
+          <Route path="/new" element={<NewReleases />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/Login" element={<Login />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          {searchResponse != null ? (
+            <Route
+              path="/search"
+              element={<Search data={searchResponse.data} />}
+            />
+          ) : null}
+          <Route path="/details" element={<DetailsPage />} />
+          <Route path="/upload" element={<Upload />} />
+        </Routes>
+      </div>
     </>
   );
 }

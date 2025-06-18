@@ -22,7 +22,7 @@ export default function CardPlate({ data, addOrRemove, message }) {
   const navigate = useNavigate();
 
   function onCardClick(item) {
-    navigateToDetails(item);
+    navigateToDetails(item, item.first_air.date != null); //tv or movie
   }
 
   if (data == null) {
@@ -44,19 +44,7 @@ export default function CardPlate({ data, addOrRemove, message }) {
             onClick={() => onCardClick(item)}
             className="z-1 relative text-left"
           >
-            <Card
-              // key={item.id}
-              // id={item.id}
-              // original_title={item.original_title}
-              // overview={item.overview}
-              // poster_path={item.poster_path}
-              // backdrop_path={item.backdrop_path}
-              // itemTitle={item.title}
-              // vote_average={item.vote_average.toFixed(1)}
-              // original_language={item.original_language}
-              // release_date={item.release_date}
-              item={item}
-            />
+            <Card item={item} />
           </div>
         </div>
       ))}
