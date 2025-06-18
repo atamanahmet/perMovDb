@@ -16,11 +16,16 @@ export default function ListButton({ item, style }) {
   return (
     <>
       <div>
-        {/* Watchlist Button */}
+        {/* Watchlist */}
         <button
           className={style.watchlist}
           onClick={() => {
-            handleList(item.id, isInWatchlist ? "del" : "add", "watchlist");
+            handleList(
+              item.first_air_date != null ? "tv" : "movie",
+              item.id,
+              isInWatchlist ? "del" : "add",
+              "watchlist"
+            );
           }}
         >
           {isInWatchlist ? (
@@ -30,11 +35,16 @@ export default function ListButton({ item, style }) {
           )}
         </button>
 
-        {/* Watched Button */}
+        {/* Watched*/}
         <button
           className={style.watchedlist}
           onClick={() => {
-            handleList(item.id, isInWatchedlist ? "del" : "add", "watchedlist");
+            handleList(
+              item.first_air_date != null ? "tv" : "movie",
+              item.id,
+              isInWatchedlist ? "del" : "add",
+              "watchedlist"
+            );
           }}
         >
           {isInWatchedlist ? (
@@ -48,11 +58,16 @@ export default function ListButton({ item, style }) {
           )}
         </button>
 
-        {/* Loved Button */}
+        {/* Loved*/}
         <button
           className={style.lovedlist}
           onClick={() => {
-            handleList(item.id, isInLovedlist ? "del" : "add", "lovedlist");
+            handleList(
+              item.first_air_date != null ? "tv" : "movie",
+              item.id,
+              isInLovedlist ? "del" : "add",
+              "lovedlist"
+            );
           }}
         >
           {isInLovedlist ? (

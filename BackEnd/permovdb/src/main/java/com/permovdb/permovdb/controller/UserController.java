@@ -33,13 +33,16 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.permovdb.permovdb.Utility.ListSelector;
 import com.permovdb.permovdb.domain.Movie;
+import com.permovdb.permovdb.domain.TvShow;
 import com.permovdb.permovdb.domain.User;
 import com.permovdb.permovdb.domain.DTO.UserDTO;
 import com.permovdb.permovdb.security.AuthResponse;
 import com.permovdb.permovdb.security.JwtCookieUtil;
 import com.permovdb.permovdb.security.JwtUtil;
 import com.permovdb.permovdb.service.MovieService;
+import com.permovdb.permovdb.service.TvShowService;
 import com.permovdb.permovdb.service.UserService;
 
 import jakarta.servlet.http.Cookie;
@@ -64,6 +67,9 @@ public class UserController {
 
     @Autowired
     private RestTemplate restTemplate;
+
+    @Autowired
+    private TvShowService tvShowService;
 
     @GetMapping("/signup")
     public String getForm() {
@@ -112,72 +118,79 @@ public class UserController {
         }
     }
 
-    @GetMapping("/user/list/{type}/{id}/{action}")
+    public boolean updateList(String action, Set<Integer> idListToEdit, int mediaId) {
+        try {
+            if (action.equals("add")) {
+                if (!idListToEdit.contains(mediaId)) {
+                    idListToEdit.add(mediaId);
+                }
+
+            } else if (action.equals("del")) {
+                if (idListToEdit.contains(mediaId)) {
+                    idListToEdit.remove(mediaId);
+                }
+
+            }
+        } catch (Exception e) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @GetMapping("/user/list/{mediaType}/{listType}/{id}/{action}")
     public ResponseEntity<?> addToWatchList(
             @PathVariable(name = "id") String id,
-            @PathVariable(name = "type") String type,
+            @PathVariable(name = "mediaType") String mediaType,
+            @PathVariable(name = "listType") String listType,
             @PathVariable(name = "action") String action,
             HttpServletRequest request) {
 
         String username = jwtUtil.extractUsernameFromRequest(request);
 
-        Integer movieId = (id == null) ? null : Integer.valueOf(id);
+        int mediaId = Integer.valueOf(id);
 
-        if (username == null || movieId == null || action == null) {
+        if (username == null || id == null || action == null) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
         User user = userService.loadByUserName(username);
 
-        Movie movie = movieService.findMovieById(movieId);
+        Movie movie = new Movie();
+        TvShow tvShow = new TvShow();
 
-        if (user == null || movie == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        Set<Integer> idListToEdit;
+        try {
+            idListToEdit = ListSelector.getIdListToEdit(user, mediaType, listType);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        Set<Integer> idListToEdit = new HashSet<>();
-        Set<User> movieUserSet = new HashSet<>();
 
-        switch (type) {
-            case "watchlist":
-                idListToEdit = user.getUserList().getMovieWatchlist();
-                // movieUserSet = movie.getWatchlistUserSet();
+        switch (mediaType) {
+            case "movie":
+                movie = movieService.findMovieById(mediaId);
                 break;
-            case "watchedlist":
-                idListToEdit = user.getUserList().getMovieWatchedlist();
-                // movieUserSet = movie.getWatchedlistUserSet();
-
-                break;
-            case "lovedlist":
-                idListToEdit = user.getUserList().getMovieLovedlist();
-                // movieUserSet = movie.getLovedlistUserSet();
-
+            case "tv":
+                tvShow = tvShowService.findTvShowById(mediaId);
                 break;
             default:
                 return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
         }
 
-        if (action.equals("add")) {
-            if (!idListToEdit.contains(movie.getId())) {
-                idListToEdit.add(movie.getId());
-            }
-            if (!movieUserSet.contains(user)) {
-                movieUserSet.add(user);
-            }
-
-        } else if (action.equals("del")) {
-            if (idListToEdit.contains(movie.getId())) {
-                idListToEdit.remove(movie.getId());
-            }
-            if (movieUserSet.contains(user)) {
-                movieUserSet.remove(user);
-            }
-
-        } else {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        if (user == null || (mediaType.equals("movie") ? movie == null : tvShow == null)) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
+        updateList(action, idListToEdit, (mediaType.equals("movie")) ? movie.getId() : tvShow.getId());
+        // if (mediaType.equals("movie")) {
+        // movieService.saveMovie(movie);
+
+        // } else {
+        // tvShowService.saveTvShow(tvShow);
+
+        // }
+
         userService.updateUser(user);
-        movieService.saveMovie(movie);
 
         String response = "List edited succesfully";
 

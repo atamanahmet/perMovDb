@@ -4,9 +4,11 @@ import { Tooltip } from "@mui/material";
 import { useUser } from "../context/UserContext";
 function Card({ item }) {
   const { mediaType } = useUser();
+
   const imageUrl = item.poster_path.endsWith("null")
     ? missing
     : item.poster_path;
+    
   const release_year = new Date(item.release_date || item.first_air_date)
     .toISOString()
     .split("-");

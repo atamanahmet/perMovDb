@@ -6,6 +6,7 @@ import axios from "axios";
 import CardPlate from "../components/CardPlate";
 import ToggleSwitch from "../components/ToggleSwitch";
 import MovieFilterSidebar from "../components/MovieFilterSidebar";
+import MediaTypeToggle from "../components/MediaTypeToggle";
 
 export default function DiscoverPage({}) {
   const {
@@ -76,8 +77,11 @@ export default function DiscoverPage({}) {
   }
 
   function handleMediaToogle() {
-    setToggleLabel(mediaType == "movie" ? "Cinema" : "TV");
-    setMediaType(mediaType == "movie" ? "tv" : "movie");
+    setMediaType((prevType) => {
+      const newType = prevType === "movie" ? "tv" : "movie";
+      setToggleLabel(newType === "movie" ? "Cinema" : "TV");
+      return newType;
+    });
   }
 
   return (
@@ -91,14 +95,11 @@ export default function DiscoverPage({}) {
         Discover popular movies
       </h2>
       {movieData && (
-        <div className="flex flex-col max-w-11/12 justify-center mx-auto">
-          <div className="w-10/12 text-right mt-5">
-            <ToggleSwitch
-              label={toggleLabel}
-              stateChange={() => handleMediaToogle()}
-            />
+        <div className="relative discoverPage">
+          <div className="absolute right-0 -top-20 mr-22">
+            <MediaTypeToggle mediaType={mediaType} onChange={setMediaType} />
           </div>
-          <main className="my-10 flex flex-row flex-wrap gap-5 justify-center discoverPage">
+          <main className="my-5 flex flex-row flex-wrap mt-24 gap-5 justify-center">
             <CardPlate data={movieData} message={"Loading.."} />
           </main>
         </div>

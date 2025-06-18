@@ -292,9 +292,9 @@ class MovieController {
 
         }
 
-        @GetMapping("/{mediaType}/{movieId}")
+        @GetMapping("/{mediaType}/{mediaId}")
         public ResponseEntity<?> getMovieById(
-                        @PathVariable(name = "movieId", required = true) String movieId,
+                        @PathVariable(name = "mediaId", required = true) String mediaId,
                         @PathVariable(name = "mediaType", required = true) String mediaType)
                         throws IOException, InterruptedException {
 
@@ -302,7 +302,7 @@ class MovieController {
                                 .uri(URI.create(
                                                 "https://api.themoviedb.org/3/"
                                                                 + mediaType + "/"
-                                                                + movieId))
+                                                                + mediaId))
                                 .header("accept", "application/json")
                                 .header("Authorization",
                                                 "Bearer " + apiKey)
@@ -316,7 +316,11 @@ class MovieController {
 
                 // db entry
                 if (!response.body().isEmpty()) {
-                        Movie movie = mapper.readValue(response.body(), Movie.class);
+                        if (mediaType.equals("movie")) {
+                                Movie movie = mapper.readValue(response.body(), Movie.class);
+                        } else {
+                                TvShow tvShow = mapper.readValue(response.body(), TvShow.class);
+                        }
                 }
                 return new ResponseEntity<>(response.body(), HttpStatus.OK);
         }

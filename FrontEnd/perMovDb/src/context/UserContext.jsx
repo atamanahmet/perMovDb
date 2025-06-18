@@ -235,13 +235,13 @@ export const UserProvider = ({ children }) => {
     }
   };
 
-  const handleList = async (movieId, actionType, buttonType) => {
+  const handleList = async (mediaType, movieId, actionType, buttonType) => {
     // console.log("watchlist context called");
 
     if (movieId && actionType) {
       try {
         const res = await axios.get(
-          `http://localhost:8080/user/list/${buttonType}/${movieId}/${actionType}`,
+          `http://localhost:8080/user/list/${mediaType}/${buttonType}/${movieId}/${actionType}`,
           { withCredentials: true }
         );
         if (res.status === 200) {

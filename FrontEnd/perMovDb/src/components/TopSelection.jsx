@@ -7,7 +7,7 @@ import { Tooltip } from "@mui/material";
 import { useState } from "react";
 import ToogleSwitch from "./ToggleSwitch";
 
-export default function CardPlate({ data, addOrRemove, message }) {
+export default function TopSelection({ data, addOrRemove, message }) {
   const { user, navigateToDetails } = useUser();
 
   const style = {
@@ -42,7 +42,7 @@ export default function CardPlate({ data, addOrRemove, message }) {
           {user && <ListButton item={item} style={style} />}
           <div
             onClick={() => onCardClick(item)}
-            className="z-1 relative text-left flex-shrink-0"
+            className="z-1 relative text-left"
           >
             <Card item={item} />
           </div>
