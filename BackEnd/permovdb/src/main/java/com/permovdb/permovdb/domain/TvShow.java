@@ -9,6 +9,8 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.permovdb.permovdb.converter.CastJsonConverter;
 
 @Entity
@@ -17,6 +19,7 @@ import com.permovdb.permovdb.converter.CastJsonConverter;
 @Getter
 @Setter
 @Table(name = "tvShow")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class TvShow {
 
     @Id
@@ -41,7 +44,8 @@ public class TvShow {
     private String original_language;
 
     @Column
-    private String original_name;
+    @JsonProperty("original_name")
+    private String original_title;
 
     @Column(length = 2048)
     private String overview;
@@ -55,8 +59,10 @@ public class TvShow {
     @Column
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private String first_air_date;
+
+    @JsonProperty("name")
     @Column
-    private String name;
+    private String title;
 
     @Column
     private Double vote_average;

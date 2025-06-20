@@ -1,102 +1,7 @@
-import { Star, Calendar, Users, Globe, Play } from "lucide-react";
+import { react, useState, useEffect } from "react";
 import { useUser } from "../context/UserContext";
-import { useNavigate } from "react-router";
-import { useState, useEffect } from "react";
-import axios from "axios";
-import VideoModal from "../components/VideoModal";
-import ListButton from "../components/ListButton";
-import missing from "../assets/missing.png";
-import { Swiper, SwiperSlide } from "swiper/react";
-import "swiper/css";
 
-function DetailsPage() {
-  const { user, detail, cast } = useUser();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!detail) {
-      navigate("/discover");
-    }
-  }, [detail, navigate]);
-
-  // useEffect(() => {
-
-  // }, []);
-
-  const style = {
-    watchlist:
-      " h-7 w-7 text-amber-100 bg-amber-200 rounded left-1 z-0 addButton scale-170 mx-5 mt-2",
-    watchedlist:
-      "h-7 w-7 text-amber-100 bg-amber-200 rounded z-0 addButton scale-170 mx-5",
-    lovedlist:
-      "h-7 w-7 text-amber-100 bg-amber-200 rounded z-0 addButton scale-170 mx-5",
-  };
-
-  const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
-  const [trailer, setTrailer] = useState(null);
-
-  useEffect(() => {
-    if (detail && !detail.trailer_path) {
-      axios
-        .get(`http://localhost:8080/movie/${detail.id}/video`, {
-          withCredentials: true,
-        })
-        .then((res) => {
-          setTrailer(res.data);
-        })
-        .catch((err) => console.log("Error: " + err));
-    }
-  }, [detail]);
-
-  const openVideoModal = () => {
-    setIsVideoModalOpen(true);
-  };
-
-  const closeVideoModal = () => {
-    setIsVideoModalOpen(false);
-  };
-
-  const genreMap = {
-    18: "Drama",
-    53: "Thriller",
-    35: "Comedy",
-    28: "Action",
-    12: "Adventure",
-    16: "Animation",
-    80: "Crime",
-    99: "Documentary",
-    10751: "Family",
-    14: "Fantasy",
-    36: "History",
-    27: "Horror",
-    10402: "Music",
-    9648: "Mystery",
-    10749: "Romance",
-    878: "Science Fiction",
-    10770: "TV Movie",
-    53: "Thriller",
-    10752: "War",
-    37: "Western",
-  };
-
-  const getGenreNames = (genreIds) => {
-    return genreIds.map((id) => genreMap[id] || "Unknown").join(", ");
-  };
-
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
-
-  const getRatingColor = (rating) => {
-    if (rating >= 8) return "text-green-400";
-    if (rating >= 6) return "text-yellow-400";
-    return "text-red-400";
-  };
-
+export default function PersonPage() {
   return (
     <>
       {detail && (
@@ -286,5 +191,3 @@ function DetailsPage() {
     </>
   );
 }
-
-export default DetailsPage;

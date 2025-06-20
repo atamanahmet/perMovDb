@@ -101,7 +101,7 @@ function App() {
 
   return (
     <>
-      <div className="pt-15.5">
+      <div className="pt-15">
         <Header showHeader={showHeader} />
         <Routes>
           <Route path="/" element={<DiscoverPage result={result} />} />

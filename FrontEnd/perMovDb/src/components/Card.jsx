@@ -5,13 +5,16 @@ import { useUser } from "../context/UserContext";
 function Card({ item }) {
   const { mediaType } = useUser();
 
-  const imageUrl = item.poster_path.endsWith("null")
-    ? missing
-    : item.poster_path;
-    
-  const release_year = new Date(item.release_date || item.first_air_date)
-    .toISOString()
-    .split("-");
+  const imageUrl =
+    item.poster_path?.endsWith("null") || !item.poster_path
+      ? missing
+      : item.poster_path;
+
+  let release_year = "Unknown";
+  const dateStr = item.release_date || item.first_air_date;
+
+  release_year = new Date(dateStr).toISOString().split("-")[0];
+
   return (
     <>
       {item && (
@@ -42,16 +45,12 @@ function Card({ item }) {
                     : item.title}
                 </p>
                 <p className="text-xs text-amber-500">
-                  {release_year[0] +
-                    "-" +
-                    release_year[1] +
-                    "-" +
-                    release_year[2].substring(0, 2)}
+                  {new Date(dateStr).toISOString().slice(0, 10)}
                 </p>
               </div>
 
               <div className="text-shadow-emerald-50">
-                <RatingCircle percentage={item.vote_average.toFixed(1)} />
+                <RatingCircle percentage={item.vote_average?.toFixed(1) || 0} />
               </div>
             </div>
           </div>

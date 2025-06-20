@@ -102,20 +102,7 @@ class MovieController {
 
                 Root root = mapper.readValue(response.body(), Root.class);
 
-                for (Movie movie : root.results) { // redirecting poster paths to the image url
-
-                        if (movie.getPoster_path() == null) {
-                                System.out.println("nullll" + movie.getPoster_path());
-
-                        } else {
-                                movie.setPoster_path("https://image.tmdb.org/t/p/original" +
-                                                movie.getPoster_path());
-                                movie.setBackdrop_path("https://image.tmdb.org/t/p/original" +
-                                                movie.getBackdrop_path());
-                        }
-
-                        movieService.saveMovie(movie);
-                }
+                fixPosterPath(root);
 
                 String result = mapper.writeValueAsString(root.results);
                 return new ResponseEntity<>(result, HttpStatus.OK);
@@ -167,6 +154,23 @@ class MovieController {
 
                 String result = mapper.writeValueAsString(tvRoot.results);
                 return new ResponseEntity<>(result, HttpStatus.OK);
+        }
+
+        public void fixPosterPath(Root root) {
+                for (Movie movie : root.results) { // redirecting poster paths to the image url
+
+                        if (movie.getPoster_path() == null) {
+                                System.out.println("nullll" + movie.getPoster_path());
+
+                        } else {
+                                movie.setPoster_path("https://image.tmdb.org/t/p/original" +
+                                                movie.getPoster_path());
+                                movie.setBackdrop_path("https://image.tmdb.org/t/p/original" +
+                                                movie.getBackdrop_path());
+                        }
+
+                        movieService.saveMovie(movie);
+                }
         }
 
         @GetMapping("/{mediaType}/{mediaId}/video")
@@ -236,6 +240,9 @@ class MovieController {
         public ResponseEntity<String> getCredits(
                         @PathVariable(name = "mediaType") String mediaType,
                         @PathVariable(name = "movieId") String movieId) {
+
+                System.out.println(mediaType);
+                System.out.println(movieId);
                 HttpRequest castRequest = HttpRequest.newBuilder()
                                 .uri(URI.create(
                                                 "https://api.themoviedb.org/3/" + mediaType + "/" + movieId
@@ -331,7 +338,7 @@ class MovieController {
                         HttpServletResponse response,
                         @PathVariable(name = "mediaType", required = true) String mediaType) {
 
-                return (mediaType.equals("movie") ? movieService.getAllMovies() : tvShowService.getAllTvShows());
+                return (mediaType.equals("movies") ? movieService.getAllMovies() : tvShowService.getAllTvShows());
         }
 
         @GetMapping("/{mediaType}/search/{searchQuery}")
@@ -350,7 +357,7 @@ class MovieController {
                 }
 
                 HttpRequest requestRedirect = HttpRequest.newBuilder()
-                                .uri(URI.create("https://api.themoviedb.org/3/search/{mediaType}?query="
+                                .uri(URI.create("https://api.themoviedb.org/3/search/" + mediaType + "?query="
                                                 + searchQuery))
                                 .header("accept", "application/json")
                                 .header("Authorization",
@@ -370,13 +377,6 @@ class MovieController {
                                 case "movie":
                                         Root root = mapper.readValue(response.body(), Root.class);
 
-                                        try {
-                                                result = mapper.writeValueAsString(root.results);
-                                        } catch (Exception e) {
-                                                System.out.println("Error while creating movie database entry.");
-                                                System.out.println(e.getLocalizedMessage());
-                                        }
-
                                         for (Movie movie : root.results) { // redirecting poster paths to the image url
 
                                                 movie.setPoster_path("https://image.tmdb.org/t/p/original" +
@@ -385,20 +385,20 @@ class MovieController {
                                                                 movie.getBackdrop_path());
 
                                                 movieService.saveMovie(movie);
+
+                                        }
+                                        try {
+                                                result = mapper.writeValueAsString(root.results);
+                                        } catch (Exception e) {
+                                                System.out.println("Error while creating movie database entry.");
+                                                System.out.println(e.getLocalizedMessage());
                                         }
                                         break;
                                 case "tv":
                                         TvRoot tvRoot = mapper.readValue(response.body(), TvRoot.class);
 
-                                        try {
-                                                result = mapper.writeValueAsString(tvRoot.results);
-                                        } catch (Exception e) {
-                                                System.out.println("Error while creating tv database entry.");
-                                                System.out.println(e.getLocalizedMessage());
-                                        }
-
                                         for (TvShow tvShow : tvRoot.results) { // redirecting poster paths to the image
-                                                                               // url
+                                                // url
 
                                                 tvShow.setPoster_path("https://image.tmdb.org/t/p/original" +
                                                                 tvShow.getPoster_path());
@@ -406,6 +406,12 @@ class MovieController {
                                                                 tvShow.getBackdrop_path());
 
                                                 tvShowService.saveTvShow(tvShow);
+                                        }
+                                        try {
+                                                result = mapper.writeValueAsString(tvRoot.results);
+                                        } catch (Exception e) {
+                                                System.out.println("Error while creating tv database entry.");
+                                                System.out.println(e.getLocalizedMessage());
                                         }
                                         break;
 

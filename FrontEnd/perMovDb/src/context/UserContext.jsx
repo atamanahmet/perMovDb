@@ -29,7 +29,6 @@ export const UserProvider = ({ children }) => {
   const [currentPage, setCurrentPage] = useState(1);
 
   const [filters, setFilters] = useState({
-    // adult: false,
     genres: [],
     yearRange: [1900, 2040],
     rating: [0, 10],
@@ -73,23 +72,18 @@ export const UserProvider = ({ children }) => {
     fetchData();
   }, [currentPage, mediaType, filters]);
 
-  const navigateToDetails = (movie, isTv) => {
+  const navigateToDetails = (media) => {
     axios
-      .get(
-        "http://localhost:8080/" + isTv
-          ? +"tv"
-          : "movie" + "/" + movie.id + "/credits",
-        {
-          withCredentials: true,
-        }
-      )
+      .get(`http://localhost:8080/${mediaType}/${media.id}/credits`, {
+        withCredentials: true,
+      })
       .then((res) => {
         setCast(res.data);
       })
       .catch((err) => {
         console.log("Error: " + err);
       });
-    setDetail(movie);
+    setDetail(media);
     navigate("/details");
   };
 
@@ -98,7 +92,6 @@ export const UserProvider = ({ children }) => {
     axios
       .get("http://localhost:8080/api/me", { withCredentials: true })
       .then((res) => {
-        // console.log("Token verification, username: " + res.data);
         login(res.data);
         getProfilePhoto();
         getWatchList();
@@ -124,7 +117,6 @@ export const UserProvider = ({ children }) => {
   }, [user]);
 
   async function handleUpload(file) {
-    // console.log(file);
     if (file != null) {
       console.log("file not null");
       const formData = new FormData();
@@ -144,25 +136,47 @@ export const UserProvider = ({ children }) => {
 
   async function getProfilePhoto() {
     if (user) {
-      await axios
-        .get(`http://localhost:8080/user/photo`, {
+      try {
+        const response = await axios.get(`http://localhost:8080/user/photo`, {
           responseType: "blob",
           withCredentials: true,
-        })
-        .then((res) => {
-          if (!res.data) {
-            const imageObjectUrl = URL.createObjectURL(res.data);
-            setProfilePictureUrl(imageObjectUrl);
+        });
+        if (response.status === 200) {
+          const imageObjectUrl = URL.createObjectURL(res.data);
+          setProfilePictureUrl(imageObjectUrl);
 
-            const reader = new FileReader();
-            reader.onloadend = () => {
-              const base64data = reader.result;
-              sessionStorage.setItem("profilePhoto", base64data);
-            };
-            reader.readAsDataURL(res.data);
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            const base64data = reader.result;
+            sessionStorage.setItem("profilePhoto", base64data);
+          };
+          reader.readAsDataURL(res.data);
+        }
+      } catch (error) {}
+    }
+  }
+
+  async function searchHandler(searchQuery) {
+    if (searchQuery != null) {
+      searchQuery = searchQuery.replace(" ", "+");
+
+      try {
+        const response = await axios.get(
+          "http://localhost:8080/" + mediaType + "/search/" + searchQuery,
+          {
+            withCredentials: true,
           }
-        })
-        .catch((err) => console.log(err));
+        );
+
+        if (response.status === 200) {
+          setSearchResponse(response);
+          navigate("/search");
+        } else {
+          console.error("Search failed with status:", response.status);
+        }
+      } catch (err) {
+        console.log("Search error:", err);
+      }
     }
   }
 
@@ -176,38 +190,30 @@ export const UserProvider = ({ children }) => {
     }
   }
 
-  async function searchHandler(searchQuery) {
-    if (searchQuery != null) {
-      searchQuery = searchQuery.replace(" ", "+");
-      await axios
-        .get("http://localhost:8080/search/" + searchQuery, {
-          withCredentials: true,
-        })
-        .then((response) => {
-          setSearchResponse(response);
-          navigate("/search");
-        })
-        .catch((err) => console.log(err));
-
-      if (searchResponse.status == 200) {
-        navigate("/search");
-      }
-    }
-  }
-
   const getRecommendation = async () => {
     setRecommendation(null);
     if (user) {
       await axios
-        .get("http://localhost:8080/user/recommendation", {
+        .get("http://localhost:8080/user/recommendation?page=" + currentPage, {
           withCredentials: true,
         })
         .then((res) => {
-          setRecommendation(new Set(res.data));
+          setRecommendation((prev) => {
+            if (!prev || currentPage == 1) return res.data;
+            const existingIds = new Set(prev.map((item) => item.id));
+            const filteredNewItems = res.data.filter(
+              (item) => !existingIds.has(item.id)
+            );
+            return [...prev, ...filteredNewItems];
+          });
         })
         .catch((err) => console.log(err));
     }
   };
+
+  useEffect(() => {
+    getRecommendation();
+  }, [currentPage]);
 
   const login = (username) => {
     setUser(username);
@@ -235,13 +241,13 @@ export const UserProvider = ({ children }) => {
     }
   };
 
-  const handleList = async (mediaType, movieId, actionType, buttonType) => {
+  const handleList = async (mediaType, movieId, actionType, listType) => {
     // console.log("watchlist context called");
 
     if (movieId && actionType) {
       try {
         const res = await axios.get(
-          `http://localhost:8080/user/list/${mediaType}/${buttonType}/${movieId}/${actionType}`,
+          `http://localhost:8080/user/list/${mediaType}/${listType}/${movieId}/${actionType}`,
           { withCredentials: true }
         );
         if (res.status === 200) {
@@ -277,7 +283,7 @@ export const UserProvider = ({ children }) => {
           setWatchlist(new Set([...res.data.watchlist]));
           setWatchedlist(new Set(res.data.watchedlist));
           setLovedlist(new Set(res.data.lovedlist));
-          setRecommendation(new Set(res.data.lovedlist));
+          setRecommendation(res.data.lovedlist);
           setWatchlistIdSet(new Set(...[res.data.watchlistIdSet]));
           setWatchedlistIdSet(new Set(res.data.watchedlistIdSet));
           setLovedlistIdSet(new Set(res.data.lovedlistIdSet));

@@ -1,5 +1,6 @@
 package com.permovdb.permovdb.domain.DTO;
 
+import java.util.List;
 import java.util.Set;
 
 import com.permovdb.permovdb.domain.Movie;
@@ -20,5 +21,5 @@ public class UserDTO {
     private Set<Movie> watchlist;
     private Set<Movie> watchedlist;
     private Set<Movie> lovedlist;
-    private Set<Movie> recommendation;
+    private List<Movie> recommendation;
 }

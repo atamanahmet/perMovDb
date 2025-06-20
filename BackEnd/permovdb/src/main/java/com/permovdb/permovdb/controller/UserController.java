@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.permovdb.permovdb.Utility.ListSelector;
@@ -129,7 +130,6 @@ public class UserController {
                 if (idListToEdit.contains(mediaId)) {
                     idListToEdit.remove(mediaId);
                 }
-
             }
         } catch (Exception e) {
             return false;
@@ -182,13 +182,6 @@ public class UserController {
         }
 
         updateList(action, idListToEdit, (mediaType.equals("movie")) ? movie.getId() : tvShow.getId());
-        // if (mediaType.equals("movie")) {
-        // movieService.saveMovie(movie);
-
-        // } else {
-        // tvShowService.saveTvShow(tvShow);
-
-        // }
 
         userService.updateUser(user);
 
@@ -232,12 +225,6 @@ public class UserController {
                 getMoviesFromIdSet(user.getUserList().getMovieWatchedlist()),
                 getMoviesFromIdSet(user.getUserList().getMovieLovedlist()),
                 user.getRecommendation());// todo remove
-
-        // int c = 0;
-        // for (Long movieId : user.getWatchlistIdSet()) {
-        // System.out.println(c + ". " + movieId);
-        // c++;
-        // }
 
         return new ResponseEntity<UserDTO>(userDTO, HttpStatus.OK);
     }
@@ -338,19 +325,18 @@ public class UserController {
     }
 
     @GetMapping("/user/recommendation")
-    public ResponseEntity<String> getRecommendation(HttpServletRequest request) {
-        return new ResponseEntity<>(sendLovedlistToRec(request), HttpStatus.OK);
+    public ResponseEntity<String> getRecommendation(HttpServletRequest request,
+            @RequestParam(value = "page", required = false, defaultValue = "1") String page) {
+        return new ResponseEntity<>(sendLovedlistToRec(request, page), HttpStatus.OK);
     }
 
-    public String sendLovedlistToRec(HttpServletRequest request) {
+    public String sendLovedlistToRec(HttpServletRequest request, String page) {
         User user = userService.getUserFromRequest(request);
+        ObjectMapper mapper = new ObjectMapper();
 
         if (user == null) {
             System.out.println("User not exist");
         } else {
-            user.setRecommendation(null);
-
-            userService.updateUser(user);
 
             Set<Movie> lovedSet = getMoviesFromIdSet(user.getUserList().getMovieLovedlist());
 
@@ -358,7 +344,6 @@ public class UserController {
                 List<Map<String, Object>> movieList = new ArrayList<>();
 
                 for (Movie m : lovedSet) {
-                    // System.out.println(m.getTitle());
                     Map<String, Object> movieMap = new HashMap<>();
                     movieMap.put("id", m.getId());
                     movieMap.put("title", m.getTitle());
@@ -367,10 +352,10 @@ public class UserController {
                     movieMap.put("genre_ids", m.getGenre_ids());
                     movieMap.put("release_date", m.getRelease_date().toString());
                     movieList.add(movieMap);
+                    System.out.println(m.getTitle());
                 }
 
                 try {
-                    ObjectMapper mapper = new ObjectMapper();
                     String json = mapper.writeValueAsString(movieList);
 
                     HttpHeaders headers = new HttpHeaders();
@@ -383,16 +368,11 @@ public class UserController {
 
                     List<Movie> recList = mapper.readValue(res.getBody(), new TypeReference<List<Movie>>() {
                     });
-                    // for (Movie movie : recList) {
-                    // System.out.println("rec: " + movie.getTitle());
-                    // }
 
-                    // recList.sort(Comparator.comparing(Movie::getVote_average).reversed());
-
-                    user.setRecommendation(new HashSet<Movie>(recList));
+                    user.setRecommendation(recList);
                     userService.updateUser(user);
 
-                    return res.getBody();
+                    return mapper.writeValueAsString(user.getRecommendation());
                 } catch (Exception e) {
                     System.out.println(e.getLocalizedMessage());
                     e.printStackTrace();
@@ -400,7 +380,6 @@ public class UserController {
             }
         }
         return "Content cannot be found ";
-
     }
 
     public Set<Movie> getMoviesFromIdSet(Set<Integer> idSet) {

@@ -22,7 +22,7 @@ export default function CardPlate({ data, addOrRemove, message }) {
   const navigate = useNavigate();
 
   function onCardClick(item) {
-    navigateToDetails(item, item.first_air.date != null); //tv or movie
+    navigateToDetails(item, item.first_air_date != null); //tv or movie
   }
 
   if (data == null) {

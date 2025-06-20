@@ -1,5 +1,5 @@
 import { useUser } from "../context/UserContext";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Tooltip from "@mui/material/Tooltip";
 import axios from "axios";
 import MoviePlate from "../components/MoviePlate";
@@ -13,22 +13,20 @@ import profilePlaceholder from "../assets/profile.png";
 import refresh from "../assets/refresh.png";
 
 export default function ProfilePage() {
-  const [adult, setAdult] = useState(false);
+  const timeoutRef = useRef(null);
 
   const {
     user,
-    logout,
     watchlist,
     lovedlist,
     recommendation,
-    handleWatchList,
-    handleWatchedList,
-    handleLovedList,
     watchedlist,
     storedPhoto,
-    getProfilePhoto,
     getRecommendation,
+    isFetching,
   } = useUser();
+
+  // const [page, setPage] = useState(1);
 
   function handleToogle() {
     setAdult(!adult);
@@ -37,9 +35,30 @@ export default function ProfilePage() {
     getRecommendation();
   }
 
-  const [selection, setSelection] = useState("Watchlist");
+  //infinite scroll
 
-  useEffect(() => {}, []);
+  // useEffect(() => {
+  //   const handleScroll = () => {
+  //     if (
+  //       !isFetching &&
+  //       window.scrollY + window.innerHeight >=
+  //         document.documentElement.scrollHeight * 0.75
+  //     ) {
+  //       if (timeoutRef.current) clearTimeout(timeoutRef.current);
+  //       timeoutRef.current = setTimeout(() => {
+  //         setCurrentPage((prev) => prev + 1);
+  //       }, 50);
+  //     }
+  //   };
+
+  //   window.addEventListener("scroll", handleScroll);
+  //   return () => {
+  //     clearTimeout(timeoutRef.current);
+  //     window.removeEventListener("scroll", handleScroll);
+  //   };
+  // }, [isFetching]);
+
+  const [selection, setSelection] = useState("Watchlist");
 
   const dataMap = {
     Watchlist: watchlist,
@@ -117,6 +136,9 @@ export default function ProfilePage() {
   }, []);
 
   function selectionChange(select) {
+    if (select === "recommendation") {
+      getRecommendation();
+    }
     setSelection(select);
   }
 
@@ -214,10 +236,10 @@ export default function ProfilePage() {
                 className="pb-2 -z-2 mx-1.5 mt-2  p-1.5 rounded-2xl listButton"
                 onClick={() => selectionChange("Recommendation")}
               >
+                <span className="text-xl font-bold block uppercase tracking-wide text-blueGray-600">
+                  {recommendation?.size}
+                </span>
                 <div className=" p-3 text-center -mt-1.5">
-                  {/* <span className="text-xl font-bold block uppercase tracking-wide text-blueGray-600">
-                    {recommendation.size}
-                  </span> */}
                   <span className="text-sm text-blueGray-400">
                     Recommendation
                   </span>
