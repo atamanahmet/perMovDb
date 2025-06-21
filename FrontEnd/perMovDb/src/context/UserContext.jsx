@@ -27,6 +27,7 @@ export const UserProvider = ({ children }) => {
   const [movieData, setMovieData] = useState(null);
   const [isFetching, setIsFetching] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [person, setPerson] = useState();
 
   const [filters, setFilters] = useState({
     genres: [],
