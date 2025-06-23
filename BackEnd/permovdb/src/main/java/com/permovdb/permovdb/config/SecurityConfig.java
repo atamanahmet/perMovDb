@@ -45,13 +45,11 @@ public class SecurityConfig {
                         .requestMatchers("/movie/**").permitAll()
                         .requestMatchers("/search/**").permitAll()
                         .requestMatchers("/api/movies").permitAll()
-                        // .requestMatchers("/upload/**").permitAll()
                         .anyRequest().authenticated())
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/")
                         .addLogoutHandler(jwtLogoutHandler())
-                        // .logoutSuccessHandler(customlogoutSuccessHandler())
                         .invalidateHttpSession(true)
                         .clearAuthentication(true)
                         .permitAll())
